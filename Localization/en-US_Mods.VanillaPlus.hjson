@@ -1,0 +1,85 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Items: {
+	TutorialSword: {
+		DisplayName: Vito Swordleone
+		Tooltip:
+			'''
+			This modding shit easy fam
+			Like ungodly easier than I thought
+			'''
+	}
+
+	Gabagool: {
+		DisplayName: Gabagool
+		Tooltip: A dish best served cold.
+	}
+
+	SoulOfIght: {
+		DisplayName: Soul of Ight
+		Tooltip: No, it's fine! I just didn't think it would be essence.
+	}
+
+	IcarusWings: {
+		DisplayName: Icarus Wings
+		Tooltip:
+			'''
+			Dad said don't fly too close to the sun.
+			Dad also said eat your vegetables. Look how that turned out.
+			'''
+	}
+
+	LepTonic: {
+		DisplayName: Lep Tonic
+		Tooltip: Vayd's Favorite
+	}
+
+	LesserShinePotion: {
+		DisplayName: Lesser Shine Potion
+		Tooltip: Emits a dim glow
+	}
+
+	GreaterShinePotion: {
+		DisplayName: Greater Shine Potion
+		Tooltip: Emits a bright glow
+	}
+
+	SuperShinePotion: {
+		DisplayName: Super Shine Potion
+		Tooltip: Emits an intense glow
+	}
+
+	LeptonPick: {
+		DisplayName: Lepton Pick
+		Tooltip: Mines at the speed of light
+	}
+}
+
+Buffs: {
+	ProdigiouslyPlump: {
+		DisplayName: Prodigiously Plump
+		Description:
+			'''
+			Elite improvements to all stats
+			Yous rounder than my mother-in-law from Jersey!
+			'''
+	}
+
+	LesserShine: {
+		DisplayName: Lesser Shine
+		Description: Emitting a dim light
+	}
+
+	GreaterShine: {
+		DisplayName: Greater Shine
+		Description: Emitting a bright light
+	}
+
+	SuperShine: {
+		DisplayName: Super Shine
+		Description: Emitting an intense light
+	}
+}
+
+Projectiles.PurpleTerraBeam.DisplayName: Lepton Sword Beam
+NPCs.TempleGuardian.DisplayName: Temple Guardian

@@ -1,0 +1,3 @@
+displayName = Vanilla Terraria Extended
+author = Lepton
+version = 0.1
