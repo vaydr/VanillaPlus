@@ -85,8 +85,8 @@ namespace VanillaPlus.Common.Systems
 
                 // Position directly above the defense indicator using the actual defense icon position
                 Vector2 defensePos = AccessorySlotLoader.DefenseIconPosition;
-                int luckX = (int)defensePos.X + (int)(14 * Main.inventoryScale); // Center above defense
-                int luckY = (int)defensePos.Y - (int)(40 * Main.inventoryScale); // Above defense
+                int luckX = (int)defensePos.X; // Raw defense X
+                int luckY = (int)defensePos.Y; // Raw defense Y - see where this actually is
 
                 // Draw circle background (doubled size)
                 int circleSize = (int)(56 * Main.inventoryScale);
