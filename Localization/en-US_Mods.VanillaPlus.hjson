@@ -56,7 +56,7 @@ Items: {
 
 	LuckyMemento: {
 		DisplayName: Lucky Memento
-		Tooltip: ""
+		Tooltip: Permanently unlocks the ability to view luck
 	}
 }
 

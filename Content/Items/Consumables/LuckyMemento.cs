@@ -17,7 +17,7 @@ namespace VanillaPlus.Content.Items.Consumables
         public override void SetDefaults()
         {
             Item.CloneDefaults(ItemID.AegisFruit);
-            Item.rare = ItemRarityID.LightRed;
+            Item.rare = ItemRarityID.LightPurple;
         }
 
         public override bool? UseItem(Player player)

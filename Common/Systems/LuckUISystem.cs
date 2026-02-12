@@ -85,11 +85,12 @@ namespace VanillaPlus.Common.Systems
 
                 // Position above defense indicator
                 Vector2 defensePos = AccessorySlotLoader.DefenseIconPosition;
-                int luckX = (int)defensePos.X - (int)(4f * slotSize); // Left by 2.5 slots
-                int luckY = (int)defensePos.Y - (int)(1f * slotSize); // Up by 0.5 slots
+                // Center the luck indicator above the defense indicator; not safe but tested and it works.
+                int luckX = (int)defensePos.X - (int)(4.2f * slotSize);
+                int luckY = (int)defensePos.Y - (int)(1f * slotSize);
 
                 // Draw luck text same style as defense number
-                string luckText = luck.ToString("0.0");
+                string luckText = luck.ToString("0.00");
                 Vector2 textPos = new Vector2(luckX, luckY);
 
                 ChatManager.DrawColorCodedStringWithShadow(
