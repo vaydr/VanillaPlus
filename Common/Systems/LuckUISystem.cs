@@ -75,22 +75,37 @@ namespace VanillaPlus.Common.Systems
             {
                 float luck = Main.LocalPlayer.luck;
 
-                Color circleColor;
-                if (luck > 0)
-                    circleColor = Color.LimeGreen;
+                // Gradient: full green at >= 0.5, full red at <= -0.5, white at 0
+                Color luckColor;
+                if (luck >= 0.6f)
+                    luckColor = Color.Green;
+                else if (luck <= -0.6f)
+                    luckColor = Color.Red;
+                else if (luck > 0)
+                    luckColor = Color.Lerp(Color.White, Color.Green, luck / 0.6f);
                 else if (luck < 0)
-                    circleColor = Color.OrangeRed;
+                    luckColor = Color.Lerp(Color.White, Color.Red, -luck / 0.6f);
                 else
-                    circleColor = Color.White;
+                    luckColor = Color.White;
 
                 // Position above defense indicator
                 Vector2 defensePos = AccessorySlotLoader.DefenseIconPosition;
                 // Center the luck indicator above the defense indicator; not safe but tested and it works.
-                int luckX = (int)defensePos.X - (int)(4.2f * slotSize);
+                int luckX = (int)defensePos.X - (int)(4f * slotSize); //left by 4 slots
                 int luckY = (int)defensePos.Y - (int)(1f * slotSize);
 
-                // Draw luck text same style as defense number
-                string luckText = luck.ToString("0.00");
+                // Draw luck text same style as defense number (luck * 100 to avoid leading "0.")
+                string luckText = (luck * 100).ToString("0");
+
+                // Shift horizontally based on digit count to keep centered
+                if (luckText.Length == 1)
+                    luckX += (int)(0.25f * slotSize); // 1 digit: shift right
+                else if (luckText.Length == 2)
+                    luckX += (int)(0.1f * slotSize); // 2 digits: shift right
+                else if (luckText.Length >= 3)
+                    luckX -= (int)(0.2f * slotSize); // 3+ digits: shift left
+                // 2 digits: no shift
+
                 Vector2 textPos = new Vector2(luckX, luckY);
 
                 ChatManager.DrawColorCodedStringWithShadow(
@@ -98,7 +113,7 @@ namespace VanillaPlus.Common.Systems
                     FontAssets.MouseText.Value,
                     luckText,
                     textPos,
-                    circleColor,
+                    luckColor,
                     0f,
                     Vector2.Zero,
                     Vector2.One
@@ -116,7 +131,7 @@ namespace VanillaPlus.Common.Systems
                 if (luckRect.Contains(Main.mouseX, Main.mouseY))
                 {
                     Main.LocalPlayer.mouseInterface = true;
-                    Main.hoverItemName = $"{luck:0.00} Luck";
+                    Main.hoverItemName = $"{luck * 100:0} Centiluck";
                 }
             }
         }
