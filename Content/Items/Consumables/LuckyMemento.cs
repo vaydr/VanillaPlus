@@ -20,11 +20,6 @@ namespace VanillaPlus.Content.Items.Consumables
             Item.rare = ItemRarityID.LightRed;
         }
 
-        public override bool CanUseItem(Player player)
-        {
-            return !player.GetModPlayer<LuckyMementoPlayer>().hasLuckyMemento;
-        }
-
         public override bool? UseItem(Player player)
         {
             LuckyMementoPlayer modPlayer = player.GetModPlayer<LuckyMementoPlayer>();

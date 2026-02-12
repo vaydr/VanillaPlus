@@ -81,39 +81,35 @@ namespace VanillaPlus.Common.Systems
                 else if (luck < 0)
                     circleColor = Color.OrangeRed;
                 else
-                    circleColor = Color.Gold;
+                    circleColor = Color.White;
 
-                // Position directly above the defense indicator using the actual defense icon position
+                // Position above defense indicator
                 Vector2 defensePos = AccessorySlotLoader.DefenseIconPosition;
-                int luckX = (int)defensePos.X; // Raw defense X
-                int luckY = (int)defensePos.Y; // Raw defense Y - see where this actually is
+                int luckX = (int)defensePos.X - (int)(4f * slotSize); // Left by 2.5 slots
+                int luckY = (int)defensePos.Y - (int)(1f * slotSize); // Up by 0.5 slots
 
-                // Draw circle background (doubled size)
-                int circleSize = (int)(56 * Main.inventoryScale);
-                DrawCircle(spriteBatch, new Vector2(luckX, luckY), circleSize / 2, circleColor * 0.8f);
-
-                // Draw luck value text centered in circle
+                // Draw luck text same style as defense number
                 string luckText = luck.ToString("0.0");
-                Vector2 textSize = FontAssets.MouseText.Value.MeasureString(luckText) * 0.6f * Main.inventoryScale;
-                Vector2 textPos = new Vector2(luckX - textSize.X / 2, luckY - textSize.Y / 2);
+                Vector2 textPos = new Vector2(luckX, luckY);
 
                 ChatManager.DrawColorCodedStringWithShadow(
                     spriteBatch,
                     FontAssets.MouseText.Value,
                     luckText,
                     textPos,
-                    Color.White,
+                    circleColor,
                     0f,
                     Vector2.Zero,
-                    Vector2.One * 0.6f * Main.inventoryScale
+                    Vector2.One
                 );
 
-                // Check for hover on luck indicator
+                // Check for hover on luck text
+                Vector2 textSize = FontAssets.MouseText.Value.MeasureString(luckText);
                 Rectangle luckRect = new Rectangle(
-                    (int)(luckX - circleSize / 2),
-                    (int)(luckY - circleSize / 2),
-                    circleSize,
-                    circleSize
+                    (int)luckX,
+                    (int)luckY,
+                    (int)textSize.X,
+                    (int)textSize.Y
                 );
 
                 if (luckRect.Contains(Main.mouseX, Main.mouseY))
