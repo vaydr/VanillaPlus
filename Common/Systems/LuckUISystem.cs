@@ -5,6 +5,7 @@ using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Default;
 using Terraria.UI.Chat;
 using VanillaPlus.Content.Players;
 
@@ -82,13 +83,10 @@ namespace VanillaPlus.Common.Systems
                 else
                     circleColor = Color.Gold;
 
-                // Position above defense indicator
-                int accX = Main.screenWidth - 64 - 28;
-                int accY = (int)(174 + (3 * slotSize));
-
-                // Adjusted: left by 3 slots total, down by 15 slots total
-                int luckX = accX - slotSize / 2 - (3 * slotSize); // Right 1 from previous
-                int luckY = accY - (int)(30 * Main.inventoryScale) + (15 * slotSize); // Up 2 from previous
+                // Position directly above the defense indicator using the actual defense icon position
+                Vector2 defensePos = AccessorySlotLoader.DefenseIconPosition;
+                int luckX = (int)defensePos.X + (int)(14 * Main.inventoryScale); // Center above defense
+                int luckY = (int)defensePos.Y - (int)(40 * Main.inventoryScale); // Above defense
 
                 // Draw circle background (doubled size)
                 int circleSize = (int)(56 * Main.inventoryScale);
