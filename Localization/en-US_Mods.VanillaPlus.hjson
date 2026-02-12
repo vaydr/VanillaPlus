@@ -53,6 +53,11 @@ Items: {
 		DisplayName: Lepton Pick
 		Tooltip: Mines at the speed of light
 	}
+
+	LuckyMemento: {
+		DisplayName: Lucky Memento
+		Tooltip: ""
+	}
 }
 
 Buffs: {
