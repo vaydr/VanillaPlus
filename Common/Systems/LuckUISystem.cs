@@ -38,8 +38,8 @@ namespace VanillaPlus.Common.Systems
 
             buttonRect = new Rectangle(buttonX, buttonY, buttonSize, buttonSize);
 
-            // Draw the toggle button (gold coin icon)
-            Texture2D coinTexture = TextureAssets.Item[ItemID.GoldCoin].Value;
+            // Draw the toggle button (lucky coin icon)
+            Texture2D coinTexture = TextureAssets.Item[ItemID.LuckyCoin].Value;
             bool isHoveringButton = buttonRect.Contains(Main.mouseX, Main.mouseY);
 
             // Fully opaque when ON, translucent when OFF
