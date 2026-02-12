@@ -9,6 +9,7 @@ namespace VanillaPlus.Content.Items
         public override void SetStaticDefaults()
         {
             ItemID.Sets.ShimmerTransformToItem[ItemID.GoldLadyBug] = ModContent.ItemType<LuckyMemento>();
+            ItemID.Sets.ShimmerTransformToItem[ItemID.SuspiciousLookingTentacle] = ModContent.ItemType<ReflectiveCollar>();
         }
     }
 }

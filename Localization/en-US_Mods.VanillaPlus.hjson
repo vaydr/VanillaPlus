@@ -58,6 +58,11 @@ Items: {
 		DisplayName: Lucky Memento
 		Tooltip: Permanently unlocks the ability to view luck
 	}
+
+	ReflectiveCollar: {
+		DisplayName: Reflective Collar
+		Tooltip: Permanently unlocks a toggleable shine effect
+	}
 }
 
 Buffs: {
