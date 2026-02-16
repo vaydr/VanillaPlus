@@ -131,7 +131,7 @@ namespace VanillaPlus.Common.Systems
                 if (luckRect.Contains(Main.mouseX, Main.mouseY))
                 {
                     Main.LocalPlayer.mouseInterface = true;
-                    Main.hoverItemName = $"{luck * 100:0} Centiluck";
+                    Main.hoverItemName = luckText + " Centiluck";
                 }
             }
         }

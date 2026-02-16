@@ -32,12 +32,12 @@ namespace VanillaPlus.Common.Systems
             // Toggle button position - 1 slot right of lucky memento gold coin
             int buttonX = 20 + (int)(15.5f * slotSize);
             int buttonY = (int)(258 * Main.inventoryScale) + (int)(Main.inventoryScale * 56 * 4) + slotSize;
-            int buttonSize = (int)(32 * Main.inventoryScale);
+            int buttonSize = (int)(22 * Main.inventoryScale);
 
             buttonRect = new Rectangle(buttonX, buttonY, buttonSize, buttonSize);
 
             // Draw the toggle button (sun mask icon)
-            Texture2D sunTexture = TextureAssets.Item[ItemID.SunMask].Value;
+            Texture2D sunTexture = TextureAssets.Item[ItemID.GoldCoin].Value;
             bool isHoveringButton = buttonRect.Contains(Main.mouseX, Main.mouseY);
 
             // Fully opaque when ON, translucent when OFF
