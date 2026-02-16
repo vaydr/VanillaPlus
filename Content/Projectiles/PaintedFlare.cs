@@ -17,7 +17,8 @@ namespace VanillaPlus.Content.Projectiles
 		private bool _stuck;
 		private float _stuckRotation;
 		private int _frameCounter;
-		private int _tileHitCount;
+		private bool _passingThrough;
+		private float _distanceAfterHit;
 
 		// CONFIGURABLE: Frames before gravity starts (set to 0 for immediate gravity)
 		private const int HangFrames = 15;
@@ -83,8 +84,8 @@ namespace VanillaPlus.Content.Projectiles
 					for (int i = 0; i < 2; i++)
 					{
 						// Shoot particles outward from back with some spread
-						float spread = Main.rand.NextFloat(-0.4f, 0.4f);
-						Vector2 dustVel = (backAngle + spread).ToRotationVector2() * Main.rand.NextFloat(1.5f, 3f);
+						float spread = Main.rand.NextFloat(-0.256f, 0.256f);
+						Vector2 dustVel = (backAngle + spread).ToRotationVector2() * Main.rand.NextFloat(3.2f, 4.8f);
 
 						Dust dust = Dust.NewDustPerfect(spawnPos + Main.rand.NextVector2Circular(2f, 2f), DustID.RainbowMk2, dustVel, 0, paintColor, 0.7f);
 						dust.noGravity = true;
@@ -98,6 +99,14 @@ namespace VanillaPlus.Content.Projectiles
 				Projectile.rotation = _stuckRotation;
 				Projectile.friendly = false; // Stop dealing damage when stuck
 				return;
+			}
+
+			// Track distance after first tile hit, re-enable collision after 16 pixels
+			if (_passingThrough)
+			{
+				_distanceAfterHit += Projectile.velocity.Length();
+				if (_distanceAfterHit >= 16f)
+					Projectile.tileCollide = true;
 			}
 
 			_frameCounter++;
@@ -121,12 +130,15 @@ namespace VanillaPlus.Content.Projectiles
 
 		public override bool OnTileCollide(Vector2 oldVelocity)
 		{
-			_tileHitCount++;
-
-			// Pass through first tile, lodge in second (like vanilla flares)
-			if (_tileHitCount < 2)
+			// First hit: pass through, disable collision, track distance in AI
+			if (!_passingThrough)
+			{
+				_passingThrough = true;
+				Projectile.tileCollide = false;
 				return false;
+			}
 
+			// Second hit: stop
 			_stuck = true;
 			Projectile.velocity = Vector2.Zero;
 			return false;
@@ -156,16 +168,7 @@ namespace VanillaPlus.Content.Projectiles
 			Rectangle sourceRect = texture.Bounds;
 			Vector2 origin = texture.Size() / 2f;
 
-			// Draw glow layer
-			Main.EntitySpriteDraw(
-				texture, drawPos, sourceRect,
-				paintColor * 0.5f,
-				Projectile.rotation, origin,
-				Projectile.scale * 1.5f,
-				SpriteEffects.None, 0
-			);
-
-			// Draw main flare
+			// Draw flare with paint color
 			Main.EntitySpriteDraw(
 				texture, drawPos, sourceRect,
 				paintColor,
