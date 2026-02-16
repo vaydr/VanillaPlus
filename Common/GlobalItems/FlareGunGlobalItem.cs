@@ -130,19 +130,18 @@ namespace VanillaPlus.Common.GlobalItems
 			else if (paintType == ItemID.ShadowPaint)
 				specialFlag = 4;
 
-			// Spawn painted flare
-			Projectile proj = Projectile.NewProjectileDirect(
+			// Spawn painted flare - pass ai0/ai1 directly so OnSpawn can capture them
+			Projectile.NewProjectile(
 				source,
 				position,
 				velocity,
 				ModContent.ProjectileType<PaintedFlare>(),
 				damage,
 				knockback,
-				player.whoAmI
+				player.whoAmI,
+				ai0: paintType,      // Paint ItemID for color lookup
+				ai1: specialFlag     // Special effect flag
 			);
-
-			proj.ai[0] = paintType;    // Paint ItemID for color lookup
-			proj.ai[1] = specialFlag;  // Special effect flag
 
 			return false; // Don't fire vanilla flare
 		}
