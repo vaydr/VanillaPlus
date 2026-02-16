@@ -58,7 +58,7 @@ namespace VanillaPlus.Common.Systems
             // Position above defense indicator
             Vector2 defensePos = AccessorySlotLoader.DefenseIconPosition;
             // Center the luck indicator above the defense indicator; not safe but tested and it works.
-            int luckX = (int)defensePos.X - (int)(4f * slotSize); //left by 4 slots
+            int luckX = (int)defensePos.X - (int)(4f * slotSize); //left by 3.9 slots
             int luckY = (int)defensePos.Y - (int)(1f * slotSize);
 
             // Draw luck text same style as defense number (luck * 100 to avoid leading "0.")
