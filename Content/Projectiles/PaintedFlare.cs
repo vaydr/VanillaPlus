@@ -10,15 +10,17 @@ namespace VanillaPlus.Content.Projectiles
 {
 	public class PaintedFlare : ModProjectile
 	{
-		// Use a white/bright texture that can be tinted any color
-		public override string Texture => $"Terraria/Images/Projectile_{ProjectileID.RainbowCrystalExplosion}";
-
 		// Store paint data in instance fields - captured in OnSpawn before AI touches ai[]
 		private int _paintType;
 		private int _specialFlag;
 
 		private bool _stuck;
 		private float _stuckRotation;
+		private int _frameCounter;
+		private int _tileHitCount;
+
+		// CONFIGURABLE: Frames before gravity starts (set to 0 for immediate gravity)
+		private const int HangFrames = 15;
 
 		public override void SetDefaults()
 		{
@@ -57,30 +59,36 @@ namespace VanillaPlus.Content.Projectiles
 			// Trailing dust behind the flare
 			if (_specialFlag != 2)
 			{
-				if (!_stuck && Main.rand.NextBool(2))
+				if (!_stuck)
 				{
-					// Trail behind the flare (opposite of velocity)
-					Vector2 trailPos = Projectile.Center - Vector2.Normalize(Projectile.velocity) * 8f;
-					trailPos += Main.rand.NextVector2Circular(3f, 3f);
-					Dust dust = Dust.NewDustPerfect(trailPos, DustID.RainbowMk2,
-						-Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(0.5f, 0.5f),
-						0, paintColor, 1.2f);
-					dust.noGravity = true;
+					// Trail behind the flare (opposite of velocity) - spawn 2 smaller particles per frame
+					for (int i = 0; i < 2; i++)
+					{
+						Vector2 trailPos = Projectile.Center - Vector2.Normalize(Projectile.velocity) * 8f;
+						trailPos += Main.rand.NextVector2Circular(3f, 3f);
+						Dust dust = Dust.NewDustPerfect(trailPos, DustID.RainbowMk2,
+							-Projectile.velocity * 0.05f + Main.rand.NextVector2Circular(0.5f, 0.5f),
+							0, paintColor, 0.7f);
+						dust.noGravity = true;
+					}
 				}
-				else if (_stuck && Main.rand.NextBool(2))
+				else if (_stuck)
 				{
-					// Sparks shooting out from the back of the stuck flare
+					// Sparks shooting out from the back of the stuck flare - 2 smaller particles per frame
 					// _stuckRotation points the tip direction, so back is opposite
 					float backAngle = _stuckRotation - MathHelper.PiOver2 + MathHelper.Pi;
 					Vector2 backDir = backAngle.ToRotationVector2();
 					Vector2 spawnPos = Projectile.Center + backDir * 6f;
 
-					// Shoot particles outward from back with some spread
-					float spread = Main.rand.NextFloat(-0.4f, 0.4f);
-					Vector2 dustVel = (backAngle + spread).ToRotationVector2() * Main.rand.NextFloat(1.5f, 3f);
+					for (int i = 0; i < 2; i++)
+					{
+						// Shoot particles outward from back with some spread
+						float spread = Main.rand.NextFloat(-0.4f, 0.4f);
+						Vector2 dustVel = (backAngle + spread).ToRotationVector2() * Main.rand.NextFloat(1.5f, 3f);
 
-					Dust dust = Dust.NewDustPerfect(spawnPos, DustID.RainbowMk2, dustVel, 0, paintColor, 1.1f);
-					dust.noGravity = true;
+						Dust dust = Dust.NewDustPerfect(spawnPos + Main.rand.NextVector2Circular(2f, 2f), DustID.RainbowMk2, dustVel, 0, paintColor, 0.7f);
+						dust.noGravity = true;
+					}
 				}
 			}
 
@@ -88,11 +96,15 @@ namespace VanillaPlus.Content.Projectiles
 			{
 				Projectile.velocity = Vector2.Zero;
 				Projectile.rotation = _stuckRotation;
+				Projectile.friendly = false; // Stop dealing damage when stuck
 				return;
 			}
 
-			// Physics
-			Projectile.velocity.Y += 0.05f;
+			_frameCounter++;
+
+			// Physics - gravity only starts after HangFrames
+			if (_frameCounter > HangFrames)
+				Projectile.velocity.Y += 0.06f;
 			if (Projectile.velocity.Y > 18f)
 				Projectile.velocity.Y = 18f;
 			Projectile.velocity.X *= 1f;
@@ -109,6 +121,12 @@ namespace VanillaPlus.Content.Projectiles
 
 		public override bool OnTileCollide(Vector2 oldVelocity)
 		{
+			_tileHitCount++;
+
+			// Pass through first tile, lodge in second (like vanilla flares)
+			if (_tileHitCount < 2)
+				return false;
+
 			_stuck = true;
 			Projectile.velocity = Vector2.Zero;
 			return false;
