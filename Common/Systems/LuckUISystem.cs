@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -15,6 +16,12 @@ namespace VanillaPlus.Common.Systems
     {
         private static Rectangle buttonRect;
         private static bool wasMouseDown;
+        private static Asset<Texture2D> _luckIcon;
+
+        public override void Load()
+        {
+            _luckIcon = ModContent.Request<Texture2D>("VanillaPlus/Common/Systems/LuckIndicator");
+        }
 
         public override void PostDrawInterface(SpriteBatch spriteBatch)
         {
@@ -107,6 +114,15 @@ namespace VanillaPlus.Common.Systems
                 // 2 digits: no shift
 
                 Vector2 textPos = new Vector2(luckX, luckY);
+                Vector2 textSize = FontAssets.MouseText.Value.MeasureString(luckText);
+
+                // Draw clover icon behind the number
+                Texture2D iconTexture = _luckIcon.Value;
+                Vector2 iconPos = new Vector2(
+                    luckX + textSize.X / 2f - iconTexture.Width / 2f,
+                    luckY + textSize.Y / 2f - iconTexture.Height / 2f
+                );
+                spriteBatch.Draw(iconTexture, iconPos, null, Color.White * 0.8f, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
                 ChatManager.DrawColorCodedStringWithShadow(
                     spriteBatch,
@@ -120,7 +136,6 @@ namespace VanillaPlus.Common.Systems
                 );
 
                 // Check for hover on luck text
-                Vector2 textSize = FontAssets.MouseText.Value.MeasureString(luckText);
                 Rectangle luckRect = new Rectangle(
                     (int)luckX,
                     (int)luckY,
