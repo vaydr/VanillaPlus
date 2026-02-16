@@ -15,6 +15,9 @@ namespace VanillaPlus.Content.Projectiles
 		private bool _stuck;
 		private float _stuckRotation;
 		private int _frameCounter;
+		private bool _lodging;
+		private Vector2 _lodgeVelocity;
+		private float _lodgeDistance;
 
 		private const int HangFrames = 15;
 
@@ -53,6 +56,40 @@ namespace VanillaPlus.Content.Projectiles
 			// Dust particles (skip for Echo coating)
 			if (_specialFlag != 2)
 				SpawnDust(paintColor);
+
+			// Lodging into tile - move along captured velocity for 2 pixels
+			if (_lodging)
+			{
+				// Stop immediately if we hit liquid
+				if (Collision.WetCollision(Projectile.position, Projectile.width, Projectile.height))
+				{
+					_stuck = true;
+					_lodging = false;
+					return;
+				}
+
+				float remainingDistance = 2f - _lodgeDistance;
+				if (remainingDistance <= 0f)
+				{
+					_stuck = true;
+					_lodging = false;
+					return;
+				}
+
+				// Move at most the remaining distance, never more
+				Vector2 direction = Vector2.Normalize(_lodgeVelocity);
+				float moveAmount = System.Math.Min(_lodgeVelocity.Length(), remainingDistance);
+				Projectile.position += direction * moveAmount;
+				_lodgeDistance += moveAmount;
+				Projectile.rotation = _stuckRotation;
+
+				if (_lodgeDistance >= 2f)
+				{
+					_stuck = true;
+					_lodging = false;
+				}
+				return;
+			}
 
 			// Stuck behavior
 			if (_stuck)
@@ -115,8 +152,10 @@ namespace VanillaPlus.Content.Projectiles
 
 		public override bool OnTileCollide(Vector2 oldVelocity)
 		{
-			_stuck = true;
-			Projectile.velocity = Vector2.Zero;
+			_lodging = true;
+			_lodgeVelocity = oldVelocity;
+			_stuckRotation = oldVelocity.ToRotation() + MathHelper.PiOver2;
+			Projectile.tileCollide = false;
 			return false;
 		}
 

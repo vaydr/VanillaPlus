@@ -1,23 +1,12 @@
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Buffs;
 
-namespace VanillaPlus.Content.Items
+namespace VanillaPlus.Content.Items.Consumables
 {
 	public class Gabagool : ModItem
 	{
-		// Use vanilla Bacon sprite
-		public override string Texture => $"Terraria/Images/Item_{ItemID.Bacon}";
-
-		public override void SetStaticDefaults()
-		{
-			// Register animation so only one frame displays (Bacon texture has 3 frames)
-			// Use a large but safe value instead of int.MaxValue to avoid potential overflow issues
-			Main.RegisterItemAnimation(Item.type, new DrawAnimationVertical(9999999, 3));
-		}
-
 		public override void SetDefaults()
 		{
 			Item.width = 22;
@@ -33,6 +22,5 @@ namespace VanillaPlus.Content.Items
 			Item.buffType = ModContent.BuffType<ProdigiouslyPlump>();
 			Item.buffTime = 172800; // 48 minutes
 		}
-
 	}
 }

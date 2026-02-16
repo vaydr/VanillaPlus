@@ -148,7 +148,7 @@ namespace VanillaPlus.Common.GlobalItems
 
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
 		{
-			TooltipLine tip = new(Mod, "PaintedFlare", "Right-click with paint to fire colored flares (normal flares only)");
+			TooltipLine tip = new(Mod, "PaintedFlare", "Right-click with ammo andpaint to fire colored flares");
 			tooltips.Add(tip);
 		}
 
