@@ -1,17 +1,24 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace VanillaPlus.Content.Items
 {
 	public class LeptonPick : ModItem
 	{
+		// 0 = Pickaxe, 1 = Axe, 2 = Hammer
+		private int _mode = 0;
+
 		public override string Texture => $"Terraria/Images/Item_{ItemID.TitaniumPickaxe}";
 
 		// Get hue based on game time - constantly cycling rainbow
 		private float GetHue() => (Main.GameUpdateCount % 360) / 360f;
+
+		private static readonly string[] ModeNames = { "Pickaxe", "Axe", "Hammer" };
 
 		public override void SetDefaults()
 		{
@@ -19,7 +26,7 @@ namespace VanillaPlus.Content.Items
 			Item.DamageType = DamageClass.Melee;
 			Item.width = 88;
 			Item.height = 88;
-			Item.scale = 2f; // Twice as large when swung
+			Item.scale = 2f;
 			Item.useTime = 1;
 			Item.useAnimation = 15;
 			Item.useStyle = ItemUseStyleID.Swing;
@@ -28,15 +35,37 @@ namespace VanillaPlus.Content.Items
 			Item.rare = ItemRarityID.Expert;
 			Item.UseSound = SoundID.Item1;
 			Item.autoReuse = true;
-			Item.pick = 500; // 500% pickaxe power
-			Item.axe = 100; // 500% axe power (displayed value is 5x internal)
-			Item.hammer = 500; // 500% hammer power
-			Item.tileBoost = 48; // +48 range
+			Item.tileBoost = 48;
+
+			// Set initial tool powers based on mode
+			UpdateToolPowers();
+		}
+
+		private void UpdateToolPowers()
+		{
+			Item.pick = _mode == 0 ? 500 : 0;
+			Item.axe = _mode == 1 ? 100 : 0; // Displayed value is 5x internal
+			Item.hammer = _mode == 2 ? 500 : 0;
+		}
+
+		public override bool AltFunctionUse(Player player) => true;
+
+		public override bool CanUseItem(Player player)
+		{
+			if (player.altFunctionUse == 2)
+			{
+				// Right-click: cycle mode
+				_mode = (_mode + 1) % 3;
+				UpdateToolPowers();
+				SoundEngine.PlaySound(SoundID.MenuTick);
+				Main.NewText($"Lepton Pick: {ModeNames[_mode]} Mode", Main.DiscoColor);
+				return false;
+			}
+			return true;
 		}
 
 		public override Color? GetAlpha(Color lightColor)
 		{
-			// Return cycling rainbow color for item sprite
 			return Main.hslToRgb(GetHue(), 1f, 0.7f);
 		}
 
@@ -46,20 +75,32 @@ namespace VanillaPlus.Content.Items
 			{
 				if (line.Mod == "Terraria" && line.Name == "ItemName")
 				{
-					line.OverrideColor = Main.DiscoColor; // Rainbow expert color
+					line.OverrideColor = Main.DiscoColor;
 				}
 			}
+
+			// Add mode indicator
+			int index = tooltips.FindIndex(t => t.Mod == "Terraria" && t.Name == "Knockback");
+			if (index == -1)
+				index = tooltips.Count;
+
+			tooltips.Insert(index, new TooltipLine(Mod, "Mode", $"Current Mode: {ModeNames[_mode]}")
+			{
+				OverrideColor = Main.DiscoColor
+			});
+			tooltips.Insert(index + 1, new TooltipLine(Mod, "ModeHint", "Right-click to cycle modes")
+			{
+				OverrideColor = Color.Gray
+			});
 		}
 
 		public override void MeleeEffects(Player player, Rectangle hitbox)
 		{
 			float hue = GetHue();
 
-			// Rainbow light matching pickaxe color
 			Color c = Main.hslToRgb(hue, 1f, 0.5f);
 			Lighting.AddLight(player.Center, c.R / 255f, c.G / 255f, c.B / 255f);
 
-			// Rainbow dust particles matching current hue
 			if (Main.rand.NextBool(2))
 			{
 				Color dustColor = Main.hslToRgb(hue, 1f, 0.5f);
@@ -67,6 +108,17 @@ namespace VanillaPlus.Content.Items
 				Dust dust = Dust.NewDustPerfect(dustPos, DustID.RainbowMk2, Vector2.Zero, 0, dustColor, 1.2f);
 				dust.noGravity = true;
 			}
+		}
+
+		public override void SaveData(TagCompound tag)
+		{
+			tag["mode"] = _mode;
+		}
+
+		public override void LoadData(TagCompound tag)
+		{
+			_mode = tag.GetInt("mode");
+			UpdateToolPowers();
 		}
 
 		public override void AddRecipes()

@@ -7,7 +7,6 @@ namespace VanillaPlus.Content.Items.Consumables
 {
     public class LuckyMemento : ModItem
     {
-        public override string Texture => $"Terraria/Images/Item_{ItemID.LuckyCoin}";
 
         public override void SetStaticDefaults()
         {

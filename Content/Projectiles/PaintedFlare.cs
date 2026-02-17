@@ -94,6 +94,17 @@ namespace VanillaPlus.Content.Projectiles
 			// Stuck behavior
 			if (_stuck)
 			{
+				// Check if the tile we're stuck in still exists
+				Vector2 checkPos = Projectile.Center + (_stuckRotation - MathHelper.PiOver2).ToRotationVector2() * 8f;
+				if (!Collision.SolidCollision(checkPos, 1, 1))
+				{
+					// Tile is gone, unstick and resume physics
+					_stuck = false;
+					Projectile.tileCollide = true;
+					Projectile.friendly = true;
+					return;
+				}
+
 				Projectile.velocity = Vector2.Zero;
 				Projectile.rotation = _stuckRotation;
 				Projectile.friendly = false;

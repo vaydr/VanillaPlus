@@ -1,23 +1,23 @@
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using VanillaPlus.Common.BuilderToggles;
 
 namespace VanillaPlus.Content.Players
 {
     public class ReflectiveCollarPlayer : ModPlayer
     {
         public bool hasReflectiveCollar;
-        public bool shineEnabled;
 
         public override void Initialize()
         {
             hasReflectiveCollar = false;
-            shineEnabled = false;
         }
 
         public override void PostUpdate()
         {
-            if (hasReflectiveCollar && shineEnabled)
+            var toggle = ModContent.GetInstance<ShineBuilderToggle>();
+            if (hasReflectiveCollar && toggle.CurrentState == 1)
             {
                 Lighting.AddLight(Player.Center, 0.8f, 0.95f, 1f);
             }
@@ -27,14 +27,11 @@ namespace VanillaPlus.Content.Players
         {
             if (hasReflectiveCollar)
                 tag["hasReflectiveCollar"] = true;
-            if (shineEnabled)
-                tag["shineEnabled"] = true;
         }
 
         public override void LoadData(TagCompound tag)
         {
             hasReflectiveCollar = tag.GetBool("hasReflectiveCollar");
-            shineEnabled = tag.GetBool("shineEnabled");
         }
 
         public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
@@ -43,7 +40,6 @@ namespace VanillaPlus.Content.Players
             packet.Write((byte)1); // Message type for ReflectiveCollar sync
             packet.Write((byte)Player.whoAmI);
             packet.Write(hasReflectiveCollar);
-            packet.Write(shineEnabled);
             packet.Send(toWho, fromWho);
         }
 
@@ -51,13 +47,12 @@ namespace VanillaPlus.Content.Players
         {
             ReflectiveCollarPlayer clone = (ReflectiveCollarPlayer)targetCopy;
             clone.hasReflectiveCollar = hasReflectiveCollar;
-            clone.shineEnabled = shineEnabled;
         }
 
         public override void SendClientChanges(ModPlayer clientPlayer)
         {
             ReflectiveCollarPlayer clone = (ReflectiveCollarPlayer)clientPlayer;
-            if (hasReflectiveCollar != clone.hasReflectiveCollar || shineEnabled != clone.shineEnabled)
+            if (hasReflectiveCollar != clone.hasReflectiveCollar)
             {
                 SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
             }

@@ -55,34 +55,28 @@ namespace VanillaPlus.Common.Systems
             else
                 luckColor = Color.White;
 
-            // Position above defense indicator
+            // Fixed icon position relative to defense indicator
             Vector2 defensePos = AccessorySlotLoader.DefenseIconPosition;
-            // Center the luck indicator above the defense indicator; not safe but tested and it works.
-            int luckX = (int)defensePos.X - (int)(4f * slotSize); //left by 3.9 slots
-            int luckY = (int)defensePos.Y - (int)(1f * slotSize);
-
-            // Draw luck text same style as defense number (luck * 100 to avoid leading "0.")
-            string luckText = (luck * 100).ToString("0");
-
-            // Shift horizontally based on digit count to keep centered
-            if (luckText.Length == 1)
-                luckX += (int)(0.25f * slotSize); // 1 digit: shift right
-            else if (luckText.Length == 2)
-                luckX += (int)(0.1f * slotSize); // 2 digits: shift right
-            else if (luckText.Length >= 3)
-                luckX -= (int)(0.2f * slotSize); // 3+ digits: shift left
-            // 2 digits: no shift
-
-            Vector2 textPos = new Vector2(luckX, luckY);
-            Vector2 textSize = FontAssets.MouseText.Value.MeasureString(luckText);
-
-            // Draw clover icon behind the number
             Texture2D iconTexture = _luckIcon.Value;
+
+            // Icon center position (fixed)
+            float iconCenterX = defensePos.X - (3.6f * slotSize);
+            float iconCenterY = defensePos.Y - (0.7f * slotSize);
+
+            // Draw icon at fixed position
             Vector2 iconPos = new Vector2(
-                luckX + textSize.X / 2f - iconTexture.Width / 2f,
-                luckY + textSize.Y / 2f - iconTexture.Height / 2f - (0.1f * slotSize)
+                iconCenterX - iconTexture.Width / 2f,
+                iconCenterY - iconTexture.Height / 2f - (0.1f * slotSize)
             );
             spriteBatch.Draw(iconTexture, iconPos, null, Color.White * 0.8f, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+
+            // Draw text centered on icon
+            string luckText = (luck * 100).ToString("0");
+            Vector2 textSize = FontAssets.MouseText.Value.MeasureString(luckText);
+            Vector2 textPos = new Vector2(
+                iconCenterX - textSize.X / 2f,
+                iconCenterY - textSize.Y / 2f
+            );
 
             ChatManager.DrawColorCodedStringWithShadow(
                 spriteBatch,
@@ -95,12 +89,12 @@ namespace VanillaPlus.Common.Systems
                 Vector2.One
             );
 
-            // Check for hover on luck text
+            // Hover detection based on icon bounds
             Rectangle luckRect = new Rectangle(
-                (int)luckX,
-                (int)luckY,
-                (int)textSize.X,
-                (int)textSize.Y
+                (int)(iconCenterX - iconTexture.Width / 2f),
+                (int)(iconCenterY - iconTexture.Height / 2f),
+                iconTexture.Width,
+                iconTexture.Height
             );
 
             if (luckRect.Contains(Main.mouseX, Main.mouseY))
