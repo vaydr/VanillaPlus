@@ -1,3 +1,4 @@
+using Terraria.GameContent.UI.Elements;
 using Terraria.GameContent.UI.States;
 using Terraria.ModLoader;
 using VanillaPlus.Common.UI;
@@ -18,6 +19,9 @@ namespace VanillaPlus
 			On_UIWorldCreation.SetDefaultOptions += RaptureSelectionMenu.OnSetDefaultOptions;
 			// Gamepad points hook disabled - requires exact IL index matching
 			// IL_UIWorldCreation.SetupGamepadPoints += RaptureSelectionMenu.ILSetUpGamepadPoints;
+
+			// Register hook for world list icons (show Rapture instead of Hallow)
+			On_UIWorldListItem.ctor += RaptureWorldIconEdit.OnUIWorldListItemCtor;
 		}
 
 		public override void Unload()
@@ -28,6 +32,8 @@ namespace VanillaPlus
 			IL_UIWorldCreation.ShowOptionDescription -= RaptureSelectionMenu.ILShowOptionDescription;
 			On_UIWorldCreation.SetDefaultOptions -= RaptureSelectionMenu.OnSetDefaultOptions;
 			// IL_UIWorldCreation.SetupGamepadPoints -= RaptureSelectionMenu.ILSetUpGamepadPoints;
+
+			On_UIWorldListItem.ctor -= RaptureWorldIconEdit.OnUIWorldListItemCtor;
 		}
 	}
 }
