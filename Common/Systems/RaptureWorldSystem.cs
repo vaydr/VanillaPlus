@@ -13,6 +13,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.WorldBuilding;
 using VanillaPlus.Content.Tiles.Rapture;
+using VanillaPlus.Content.Walls.Rapture;
 
 namespace VanillaPlus.Common.Systems
 {
@@ -199,28 +200,39 @@ namespace VanillaPlus.Common.Systems
                             continue;
 
                         // Convert walls first (matching Confection's pattern)
-                        if (Main.tile[x, y].WallType == WallID.GrassUnsafe || Main.tile[x, y].WallType == WallID.FlowerUnsafe ||
-                            Main.tile[x, y].WallType == WallID.Grass || Main.tile[x, y].WallType == WallID.Flower ||
-                            Main.tile[x, y].WallType == WallID.CorruptGrassUnsafe || Main.tile[x, y].WallType == WallID.CrimsonGrassUnsafe)
+                        ushort wallType = Main.tile[x, y].WallType;
+
+                        // Grass walls -> BlissGrassWall
+                        if (wallType == WallID.GrassUnsafe || wallType == WallID.FlowerUnsafe ||
+                            wallType == WallID.Grass || wallType == WallID.Flower ||
+                            wallType == WallID.CorruptGrassUnsafe || wallType == WallID.CrimsonGrassUnsafe ||
+                            wallType == WallID.HallowedGrassUnsafe)
                         {
-                            Main.tile[x, y].WallType = WallID.HallowedGrassUnsafe; // TODO: RaptureGrassWall
+                            Main.tile[x, y].WallType = (ushort)ModContent.WallType<BlissGrassWall>();
                         }
-                        else if (Main.tile[x, y].WallType == WallID.HardenedSand || Main.tile[x, y].WallType == WallID.CorruptHardenedSand ||
-                                 Main.tile[x, y].WallType == WallID.CrimsonHardenedSand)
+                        // Hardened sand walls -> HardenedBlissandWall
+                        else if (wallType == WallID.HardenedSand || wallType == WallID.CorruptHardenedSand ||
+                                 wallType == WallID.CrimsonHardenedSand || wallType == WallID.HallowHardenedSand)
                         {
-                            Main.tile[x, y].WallType = WallID.HallowHardenedSand; // TODO: HardenedBlissandWall
+                            Main.tile[x, y].WallType = (ushort)ModContent.WallType<HardenedBlissandWall>();
                         }
-                        else if (Main.tile[x, y].WallType == WallID.Sandstone || Main.tile[x, y].WallType == WallID.CorruptSandstone ||
-                                 Main.tile[x, y].WallType == WallID.CrimsonSandstone)
+                        // Sandstone walls -> BlissandstoneWall
+                        else if (wallType == WallID.Sandstone || wallType == WallID.CorruptSandstone ||
+                                 wallType == WallID.CrimsonSandstone || wallType == WallID.HallowSandstone)
                         {
-                            Main.tile[x, y].WallType = WallID.HallowSandstone; // TODO: BlissandstoneWall
+                            Main.tile[x, y].WallType = (ushort)ModContent.WallType<BlissandstoneWall>();
                         }
-                        else if (Main.tile[x, y].WallType == WallID.EbonstoneUnsafe || Main.tile[x, y].WallType == WallID.CrimstoneUnsafe)
+                        // Stone walls (ebonstone/crimstone) -> BlisstoneWall
+                        else if (wallType == WallID.EbonstoneUnsafe || wallType == WallID.CrimstoneUnsafe ||
+                                 wallType == WallID.Stone || wallType == WallID.PearlstoneBrickUnsafe)
                         {
-                            Main.tile[x, y].WallType = WallID.PearlstoneBrickUnsafe; // TODO: BlisstonleWall
+                            Main.tile[x, y].WallType = (ushort)ModContent.WallType<BlisstoneWall>();
                         }
-                        // Ice walls - skip for now until we have GoldenIceWall
-                        // else if (Main.tile[x, y].WallType == WallID.IceUnsafe) { }
+                        // Ice walls -> GoldenIceWall
+                        else if (wallType == WallID.IceUnsafe)
+                        {
+                            Main.tile[x, y].WallType = (ushort)ModContent.WallType<GoldenIceWall>();
+                        }
 
                         // Convert tiles (matching Confection's exact pattern)
                         if (Main.tile[x, y].TileType == TileID.Grass)

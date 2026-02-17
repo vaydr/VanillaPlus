@@ -88,6 +88,11 @@ Items: {
 		DisplayName: Hardened Blissand
 		Tooltip: ""
 	}
+
+	Hedonwood: {
+		DisplayName: Hedonwood
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -132,6 +137,7 @@ Tiles: {
 	GoldenIce.MapEntry: Golden Ice
 	HardenedBlissand.MapEntry: Hardened Blissand
 	Blissandstone.MapEntry: Blissandstone
+	HedonTree.MapEntry: Hedon Tree
 }
 
 Biomes: {

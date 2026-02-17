@@ -55,6 +55,13 @@ namespace VanillaPlus.Common
             public static bool[] IsNaturalRaptureWall = WallID.Sets.Factory.CreateNamedSet("IsNaturalRaptureWall")
                 .Description("Whether a wall is a natural Rapture wall")
                 .RegisterBoolSet();
+
+            /// <summary>
+            /// Whether a wall is a Rapture biome wall (used for biome detection).
+            /// </summary>
+            public static bool[] RaptureWall = WallID.Sets.Factory.CreateNamedSet("RaptureWall")
+                .Description("Whether a wall is a Rapture biome wall")
+                .RegisterBoolSet();
         }
     }
 }
