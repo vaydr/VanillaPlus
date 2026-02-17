@@ -5,8 +5,29 @@
 **Rapture** is an alternative to the Hallow biome with an **Angelic/Divine** theme. When the Wall of Flesh is defeated, the world randomly picks between Hallow OR Rapture for the V-stripe generation (similar to how worlds pick Corruption OR Crimson at creation).
 
 - **Theme**: Angelic, divine, heavenly
-- **Color Palette**: Gold, white, soft yellows, divine glow
+- **Color Palette**: Gold, white, baby blue, soft yellows
+- **Color Translation**: Pinks/blues → Whites/golds
 - **Relationship to Hallow**: Same as Crimson to Corruption - mutually exclusive by default, but can be manually spread via Clentaminator
+
+---
+
+## Art Direction
+
+### Sprite Strategy
+**Re-use and recolor vanilla sprites wherever possible.** Custom sprites come later.
+
+### Color Mapping (Hallow → Rapture)
+| Hallow Color | Rapture Color |
+|--------------|---------------|
+| Pink | White |
+| Blue | Gold |
+| Purple | Baby Blue |
+| Pastel Rainbow | White/Gold/Baby Blue |
+
+### Temporary Placeholders
+- Use Hallow backgrounds until custom ones are made
+- Use Hallow music until custom music
+- Recolor vanilla tile sprites for initial implementation
 
 ---
 
@@ -33,6 +54,24 @@ This is THE reference implementation. The Confection mod does **almost exactly**
 **License**: CC - source code can be freely used with or without credit.
 
 **FOLLOW THIS PATTERN CLOSELY** - Don't reinvent the wheel. Adapt their proven approach for Rapture.
+
+---
+
+## Naming Convention
+
+All Rapture equivalents follow this naming pattern:
+
+| Hallow Name | Rapture Name |
+|-------------|--------------|
+| Pearlstone | **Blisite** |
+| Pearlsand | **Blissite** |
+| Hardened Pearlsand | Hardened Blissand |
+| Pearlsandstone | Blissandstone |
+| Hallowed Grass | **Blissgrass** (white) |
+| Pearlwood | **Hedonwood** |
+| Crystal Shard | **Divine Shard** |
+| Blue Solution | **Golden Solution** |
+| Soul of Light | **Soul of Divinity** |
 
 ---
 
@@ -66,7 +105,7 @@ public class RaptureWorldSystem : ModSystem
 
     private void RaptureRunner(GenerationProgress progress, GameConfiguration config) {
         progress.Message = "Spreading the divine light...";
-        // V-stripe generation logic
+        // V-stripe generation logic - follow Confection pattern
     }
 }
 ```
@@ -76,8 +115,11 @@ public class RaptureWorldSystem : ModSystem
 ```csharp
 public class RaptureBiome : ModBiome
 {
-    public override int Music => MusicID.Hallow; // Placeholder until custom music
+    public override int Music => MusicID.Hallow; // PLACEHOLDER - use Hallow music for now
     public override SceneEffectPriority Priority => SceneEffectPriority.BiomeMedium;
+
+    // PLACEHOLDER - use Hallow background for now
+    public override ModSurfaceBackgroundStyle SurfaceBackgroundStyle => null; // Falls back to vanilla
 
     public override bool IsBiomeActive(Player player) {
         return ModContent.GetInstance<RaptureTileCount>().raptureCount >= 40;
@@ -85,7 +127,7 @@ public class RaptureBiome : ModBiome
 }
 ```
 
-### 1.3 Tile Counting System
+### 1.3 Tile Counting System (`Common/Systems/RaptureTileCount.cs`)
 
 ```csharp
 public class RaptureTileCount : ModSystem
@@ -93,9 +135,12 @@ public class RaptureTileCount : ModSystem
     public int raptureCount;
 
     public override void TileCountsAvailable(int[] tileCounts) {
-        raptureCount = tileCounts[ModContent.TileType<RaptureGrass>()]
-                     + tileCounts[ModContent.TileType<RaptureStone>()]
-                     + tileCounts[ModContent.TileType<RaptureSand>()];
+        raptureCount = tileCounts[ModContent.TileType<Blissgrass>()]
+                     + tileCounts[ModContent.TileType<Blisite>()]
+                     + tileCounts[ModContent.TileType<Blissand>()]
+                     + tileCounts[ModContent.TileType<BlissIce>()]
+                     + tileCounts[ModContent.TileType<HardenedBlissand>()]
+                     + tileCounts[ModContent.TileType<Blissandstone>()];
     }
 }
 ```
@@ -104,131 +149,197 @@ public class RaptureTileCount : ModSystem
 
 ## Phase 2: Tiles
 
-### 2.1 Core Tiles to Create
+### 2.1 Complete Tile List
 
-| Tile | Replaces | Spreads To | Notes |
-|------|----------|------------|-------|
-| `RaptureGrass` | Grass | Dirt, Mud | Golden/white grass |
-| `RaptureStone` | Stone | Stone | Divine stone |
-| `RaptureSand` | Sand | Sand | Glowing sand |
-| `RaptureIce` | Ice | Ice | Crystalline ice |
-| `RaptureSandstone` | Sandstone | Sandstone | - |
-| `RaptureHardenedSand` | Hardened Sand | Hardened Sand | - |
+| Rapture Tile | Vanilla Equivalent | Spreads | Sprite Source |
+|--------------|-------------------|---------|---------------|
+| **Blissgrass** | Hallowed Grass (109) | Yes | Recolor grass → white |
+| **Blissite** | Pearlstone (117) | Yes | Recolor pearlstone |
+| **Blissand** | Pearlsand (116) | Yes | Recolor pearlsand |
+| **BlissIce** | Hallowed Ice (164) | Yes | Recolor hallowed ice |
+| **HardenedBlissand** | Hardened Pearlsand (402) | Yes | Recolor |
+| **Blissandstone** | Pearlsandstone (403) | Yes | Recolor |
+| **Hedonwood** | Pearlwood (Tree) | No | White trunk, gold/blue leaves |
+| **DivineShard** | Crystal Shard (129) | No | Yellow/white/blue variants |
 
-### 2.2 Tile Spreading
+### 2.2 Trees - Hedonwood
 
-Each tile needs `RandomUpdate()` to spread:
+**Trunk**: White (recolor Pearlwood trunk)
+**Leaves**: Randomly picks between:
+- Gold leaves
+- Baby blue leaves
+
+Implementation: Custom tree tile with random leaf color selection on placement.
+
+### 2.3 Crystal Shards - Divine Shards
+
+Replace pink/blue crystal shards with:
+| Hallow Shard | Divine Shard |
+|--------------|--------------|
+| Pink Crystal | **Yellow Divine Shard** |
+| Blue Crystal | **White Divine Shard** |
+| (new) | **Baby Blue Divine Shard** |
+
+Shards grow on Blisstone in underground Rapture.
+
+### 2.4 Tile Spreading
+
+Each spreading tile needs `RandomUpdate()`:
 
 ```csharp
 public override void RandomUpdate(int i, int j) {
-    // Check adjacent tiles
-    // Convert convertible tiles to Rapture variants
-    // Similar to Hallow spreading logic
+    // Check 4 adjacent tiles
+    // If adjacent tile is convertible (dirt, stone, sand, ice, etc.)
+    // Convert to Rapture variant
+    // Same spread rate as Hallow
 }
 ```
 
-### 2.3 Tile Conversion Table
-
-Register conversions for Clentaminator and natural spread:
+### 2.5 Tile Sets Registration
 
 ```csharp
-// In ModSystem
-TileLoader.RegisterConversion(TileID.Grass, ModContent.TileType<RaptureGrass>(), BiomeConversionType.Rapture);
-TileLoader.RegisterConversion(TileID.Stone, ModContent.TileType<RaptureStone>(), BiomeConversionType.Rapture);
+// Mark tiles as "Rapture" type (similar to TileID.Sets.Hallow)
+// Create custom TileID.Sets.Rapture array
+public static bool[] Rapture = TileID.Sets.Factory.CreateBoolSet(false,
+    ModContent.TileType<Blissgrass>(),
+    ModContent.TileType<Blisstone>(),
+    ModContent.TileType<Blissand>(),
+    // ... etc
+);
 ```
 
 ---
 
-## Phase 3: World Generation (V-Stripe)
+## Phase 3: Clentaminator - Golden Solution
 
-### 3.1 V-Stripe Algorithm
+### 3.1 Golden Solution Item (`Content/Items/GoldenSolution.cs`)
 
-The V-stripe generation needs to:
-1. Pick a starting X position near world center
-2. Generate two diagonal lines from near-surface down to underworld
-3. One line goes left-down, one goes right-down (or vice versa)
-4. Convert all tiles along the path to Rapture variants
-5. Spread outward from the line with decreasing intensity
+| Property | Value |
+|----------|-------|
+| Ammo Type | AmmoID.Solution |
+| Rarity | LightPurple |
+| Value | Same as Blue Solution |
+| Sold By | Steampunker (when in Rapture world) |
 
-### 3.2 Key WorldGen Methods
+### 3.2 Solution Projectile
 
-- `WorldGen.GERunner(int i, int j, double speedX, double speedY, int type, bool addTile)` - Core stripe generation
-- `WorldGen.Convert(int i, int j, int type, int size)` - Convert tiles in an area
-- Custom `RaptureRunner` - Wrapper that uses above with Rapture tiles
+When sprayed:
+- Converts Corruption/Crimson tiles → Rapture equivalents
+- Converts Hallow tiles → Rapture equivalents
+- Converts pure tiles → Rapture equivalents
 
----
+### 3.3 NPC Shop Integration
 
-## Phase 4: Enemies
-
-### 4.1 Surface Enemies
-
-| Enemy | HP | Damage | Notes |
-|-------|-----|--------|-------|
-| `Seraph` | 200 | 50 | Flying angel enemy |
-| `GoldenSlime` | 150 | 40 | Divine slime |
-| `HeavenlyGastropod` | 180 | 45 | Pixie equivalent |
-
-### 4.2 Underground Enemies
-
-| Enemy | HP | Damage | Notes |
-|-------|-----|--------|-------|
-| `FallenAngel` | 300 | 60 | Illuminant equivalent |
-| `DivineElemental` | 250 | 55 | Chaos Elemental equiv |
+```csharp
+// GlobalNPC or Steampunker hook
+if (RaptureWorldSystem.hasRapture) {
+    // Sell Golden Solution instead of Blue Solution
+    // OR sell both
+}
+```
 
 ---
 
-## Phase 5: Items & Materials
+## Phase 4: World Generation (V-Stripe)
 
-### 5.1 Souls
+### 4.1 V-Stripe Algorithm
 
-| Item | Drop Source | Use |
-|------|-------------|-----|
-| `SoulOfDivinity` | Underground Rapture enemies | Crafting (Soul of Light equiv) |
+Follow Confection's `ConfectionWorldGeneration.cs` pattern:
 
-### 5.2 Weapons
+1. Find starting position (similar to Hallow)
+2. Run diagonal stripe generation
+3. Convert tiles along path:
+   - Stone → Blisstone
+   - Grass/Dirt → Blissgrass
+   - Sand → Blissand
+   - Ice → BlissIce
+   - etc.
 
-| Weapon | Type | Damage | Notes |
-|--------|------|--------|-------|
-| `HolyBlade` | Melee | 60 | Glowing sword |
-| `AngelicBow` | Ranged | 45 | Shoots homing arrows |
-| `DivineScepter` | Magic | 50 | Shoots golden bolts |
+### 4.2 Conversion Mapping
 
-### 5.3 Armor
-
-| Set | Defense | Set Bonus |
-|-----|---------|-----------|
-| `Rapture Armor` | 35 total | +15% all damage, emit light |
+```csharp
+private static Dictionary<int, int> TileConversions = new() {
+    { TileID.Stone, ModContent.TileType<Blisstone>() },
+    { TileID.Grass, ModContent.TileType<Blissgrass>() },
+    { TileID.Sand, ModContent.TileType<Blissand>() },
+    { TileID.IceBlock, ModContent.TileType<BlissIce>() },
+    { TileID.HardenedSand, ModContent.TileType<HardenedBlissand>() },
+    { TileID.Sandstone, ModContent.TileType<Blissandstone>() },
+    // Also convert Hallow tiles if encountered
+    { TileID.Pearlstone, ModContent.TileType<Blisstone>() },
+    { TileID.Pearlsand, ModContent.TileType<Blissand>() },
+    { TileID.HallowedGrass, ModContent.TileType<Blissgrass>() },
+    { TileID.HallowedIce, ModContent.TileType<BlissIce>() },
+};
+```
 
 ---
 
-## Phase 6: Fishing & Crates
+## Phase 5: Enemies
 
-| Item | Type | Contents |
-|------|------|----------|
-| `RaptureCrate` | Crate | Rapture materials, potions |
-| `DivineCrate` | Hardmode Crate | Better materials |
-| `GoldenKoi` | Fish | Crafting material |
+### 5.1 Surface Enemies
+
+| Enemy | HP | Damage | Hallow Equivalent | Notes |
+|-------|-----|--------|-------------------|-------|
+| `Seraph` | 200 | 50 | Pixie | Flying angel, glows gold |
+| `GoldenSlime` | 150 | 40 | Hallowed Slime | Divine slime |
+| `Lightbringer` | 180 | 45 | Gastropod | Shoots golden projectiles |
+
+### 5.2 Underground Enemies
+
+| Enemy | HP | Damage | Hallow Equivalent | Notes |
+|-------|-----|--------|-------------------|-------|
+| `Cherub` | 300 | 60 | Illuminant | Illuminant equivalent |
+| `Ascendant` | 250 | 55 | Chaos Elemental | Teleporting enemy, drops Rod of Ascension |
 
 ---
 
-## Phase 7: Misc Features
+## Phase 6: Items & Materials
 
-### 7.1 Backgrounds
-- Surface background: Golden clouds, divine rays
-- Underground background: Glowing crystals, divine architecture
+### 6.1 Souls
 
-### 7.2 Music
-- Custom Rapture theme (peaceful, angelic choir)
+| Item | Drop Source | Notes |
+|------|-------------|-------|
+| **Soul of Divinity** | Underground Rapture enemies | Soul of Light equivalent |
 
-### 7.3 Water Style
-- Golden/white tinted water
+### 6.2 Key Weapon
 
-### 7.4 Particles
-- Floating golden sparkles
-- Light rays
+| Item | Drop Source | Notes |
+|------|-------------|-------|
+| **Rod of Ascension** | Ascendant (rare) | Rod of Discord equivalent |
 
-### 7.5 NPC Preferences
-- Some NPCs prefer Rapture biome
+### 6.3 Crafting Materials
+
+| Item | Source | Notes |
+|------|--------|-------|
+| **Divine Shard** | Grows on Blisstone | Crystal Shard equivalent |
+| **Hedonwood** | Trees | Pearlwood equivalent |
+
+---
+
+## Phase 7: Fishing & Crates
+
+| Item | Type | Hallow Equivalent |
+|------|------|-------------------|
+| `BlissCrate` | Crate | Hallowed Crate |
+| `DivineCrate` | Hardmode Crate | Divine Crate |
+| `PrismFish` | Quest Fish | Prismite equivalent |
+
+---
+
+## Phase 8: Backgrounds & Visuals (LATER)
+
+### Current: Use Hallow Placeholders
+- Surface background: **Hallow background** (temporary)
+- Underground background: **Hallow underground** (temporary)
+- Music: **Hallow music** (temporary)
+- Water: Default (temporary)
+
+### Future Custom Assets (sprite later)
+- Golden clouds, divine rays
+- Glowing white/gold crystals underground
+- Angelic choir music
+- Golden-tinted water
 
 ---
 
@@ -245,20 +356,27 @@ VanillaPlus/
 │   │   └── RaptureBiome.cs            # ModBiome definition
 │   ├── Tiles/
 │   │   └── Rapture/
-│   │       ├── RaptureGrass.cs
-│   │       ├── RaptureStone.cs
-│   │       ├── RaptureSand.cs
-│   │       └── ...
+│   │       ├── Blissgrass.cs          # White grass
+│   │       ├── Blisstone.cs           # Pearlstone equivalent
+│   │       ├── Blissand.cs            # Pearlsand equivalent
+│   │       ├── BlissIce.cs            # Hallowed ice equivalent
+│   │       ├── HardenedBlissand.cs
+│   │       ├── Blissandstone.cs
+│   │       ├── Hedonwood.cs           # Tree - white trunk, gold/blue leaves
+│   │       └── DivineShard.cs         # Yellow/white/blue crystal shards
 │   ├── NPCs/
 │   │   └── Rapture/
-│   │       ├── Seraph.cs
+│   │       ├── Seraph.cs              # Pixie equivalent
 │   │       ├── GoldenSlime.cs
-│   │       └── ...
+│   │       ├── Lightbringer.cs        # Gastropod equivalent
+│   │       ├── Cherub.cs              # Illuminant equivalent
+│   │       └── Ascendant.cs           # Chaos Elemental equivalent
 │   └── Items/
 │       └── Rapture/
-│           ├── SoulOfDivinity.cs
-│           ├── Weapons/
-│           └── Armor/
+│           ├── SoulOfDivinity.cs      # Soul of Light equivalent
+│           ├── GoldenSolution.cs      # Clentaminator solution
+│           ├── DivineShard.cs         # Crafting material
+│           └── RodOfAscension.cs      # Rod of Discord equivalent
 └── RAPTURE.md                          # This file
 ```
 
@@ -266,24 +384,52 @@ VanillaPlus/
 
 ## Development Order
 
-1. **Phase 1** - Core infrastructure (world system, biome, tile counting)
-2. **Phase 2** - Basic tiles (grass, stone, sand) with spreading
-3. **Phase 3** - V-stripe generation on WOF kill
-4. **Phase 4** - 2-3 basic enemies
-5. **Phase 5** - Soul drops and basic weapons
-6. **Phase 6+** - Everything else (armor, fishing, polish)
+### Phase 1 - Core (DO FIRST)
+1. `RaptureWorldSystem.cs` - World flag + hardmode hook
+2. `RaptureBiome.cs` - Basic biome detection
+3. `RaptureTileCount.cs` - Tile counting
+
+### Phase 2 - Basic Tiles
+4. `Blissgrass.cs` - White grass, spreading
+5. `Blisstone.cs` - Stone, spreading
+6. `Blissand.cs` - Sand, spreading
+
+### Phase 3 - World Gen
+7. V-stripe generation in `RaptureRunner`
+8. Test WOF kill → Rapture stripe appears
+
+### Phase 4 - More Tiles
+9. `BlissIce.cs`, `HardenedBlissand.cs`, `Blissandstone.cs`
+10. `Hedonwood.cs` - Trees
+11. `DivineShard.cs` - Crystal shards
+
+### Phase 5 - Clentaminator
+12. `GoldenSolution.cs` - Item + projectile
+13. Steampunker shop integration
+
+### Phase 6 - Enemies
+14. 2-3 surface enemies
+15. 2 underground enemies
+
+### Phase 7+ - Everything Else
+16. Souls, items, weapons
+17. Fishing, crates
+18. Custom sprites, music, backgrounds
 
 ---
 
 ## Testing Checklist
 
 - [ ] WOF kill generates Rapture V-stripe (not Hallow)
-- [ ] Rapture tiles spread to adjacent convertible tiles
+- [ ] Blissgrass/Blisstone/Blissand spread correctly
 - [ ] Standing on 40+ Rapture tiles triggers biome
-- [ ] Biome music/background changes in Rapture
+- [ ] Hallow music plays in Rapture (placeholder)
+- [ ] Hedonwood trees generate with white trunk, random gold/blue leaves
+- [ ] Divine Shards grow on Blisstone underground
+- [ ] Golden Solution converts tiles to Rapture
+- [ ] Steampunker sells Golden Solution in Rapture worlds
 - [ ] Enemies spawn in Rapture biome
-- [ ] Souls drop from underground Rapture enemies
-- [ ] Clentaminator solutions work with Rapture
+- [ ] Souls of Divinity drop from underground enemies
 - [ ] World saves/loads Rapture state correctly
 - [ ] Multiplayer sync works
 
@@ -291,6 +437,37 @@ VanillaPlus/
 
 ## Notes
 
-- **DEBUG MODE**: Currently hardcoded to always generate Rapture. Change to `Main.rand.NextBool()` for 50/50 when development is complete.
-- Study [Confection REBAKED source](https://github.com/Lion8cake/ConfectionREBAKED) for implementation patterns
-- The Hallow uses tiles: 109 (grass), 117 (stone), 116 (sand), 164 (ice), etc.
+- **DEBUG MODE**: Currently hardcoded to always generate Rapture. Change to 50/50 when development is complete.
+- **SPRITES**: Use recolored vanilla sprites initially. Custom sprites come later.
+- **BACKGROUNDS**: Use Hallow backgrounds as placeholder.
+- Study [Confection REBAKED source](https://github.com/Lion8cake/ConfectionREBAKED) for all implementation patterns
+- The Hallow uses tiles: 109 (grass), 117 (stone), 116 (sand), 164 (ice), 402 (hardened sand), 403 (sandstone)
+
+---
+
+## Future: World Creation UI
+
+### Holy Biome Selection (like Evil Biome selection)
+
+Just as vanilla Terraria allows choosing between **Corruption / Crimson / Random** during world creation, VanillaPlus will add a similar selection for the holy biome:
+
+| Option | Behavior |
+|--------|----------|
+| **Random** | 50/50 chance of Hallow or Rapture on WOF kill |
+| **Hallow** | Always generates Hallow (vanilla behavior) |
+| **Rapture** | Always generates Rapture |
+
+### Implementation
+
+This requires hooking into the world creation UI:
+- Add UI elements to world creation screen
+- Store selection in world data
+- Check selection in `ModifyHardmodeTasks` instead of random roll
+
+### Reference
+- Study how vanilla handles Corruption/Crimson selection
+- May require IL editing or UI hooks
+- Confection REBAKED may have implementation patterns for this
+
+### Priority
+**LOW** - Implement after core biome is working. Random 50/50 is sufficient for initial release.
