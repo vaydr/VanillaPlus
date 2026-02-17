@@ -119,6 +119,7 @@ Buffs: {
 Projectiles: {
 	PurpleTerraBeam.DisplayName: Lepton Sword Beam
 	PaintedFlare.DisplayName: Painted Flare
+	BlissandProjectile.DisplayName: Blissand Projectile
 }
 
 NPCs.TempleGuardian.DisplayName: Temple Guardian

@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Common;
+using VanillaPlus.Content.Projectiles.Rapture;
 
 namespace VanillaPlus.Content.Tiles.Rapture
 {
@@ -28,9 +29,9 @@ namespace VanillaPlus.Content.Tiles.Rapture
             TileID.Sets.Suffocate[Type] = true;
             TileID.Sets.CanBeClearedDuringOreRunner[Type] = true;
 
-            // Set up falling projectile (uses vanilla sand projectile behavior)
-            // TODO: Create custom BlissandProjectile
-            TileID.Sets.FallingBlockProjectile[Type] = new TileID.Sets.FallingBlockProjectileInfo(ProjectileID.SandBallFalling, 15);
+            // Set up falling projectile - uses custom BlissandProjectile to place correct tile
+            TileID.Sets.FallingBlockProjectile[Type] = new TileID.Sets.FallingBlockProjectileInfo(
+                ModContent.ProjectileType<BlissandProjectile>(), 15);
 
             // Rapture-specific sets
             RaptureIDs.Sets.RaptureBiomeSight[Type] = true;
