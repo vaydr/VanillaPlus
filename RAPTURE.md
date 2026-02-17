@@ -10,9 +10,29 @@
 
 ---
 
-## Reference Implementation
+## Reference Implementation - CRITICAL
 
-**[Confection REBAKED](https://github.com/Lion8cake/ConfectionREBAKED)** - The first Hallow alternative mod for tModLoader. Study this codebase for implementation patterns.
+### **[Confection REBAKED](https://github.com/Lion8cake/ConfectionREBAKED)**
+
+This is THE reference implementation. The Confection mod does **almost exactly** what we want to do with Rapture. It is a complete, working Hallow alternative with:
+
+- ✅ Hardmode hook that replaces Hallow generation
+- ✅ V-stripe generation with custom tiles
+- ✅ Spreading tile mechanics
+- ✅ Biome detection and tile counting
+- ✅ Enemies, items, souls
+- ✅ Clentaminator integration
+- ✅ Full multiplayer support
+
+**Key files to study:**
+- `ConfectionWorldGeneration.cs` - Hardmode tasks, V-stripe generation
+- `Biomes/` - ModBiome implementation
+- `Tiles/` - Spreading tile patterns
+- `NPCs/` - Biome enemy spawning
+
+**License**: CC - source code can be freely used with or without credit.
+
+**FOLLOW THIS PATTERN CLOSELY** - Don't reinvent the wheel. Adapt their proven approach for Rapture.
 
 ---
 
