@@ -59,8 +59,8 @@ Items: {
 		Tooltip: Permanently unlocks the ability to view luck
 	}
 
-	ReflectiveCollar: {
-		DisplayName: Reflective Collar
+	ReflectiveTape: {
+		DisplayName: Reflective Tape
 		Tooltip: Permanently unlocks a toggleable shine effect
 	}
 
@@ -74,8 +74,8 @@ Items: {
 		Tooltip: ""
 	}
 
-	BlissIce: {
-		DisplayName: Bliss Ice
+	GoldenIce: {
+		DisplayName: Golden Ice
 		Tooltip: ""
 	}
 
@@ -129,7 +129,7 @@ Tiles: {
 	Blisite.MapEntry: Blisite
 	Blissgrass.MapEntry: Blissgrass
 	Blissand.MapEntry: Blissand
-	BlissIce.MapEntry: Bliss Ice
+	GoldenIce.MapEntry: Golden Ice
 	HardenedBlissand.MapEntry: Hardened Blissand
 	Blissandstone.MapEntry: Blissandstone
 }

@@ -7,10 +7,10 @@ using VanillaPlus.Common;
 namespace VanillaPlus.Content.Tiles.Rapture
 {
     /// <summary>
-    /// BlissIce - the Rapture equivalent of Hallowed Ice.
+    /// GoldenIce - the Rapture equivalent of Hallowed Ice.
     /// Divine golden-tinted ice that spreads Rapture in snow biomes.
     /// </summary>
-    public class BlissIce : ModTile
+    public class GoldenIce : ModTile
     {
         public override void SetStaticDefaults()
         {
@@ -55,8 +55,8 @@ namespace VanillaPlus.Content.Tiles.Rapture
             HitSound = SoundID.Item50; // Ice break sound
             DustType = DustID.Ice;
 
-            // Drop the BlissIce item
-            RegisterItemDrop(ModContent.ItemType<Items.Rapture.BlissIce>());
+            // Drop the GoldenIce item
+            RegisterItemDrop(ModContent.ItemType<Items.Rapture.GoldenIce>());
         }
 
         public override void RandomUpdate(int i, int j)
@@ -93,17 +93,17 @@ namespace VanillaPlus.Content.Tiles.Rapture
 
                     ushort newType = 0;
 
-                    // Ice -> BlissIce
+                    // Ice -> GoldenIce
                     if (tile.TileType == TileID.IceBlock)
                     {
                         newType = Type;
                     }
-                    // Hallowed Ice -> BlissIce
+                    // Hallowed Ice -> GoldenIce
                     else if (tile.TileType == TileID.HallowedIce)
                     {
                         newType = Type;
                     }
-                    // Corrupt/Crimson Ice -> BlissIce
+                    // Corrupt/Crimson Ice -> GoldenIce
                     else if (tile.TileType == TileID.CorruptIce || tile.TileType == TileID.FleshIce)
                     {
                         newType = Type;

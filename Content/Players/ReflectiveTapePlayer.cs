@@ -5,19 +5,19 @@ using VanillaPlus.Common.BuilderToggles;
 
 namespace VanillaPlus.Content.Players
 {
-    public class ReflectiveCollarPlayer : ModPlayer
+    public class ReflectiveTapePlayer : ModPlayer
     {
-        public bool hasReflectiveCollar;
+        public bool hasReflectiveTape;
 
         public override void Initialize()
         {
-            hasReflectiveCollar = false;
+            hasReflectiveTape = false;
         }
 
         public override void PostUpdate()
         {
             var toggle = ModContent.GetInstance<ShineBuilderToggle>();
-            if (hasReflectiveCollar && toggle.CurrentState == 1)
+            if (hasReflectiveTape && toggle.CurrentState == 1)
             {
                 Lighting.AddLight(Player.Center, 0.8f, 0.95f, 1f);
             }
@@ -25,34 +25,34 @@ namespace VanillaPlus.Content.Players
 
         public override void SaveData(TagCompound tag)
         {
-            if (hasReflectiveCollar)
-                tag["hasReflectiveCollar"] = true;
+            if (hasReflectiveTape)
+                tag["hasReflectiveTape"] = true;
         }
 
         public override void LoadData(TagCompound tag)
         {
-            hasReflectiveCollar = tag.GetBool("hasReflectiveCollar");
+            hasReflectiveTape = tag.GetBool("hasReflectiveTape");
         }
 
         public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
         {
             ModPacket packet = Mod.GetPacket();
-            packet.Write((byte)1); // Message type for ReflectiveCollar sync
+            packet.Write((byte)1); // Message type for ReflectiveTape sync
             packet.Write((byte)Player.whoAmI);
-            packet.Write(hasReflectiveCollar);
+            packet.Write(hasReflectiveTape);
             packet.Send(toWho, fromWho);
         }
 
         public override void CopyClientState(ModPlayer targetCopy)
         {
-            ReflectiveCollarPlayer clone = (ReflectiveCollarPlayer)targetCopy;
-            clone.hasReflectiveCollar = hasReflectiveCollar;
+            ReflectiveTapePlayer clone = (ReflectiveTapePlayer)targetCopy;
+            clone.hasReflectiveTape = hasReflectiveTape;
         }
 
         public override void SendClientChanges(ModPlayer clientPlayer)
         {
-            ReflectiveCollarPlayer clone = (ReflectiveCollarPlayer)clientPlayer;
-            if (hasReflectiveCollar != clone.hasReflectiveCollar)
+            ReflectiveTapePlayer clone = (ReflectiveTapePlayer)clientPlayer;
+            if (hasReflectiveTape != clone.hasReflectiveTape)
             {
                 SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
             }

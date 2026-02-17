@@ -219,7 +219,7 @@ namespace VanillaPlus.Common.Systems
                         {
                             Main.tile[x, y].WallType = WallID.PearlstoneBrickUnsafe; // TODO: BlisstonleWall
                         }
-                        // Ice walls - skip for now until we have BlissIceWall
+                        // Ice walls - skip for now until we have GoldenIceWall
                         // else if (Main.tile[x, y].WallType == WallID.IceUnsafe) { }
 
                         // Convert tiles (matching Confection's exact pattern)
@@ -250,7 +250,7 @@ namespace VanillaPlus.Common.Systems
                         }
                         else if (Main.tile[x, y].TileType == TileID.IceBlock || Main.tile[x, y].TileType == TileID.CorruptIce || Main.tile[x, y].TileType == TileID.FleshIce)
                         {
-                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<BlissIce>();
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<GoldenIce>();
                             WorldGen.SquareTileFrame(x, y);
                         }
                         else if (Main.tile[x, y].TileType == TileID.Sandstone || Main.tile[x, y].TileType == TileID.CorruptSandstone || Main.tile[x, y].TileType == TileID.CrimsonSandstone)

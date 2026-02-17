@@ -36,7 +36,7 @@ namespace VanillaPlus.Common.Systems
         public override void TileCountsAvailable(ReadOnlySpan<int> tileCounts)
         {
             // Count ice-type tiles for snow biome overlay
-            SnowRaptureCount = tileCounts[ModContent.TileType<BlissIce>()];
+            SnowRaptureCount = tileCounts[ModContent.TileType<GoldenIce>()];
 
             // Count desert-type tiles for desert biome overlay
             DesertRaptureCount = tileCounts[ModContent.TileType<Blissand>()]
@@ -47,7 +47,7 @@ namespace VanillaPlus.Common.Systems
             RaptureBlockCount = tileCounts[ModContent.TileType<Blisstone>()]
                 + tileCounts[ModContent.TileType<Blissgrass>()]
                 + tileCounts[ModContent.TileType<Blissand>()]
-                + tileCounts[ModContent.TileType<BlissIce>()]
+                + tileCounts[ModContent.TileType<GoldenIce>()]
                 + tileCounts[ModContent.TileType<HardenedBlissand>()]
                 + tileCounts[ModContent.TileType<Blissandstone>()];
 

@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 
 namespace VanillaPlus.Content.Items.Rapture
 {
-    public class BlissIce : ModItem
+    public class GoldenIce : ModItem
     {
         public override void SetDefaults()
         {
@@ -17,7 +17,7 @@ namespace VanillaPlus.Content.Items.Rapture
             Item.useTime = 10;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.consumable = true;
-            Item.createTile = ModContent.TileType<Tiles.Rapture.BlissIce>();
+            Item.createTile = ModContent.TileType<Tiles.Rapture.GoldenIce>();
         }
     }
 }
