@@ -152,4 +152,19 @@ Biomes: {
 	}
 }
 
-WorldGen.RaptureSpread: The divine light of Rapture has blessed the world!
+RaptureSelection: {
+	Random: {
+		Title: Random
+		Description: Let fate decide whether Hallow or Rapture defends your world.
+	}
+
+	Hallow: {
+		Title: Hallow
+		Description: Fairy-tale, whimsical Hallow is guaranteed to be present in your world.
+	}
+
+	Rapture: {
+		Title: Rapture
+		Description: Seraph-like Rapture is guaranteed to be present in your world.
+	}
+}

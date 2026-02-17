@@ -18,6 +18,16 @@ using VanillaPlus.Content.Walls.Rapture;
 namespace VanillaPlus.Common.Systems
 {
     /// <summary>
+    /// Options for world creation - which "good" biome to use.
+    /// </summary>
+    public enum RaptureOptions
+    {
+        Random,   // 50/50 chance of Hallow or Rapture
+        Hallow,   // Force vanilla Hallow
+        Rapture,  // Force Rapture biome
+    }
+
+    /// <summary>
     /// World system for the Rapture biome. Handles:
     /// - World flag for whether this world has Rapture instead of Hallow
     /// - Save/load of world data
@@ -26,6 +36,10 @@ namespace VanillaPlus.Common.Systems
     /// </summary>
     public class RaptureWorldSystem : ModSystem
     {
+        /// <summary>
+        /// The selected option from world creation UI.
+        /// </summary>
+        public RaptureOptions SelectedRaptureOption { get; set; } = RaptureOptions.Random;
         /// <summary>
         /// Whether this world has Rapture instead of Hallow.
         /// Set during hardmode generation (WoF kill).
@@ -100,40 +114,20 @@ namespace VanillaPlus.Common.Systems
 
         public override void ModifyHardmodeTasks(List<GenPass> list)
         {
-            // Decide if this world gets Rapture or Hallow
-            // DEBUG: Always Rapture for testing. Change to Main.rand.NextBool() for 50/50
-            HasRapture = true; // TODO: Make this random or configurable
-
-            if (HasRapture)
+            // Decide if this world gets Rapture or Hallow based on world creation selection
+            HasRapture = SelectedRaptureOption switch
             {
-                // Replace the hardmode announcement to mention Rapture
-                int announcementIndex = list.FindIndex(g => g.Name.Equals("Hardmode Announcement"));
-                if (announcementIndex != -1)
-                {
-                    list.Insert(announcementIndex + 1, new PassLegacy("Rapture Announcement", RaptureAnnouncement));
-                    list.RemoveAt(announcementIndex);
-                }
-            }
+                RaptureOptions.Random => Main.rand.NextBool(),
+                RaptureOptions.Hallow => false,
+                RaptureOptions.Rapture => true,
+                _ => Main.rand.NextBool(),
+            };
+
+            // Vanilla "Hardmode Announcement" will play - no custom message needed
 
             // Set random style variants
             RaptureTreeStyle = Main.rand.Next(3);
             RaptureBGStyle = Main.rand.Next(3);
-        }
-
-        private void RaptureAnnouncement(GenerationProgress progress, GameConfiguration config)
-        {
-            // Announce Rapture spread instead of Hallow
-            if (Main.netMode == NetmodeID.SinglePlayer)
-            {
-                Main.NewText(Language.GetTextValue("Mods.VanillaPlus.WorldGen.RaptureSpread"), 50, 255, 130);
-            }
-            else if (Main.netMode == NetmodeID.Server)
-            {
-                ChatHelper.BroadcastChatMessage(
-                    NetworkText.FromKey("Mods.VanillaPlus.WorldGen.RaptureSpread"),
-                    new Color(50, 255, 130)
-                );
-            }
         }
 
         /// <summary>
