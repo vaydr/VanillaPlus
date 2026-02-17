@@ -18,6 +18,11 @@ namespace VanillaPlus.Content.Biomes
         public override int Music => MusicID.TheHallow;
 
         /// <summary>
+        /// Custom bright gold water for the Rapture biome.
+        /// </summary>
+        public override ModWaterStyle WaterStyle => ModContent.Find<ModWaterStyle>("VanillaPlus/RaptureWaterStyle");
+
+        /// <summary>
         /// Priority level - same as Hallow (BiomeMedium).
         /// Desert overlay takes higher priority.
         /// </summary>
@@ -89,6 +94,8 @@ namespace VanillaPlus.Content.Biomes
         public override int Music => MusicID.UndergroundHallow; // Placeholder
 
         public override SceneEffectPriority Priority => SceneEffectPriority.BiomeLow;
+
+        public override ModWaterStyle WaterStyle => ModContent.Find<ModWaterStyle>("VanillaPlus/RaptureWaterStyle");
 
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/RaptureUndergroundBiomeIcon";
 

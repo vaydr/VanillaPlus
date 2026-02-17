@@ -23,12 +23,14 @@ namespace VanillaPlus.Content.Tiles.Rapture.Trees
         private Asset<Texture2D> treeTopTexture;
         private Asset<Texture2D> treeBranchTexture;
 
-        // Tree top frame size (80x80 per frame, 6 frames total)
+        // Tree top frame size (80x80 per frame, 9 frames total: blue 0-2, yellow 3-5, white 6-8)
         private const int TopFrameWidth = 80;
         private const int TopFrameHeight = 80;
-        // Tree branch frame size (40x40 per frame)
+        // Tree branch frame size (40x40 per frame, 6 columns: blue, yellow, white pairs)
         private const int BranchFrameWidth = 40;
         private const int BranchFrameHeight = 40;
+        // Branch pair width (right + left + spacing)
+        private const int BranchPairWidth = 84;
 
         public override void SetStaticDefaults()
         {
@@ -160,13 +162,10 @@ namespace VanillaPlus.Content.Tiles.Rapture.Trees
             if (tile.IsTileFullbright)
                 lightColor = Color.White;
 
-            // Determine tree frame variant (0-2 blue, 3-5 gold based on position)
+            // Determine tree frame variant (0-2 blue, 3-5 yellow, 6-8 white based on position)
             int treeFrame = WorldGen.GetTreeFrame(tile);
-            // Add 3 for gold variant based on tile position
-            if ((i + j) % 2 == 0)
-            {
-                treeFrame += 3;
-            }
+            int variant = (i + j) % 3; // 0 = blue, 1 = yellow, 2 = white
+            treeFrame += variant * 3;
 
             float rotationSway = 0.08f;
             float branchSway = 0.06f;
@@ -195,9 +194,8 @@ namespace VanillaPlus.Content.Tiles.Rapture.Trees
                             drawPos.X += windCycle;
                         drawPos.X += Math.Abs(windCycle) * 2f;
 
-                        // Right branch is first column in branch texture
-                        int branchVariant = (treeFrame >= 3) ? 1 : 0; // 0 = blue, 1 = gold
-                        Rectangle sourceRect = new Rectangle(branchVariant * (BranchFrameWidth * 2 + 4), (treeFrame % 3) * 42, BranchFrameWidth, BranchFrameHeight);
+                        // Right branch - variant determines which pair (0=blue, 1=yellow, 2=white)
+                        Rectangle sourceRect = new Rectangle(variant * BranchPairWidth, (treeFrame % 3) * 42, BranchFrameWidth, BranchFrameHeight);
                         Vector2 origin = new Vector2(BranchFrameWidth, 24f);
 
                         spriteBatch.Draw(treeBranchTexture.Value, drawPos, sourceRect, lightColor, windCycle * branchSway, origin, 1f, SpriteEffects.None, 0f);
@@ -210,9 +208,8 @@ namespace VanillaPlus.Content.Tiles.Rapture.Trees
                             drawPos.X += windCycle;
                         drawPos.X -= Math.Abs(windCycle) * 2f;
 
-                        // Left branch is second column in branch texture
-                        int branchVariant = (treeFrame >= 3) ? 1 : 0;
-                        Rectangle sourceRect = new Rectangle(branchVariant * (BranchFrameWidth * 2 + 4) + BranchFrameWidth + 2, (treeFrame % 3) * 42, BranchFrameWidth, BranchFrameHeight);
+                        // Left branch - variant determines which pair, +42 for left column
+                        Rectangle sourceRect = new Rectangle(variant * BranchPairWidth + BranchFrameWidth + 2, (treeFrame % 3) * 42, BranchFrameWidth, BranchFrameHeight);
                         Vector2 origin = new Vector2(0f, 30f);
 
                         spriteBatch.Draw(treeBranchTexture.Value, drawPos, sourceRect, lightColor, windCycle * branchSway, origin, 1f, SpriteEffects.None, 0f);
