@@ -9,42 +9,39 @@ using VanillaPlus.Common;
 namespace VanillaPlus.Content.Tiles.Rapture
 {
     /// <summary>
-    /// HardenedBlissand - the Rapture equivalent of Hardened Pearlsand.
-    /// Found in underground desert areas that have been converted to Rapture.
+    /// Blisstone - the Rapture equivalent of Pearlstone.
+    /// A divine white/gold stone that spreads Rapture.
     /// </summary>
-    public class HardenedBlissand : ModTile
+    public class Blisstone : ModTile
     {
-        public override string Texture => "Terraria/Images/Tiles_397"; // Use vanilla hardened sand texture
+        public override string Texture => "Terraria/Images/Tiles_1"; // Use vanilla stone texture
         public override void SetStaticDefaults()
         {
             Main.tileMergeDirt[Type] = true;
             Main.tileSolid[Type] = true;
+            Main.tileStone[Type] = true;
+            Main.tileShine2[Type] = true;
+            Main.tileShine[Type] = 9000;
+            Main.tileBrick[Type] = true;
             Main.tileBlockLight[Type] = true;
 
-            // Mark as hardened sand type for conversions
-            TileID.Sets.Conversion.HardenedSand[Type] = true;
-            TileID.Sets.ForAdvancedCollision.ForSandshark[Type] = true;
+            TileID.Sets.Conversion.Stone[Type] = true;
             TileID.Sets.ChecksForMerge[Type] = true;
             TileID.Sets.CanBeClearedDuringOreRunner[Type] = true;
 
-            // Rapture-specific sets
             RaptureIDs.Sets.CanGrowDivineShard[Type] = true;
             RaptureIDs.Sets.RaptureBiomeSight[Type] = true;
             RaptureIDs.Sets.Rapture[Type] = true;
             RaptureIDs.Sets.IsNaturalRaptureTile[Type] = true;
 
-            // Merge with other Rapture tiles
-            Main.tileMerge[Type][ModContent.TileType<Blisstone>()] = true;
-            Main.tileMerge[Type][ModContent.TileType<Blissand>()] = true;
-            Main.tileMerge[Type][ModContent.TileType<Blissandstone>()] = true;
+            AddMapEntry(new Color(240, 230, 200));
+            HitSound = SoundID.Tink;
+            MineResist = 2f;
+            MinPick = 65;
+            DustType = DustID.Pearlsand;
 
-            // Color: Slightly darker golden sand
-            AddMapEntry(new Color(210, 195, 160));
-
-            DustType = DustID.Sand;
-
-            // Drop the HardenedBlissand item
-            RegisterItemDrop(ModContent.ItemType<Items.Rapture.HardenedBlissand>());
+            // Drop the Blisstone item
+            RegisterItemDrop(ModContent.ItemType<Items.Rapture.Blisstone>());
         }
 
         // Gold tint color for Rapture theme
@@ -53,7 +50,7 @@ namespace VanillaPlus.Content.Tiles.Rapture
         public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)
         {
             Tile tile = Main.tile[i, j];
-            Texture2D texture = TextureAssets.Tile[TileID.HardenedSand].Value;
+            Texture2D texture = TextureAssets.Tile[TileID.Stone].Value;
             Vector2 zero = Main.drawToScreen ? Vector2.Zero : new Vector2(Main.offScreenRange);
             Vector2 position = new Vector2(i * 16, j * 16) - Main.screenPosition + zero;
             Rectangle frame = new Rectangle(tile.TileFrameX, tile.TileFrameY, 16, 16);
@@ -71,55 +68,33 @@ namespace VanillaPlus.Content.Tiles.Rapture
             SpreadRapture(i, j);
         }
 
-        /// <summary>
-        /// Spread Rapture to adjacent hardened sand tiles.
-        /// </summary>
         private void SpreadRapture(int i, int j)
         {
             for (int x = i - 1; x <= i + 1; x++)
             {
                 for (int y = j - 1; y <= j + 1; y++)
                 {
-                    if (x == i && y == j)
-                        continue;
-
-                    if (!WorldGen.InWorld(x, y, 1))
-                        continue;
+                    if (x == i && y == j) continue;
+                    if (!WorldGen.InWorld(x, y, 1)) continue;
 
                     Tile tile = Main.tile[x, y];
-                    if (!tile.HasTile)
-                        continue;
-
-                    if (!WorldGen.genRand.NextBool(3))
-                        continue;
+                    if (!tile.HasTile) continue;
+                    if (!WorldGen.genRand.NextBool(3)) continue;
 
                     ushort newType = 0;
 
-                    // Hardened Sand -> HardenedBlissand
-                    if (tile.TileType == TileID.HardenedSand)
+                    if (tile.TileType == TileID.Stone || tile.TileType == TileID.Pearlstone ||
+                        tile.TileType == TileID.Ebonstone || tile.TileType == TileID.Crimstone)
                     {
-                        newType = Type;
-                    }
-                    // Hallow Hardened Sand -> HardenedBlissand
-                    else if (tile.TileType == TileID.HallowHardenedSand)
-                    {
-                        newType = Type;
-                    }
-                    // Corrupt/Crimson Hardened Sand -> HardenedBlissand
-                    else if (tile.TileType == TileID.CorruptHardenedSand || tile.TileType == TileID.CrimsonHardenedSand)
-                    {
-                        newType = Type;
+                        newType = (ushort)ModContent.TileType<Blisstone>();
                     }
 
                     if (newType != 0)
                     {
                         tile.TileType = newType;
                         WorldGen.SquareTileFrame(x, y);
-
                         if (Main.netMode == NetmodeID.Server)
-                        {
                             NetMessage.SendTileSquare(-1, x, y, 1);
-                        }
                     }
                 }
             }

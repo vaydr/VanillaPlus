@@ -194,16 +194,75 @@ namespace VanillaPlus.Common.Systems
                 {
                     for (int y = minY; y < maxY; y++)
                     {
-                        // Check if within elliptical area
-                        double distFromCenter = Math.Abs(x - position.X) + Math.Abs(y - position.Y);
-                        double threshold = runnerSize * 0.5 * (1.0 + WorldGen.genRand.Next(-10, 11) * 0.015);
-
-                        if (distFromCenter >= threshold)
+                        // Check if within elliptical area (same as Confection)
+                        if (!(Math.Abs((double)x - position.X) + Math.Abs((double)y - position.Y) < (double)runnerSize * 0.5 * (1.0 + (double)WorldGen.genRand.Next(-10, 11) * 0.015)))
                             continue;
 
-                        // Convert tiles to Rapture variants
-                        ConvertTileToRapture(x, y);
-                        ConvertWallToRapture(x, y);
+                        // Convert walls first (matching Confection's pattern)
+                        if (Main.tile[x, y].WallType == WallID.GrassUnsafe || Main.tile[x, y].WallType == WallID.FlowerUnsafe ||
+                            Main.tile[x, y].WallType == WallID.Grass || Main.tile[x, y].WallType == WallID.Flower ||
+                            Main.tile[x, y].WallType == WallID.CorruptGrassUnsafe || Main.tile[x, y].WallType == WallID.CrimsonGrassUnsafe)
+                        {
+                            Main.tile[x, y].WallType = WallID.HallowedGrassUnsafe; // TODO: RaptureGrassWall
+                        }
+                        else if (Main.tile[x, y].WallType == WallID.HardenedSand || Main.tile[x, y].WallType == WallID.CorruptHardenedSand ||
+                                 Main.tile[x, y].WallType == WallID.CrimsonHardenedSand)
+                        {
+                            Main.tile[x, y].WallType = WallID.HallowHardenedSand; // TODO: HardenedBlissandWall
+                        }
+                        else if (Main.tile[x, y].WallType == WallID.Sandstone || Main.tile[x, y].WallType == WallID.CorruptSandstone ||
+                                 Main.tile[x, y].WallType == WallID.CrimsonSandstone)
+                        {
+                            Main.tile[x, y].WallType = WallID.HallowSandstone; // TODO: BlissandstoneWall
+                        }
+                        else if (Main.tile[x, y].WallType == WallID.EbonstoneUnsafe || Main.tile[x, y].WallType == WallID.CrimstoneUnsafe)
+                        {
+                            Main.tile[x, y].WallType = WallID.PearlstoneBrickUnsafe; // TODO: BlisstonleWall
+                        }
+                        // Ice walls - skip for now until we have BlissIceWall
+                        // else if (Main.tile[x, y].WallType == WallID.IceUnsafe) { }
+
+                        // Convert tiles (matching Confection's exact pattern)
+                        if (Main.tile[x, y].TileType == TileID.Grass)
+                        {
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<Blissgrass>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        else if (Main.tile[x, y].TileType == TileID.Stone || Main.tile[x, y].TileType == TileID.Ebonstone || Main.tile[x, y].TileType == TileID.Crimstone)
+                        {
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<Blisstone>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        else if (Main.tile[x, y].TileType == TileID.Sand || Main.tile[x, y].TileType == TileID.Ebonsand || Main.tile[x, y].TileType == TileID.Crimsand)
+                        {
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<Blissand>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        else if (Main.tile[x, y].TileType == TileID.CorruptJungleGrass || Main.tile[x, y].TileType == TileID.CrimsonJungleGrass)
+                        {
+                            Main.tile[x, y].TileType = TileID.JungleGrass;
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        else if (Main.tile[x, y].TileType == TileID.CorruptGrass || Main.tile[x, y].TileType == TileID.CrimsonGrass)
+                        {
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<Blissgrass>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        else if (Main.tile[x, y].TileType == TileID.IceBlock || Main.tile[x, y].TileType == TileID.CorruptIce || Main.tile[x, y].TileType == TileID.FleshIce)
+                        {
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<BlissIce>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        else if (Main.tile[x, y].TileType == TileID.Sandstone || Main.tile[x, y].TileType == TileID.CorruptSandstone || Main.tile[x, y].TileType == TileID.CrimsonSandstone)
+                        {
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<Blissandstone>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        else if (Main.tile[x, y].TileType == TileID.HardenedSand || Main.tile[x, y].TileType == TileID.CorruptHardenedSand || Main.tile[x, y].TileType == TileID.CrimsonHardenedSand)
+                        {
+                            Main.tile[x, y].TileType = (ushort)ModContent.TileType<HardenedBlissand>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
                     }
                 }
 
@@ -230,141 +289,6 @@ namespace VanillaPlus.Common.Systems
                     running = false;
                 if (position.X < 0 || position.X > Main.maxTilesX)
                     running = false;
-            }
-        }
-
-        /// <summary>
-        /// Convert a tile at position (x, y) to its Rapture equivalent.
-        /// </summary>
-        private static void ConvertTileToRapture(int x, int y)
-        {
-            Tile tile = Main.tile[x, y];
-            if (!tile.HasTile)
-                return;
-
-            ushort newType = tile.TileType;
-            bool converted = false;
-
-            // Stone variants -> Blisite
-            if (tile.TileType == TileID.Stone ||
-                tile.TileType == TileID.Ebonstone ||
-                tile.TileType == TileID.Crimstone ||
-                tile.TileType == TileID.Pearlstone)
-            {
-                newType = (ushort)ModContent.TileType<Blisite>();
-                converted = true;
-            }
-            // Grass variants -> Blissgrass
-            else if (tile.TileType == TileID.Grass ||
-                     tile.TileType == TileID.CorruptGrass ||
-                     tile.TileType == TileID.CrimsonGrass ||
-                     tile.TileType == TileID.HallowedGrass)
-            {
-                newType = (ushort)ModContent.TileType<Blissgrass>();
-                converted = true;
-            }
-            // Sand variants -> Blissand
-            else if (tile.TileType == TileID.Sand ||
-                     tile.TileType == TileID.Ebonsand ||
-                     tile.TileType == TileID.Crimsand ||
-                     tile.TileType == TileID.Pearlsand)
-            {
-                newType = (ushort)ModContent.TileType<Blissand>();
-                converted = true;
-            }
-            // Ice variants -> BlissIce
-            else if (tile.TileType == TileID.IceBlock ||
-                     tile.TileType == TileID.CorruptIce ||
-                     tile.TileType == TileID.FleshIce ||
-                     tile.TileType == TileID.HallowedIce)
-            {
-                newType = (ushort)ModContent.TileType<BlissIce>();
-                converted = true;
-            }
-            // Hardened Sand variants -> HardenedBlissand
-            else if (tile.TileType == TileID.HardenedSand ||
-                     tile.TileType == TileID.CorruptHardenedSand ||
-                     tile.TileType == TileID.CrimsonHardenedSand ||
-                     tile.TileType == TileID.HallowHardenedSand)
-            {
-                newType = (ushort)ModContent.TileType<HardenedBlissand>();
-                converted = true;
-            }
-            // Sandstone variants -> Blissandstone
-            else if (tile.TileType == TileID.Sandstone ||
-                     tile.TileType == TileID.CorruptSandstone ||
-                     tile.TileType == TileID.CrimsonSandstone ||
-                     tile.TileType == TileID.HallowSandstone)
-            {
-                newType = (ushort)ModContent.TileType<Blissandstone>();
-                converted = true;
-            }
-            // Jungle grass - don't convert (Rapture doesn't spread to jungle)
-            else if (tile.TileType == TileID.CorruptJungleGrass ||
-                     tile.TileType == TileID.CrimsonJungleGrass)
-            {
-                // Purify corrupted jungle grass back to normal
-                newType = TileID.JungleGrass;
-                converted = true;
-            }
-            // Check custom conversion table
-            else if (RaptureIDs.Sets.ConvertsToRapture[tile.TileType] >= 0)
-            {
-                newType = (ushort)RaptureIDs.Sets.ConvertsToRapture[tile.TileType];
-                converted = true;
-            }
-
-            if (converted)
-            {
-                tile.TileType = newType;
-                WorldGen.SquareTileFrame(x, y);
-            }
-        }
-
-        /// <summary>
-        /// Convert a wall at position (x, y) to its Rapture equivalent.
-        /// </summary>
-        private static void ConvertWallToRapture(int x, int y)
-        {
-            Tile tile = Main.tile[x, y];
-
-            // Convert grass walls
-            if (tile.WallType == WallID.GrassUnsafe ||
-                tile.WallType == WallID.FlowerUnsafe ||
-                tile.WallType == WallID.Grass ||
-                tile.WallType == WallID.Flower ||
-                tile.WallType == WallID.CorruptGrassUnsafe ||
-                tile.WallType == WallID.CrimsonGrassUnsafe ||
-                tile.WallType == WallID.HallowedGrassUnsafe)
-            {
-                // TODO: Create RaptureGrassWall and use it here
-                // For now, use vanilla hallowed grass wall as placeholder
-                tile.WallType = WallID.HallowedGrassUnsafe;
-            }
-            // Convert hardened sand walls
-            else if (tile.WallType == WallID.HardenedSand ||
-                     tile.WallType == WallID.CorruptHardenedSand ||
-                     tile.WallType == WallID.CrimsonHardenedSand ||
-                     tile.WallType == WallID.HallowHardenedSand)
-            {
-                // TODO: Create HardenedBlissandWall
-                tile.WallType = WallID.HallowHardenedSand;
-            }
-            // Convert sandstone walls
-            else if (tile.WallType == WallID.Sandstone ||
-                     tile.WallType == WallID.CorruptSandstone ||
-                     tile.WallType == WallID.CrimsonSandstone ||
-                     tile.WallType == WallID.HallowSandstone)
-            {
-                // TODO: Create BlissandstoneWall
-                tile.WallType = WallID.HallowSandstone;
-            }
-            // Convert stone walls (ebonstone, crimstone, etc.)
-            else if (tile.WallType == WallID.EbonstoneUnsafe ||
-                     tile.WallType == WallID.CrimstoneUnsafe)
-            {
-                // TODO: Create BlisiteWall
-                tile.WallType = WallID.PearlstoneBrickUnsafe;
             }
         }
     }

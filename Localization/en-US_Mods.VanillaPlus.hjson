@@ -63,6 +63,31 @@ Items: {
 		DisplayName: Reflective Collar
 		Tooltip: Permanently unlocks a toggleable shine effect
 	}
+
+	Blissand: {
+		DisplayName: Blissand
+		Tooltip: ""
+	}
+
+	Blissandstone: {
+		DisplayName: Blissandstone
+		Tooltip: ""
+	}
+
+	BlissIce: {
+		DisplayName: Bliss Ice
+		Tooltip: ""
+	}
+
+	Blisstone: {
+		DisplayName: Blisstone
+		Tooltip: ""
+	}
+
+	HardenedBlissand: {
+		DisplayName: Hardened Blissand
+		Tooltip: ""
+	}
 }
 
 Buffs: {

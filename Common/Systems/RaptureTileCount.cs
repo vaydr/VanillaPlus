@@ -44,7 +44,7 @@ namespace VanillaPlus.Common.Systems
                 + tileCounts[ModContent.TileType<HardenedBlissand>()];
 
             // Total Rapture tile count for biome detection
-            RaptureBlockCount = tileCounts[ModContent.TileType<Blisite>()]
+            RaptureBlockCount = tileCounts[ModContent.TileType<Blisstone>()]
                 + tileCounts[ModContent.TileType<Blissgrass>()]
                 + tileCounts[ModContent.TileType<Blissand>()]
                 + tileCounts[ModContent.TileType<BlissIce>()]
