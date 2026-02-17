@@ -47,7 +47,17 @@ namespace VanillaPlus.Content.Tiles.Rapture.Trees
             AddMapEntry(new Color(220, 215, 210), name);
 
             DustType = DustID.BorealWood;
+        }
 
+        public override void SetDrawPositions(int i, int j, ref int width, ref int offsetY, ref int height, ref short tileFrameX, ref short tileFrameY)
+        {
+            // Adjust draw dimensions to match vanilla tree drawing
+            width = 20;
+            height = 20;
+        }
+
+        public override void Load()
+        {
             // Load textures
             treeTopTexture = ModContent.Request<Texture2D>("VanillaPlus/Content/Tiles/Rapture/Trees/HedonTree_Tops");
             treeBranchTexture = ModContent.Request<Texture2D>("VanillaPlus/Content/Tiles/Rapture/Trees/HedonTree_Branches");
