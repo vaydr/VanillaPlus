@@ -5,12 +5,18 @@
 
 	<!-- General -->
 	<PropertyGroup>
-		
+
 	</PropertyGroup>
 
 	<!-- References -->
 	<ItemGroup>
-		
+
+	</ItemGroup>
+
+	<!-- Exclude ConfectionREBAKED reference folder from compilation -->
+	<ItemGroup>
+		<Compile Remove="ConfectionREBAKED\**\*.cs" />
+		<None Include="ConfectionREBAKED\**\*" />
 	</ItemGroup>
 
 </Project>

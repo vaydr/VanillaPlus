@@ -97,3 +97,27 @@ Projectiles: {
 }
 
 NPCs.TempleGuardian.DisplayName: Temple Guardian
+
+// Rapture Biome Content
+Tiles: {
+	Blisite.MapEntry: Blisite
+	Blissgrass.MapEntry: Blissgrass
+	Blissand.MapEntry: Blissand
+	BlissIce.MapEntry: Bliss Ice
+	HardenedBlissand.MapEntry: Hardened Blissand
+	Blissandstone.MapEntry: Blissandstone
+}
+
+Biomes: {
+	RaptureBiome: {
+		DisplayName: Rapture
+		TownNPCDialogueName: the Rapture
+	}
+
+	RaptureUndergroundBiome: {
+		DisplayName: Underground Rapture
+		TownNPCDialogueName: the Underground Rapture
+	}
+}
+
+WorldGen.RaptureSpread: The divine light of Rapture has blessed the world!

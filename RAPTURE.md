@@ -33,7 +33,9 @@
 
 ## Reference Implementation - CRITICAL
 
-### **Confection REBAKED** (local copy: `ConfectionREBAKED/`)
+### **Confection REBAKED** (reference copy: `../ConfectionREBAKED_Reference/`)
+
+> **NOTE**: The reference folder is located ONE LEVEL UP in `ModSources/ConfectionREBAKED_Reference/` to prevent it from being compiled with VanillaPlus.
 
 This is THE reference implementation. The Confection mod does **almost exactly** what we want to do with Rapture. It is a complete, working Hallow alternative with:
 
@@ -46,10 +48,10 @@ This is THE reference implementation. The Confection mod does **almost exactly**
 - ✅ Full multiplayer support
 
 **Key files to study:**
-- `ConfectionREBAKED/Common/Systems/ConfectionWorldGeneration.cs` - Hardmode tasks, V-stripe generation
-- `ConfectionREBAKED/Biomes/` - ModBiome implementation
-- `ConfectionREBAKED/Tiles/` - Spreading tile patterns
-- `ConfectionREBAKED/NPCs/` - Biome enemy spawning
+- `../ConfectionREBAKED_Reference/Common/Systems/ConfectionWorldGeneration.cs` - Hardmode tasks, V-stripe generation
+- `../ConfectionREBAKED_Reference/Biomes/` - ModBiome implementation
+- `../ConfectionREBAKED_Reference/Tiles/` - Spreading tile patterns
+- `../ConfectionREBAKED_Reference/NPCs/` - Biome enemy spawning
 
 **License**: CC - source code can be freely used with or without credit.
 
@@ -440,7 +442,7 @@ VanillaPlus/
 - **DEBUG MODE**: Currently hardcoded to always generate Rapture. Change to 50/50 when development is complete.
 - **SPRITES**: Use recolored vanilla sprites initially. Custom sprites come later.
 - **BACKGROUNDS**: Use Hallow backgrounds as placeholder.
-- Study the local `ConfectionREBAKED/` folder for all implementation patterns
+- Study the local `../ConfectionREBAKED_Reference/` folder for all implementation patterns
 - The Hallow uses tiles: 109 (grass), 117 (stone), 116 (sand), 164 (ice), 402 (hardened sand), 403 (sandstone)
 
 ---
