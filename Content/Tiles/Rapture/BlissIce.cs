@@ -1,7 +1,5 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Common;
@@ -14,7 +12,6 @@ namespace VanillaPlus.Content.Tiles.Rapture
     /// </summary>
     public class BlissIce : ModTile
     {
-        public override string Texture => "Terraria/Images/Tiles_161"; // Use vanilla ice texture
         public override void SetStaticDefaults()
         {
             Main.tileSolid[Type] = true;
@@ -60,22 +57,6 @@ namespace VanillaPlus.Content.Tiles.Rapture
 
             // Drop the BlissIce item
             RegisterItemDrop(ModContent.ItemType<Items.Rapture.BlissIce>());
-        }
-
-        // Gold tint color for Rapture theme
-        private static readonly Color RaptureTint = Main.hslToRgb(0.12f, 0.6f, 0.75f);
-
-        public override bool PreDraw(int i, int j, SpriteBatch spriteBatch)
-        {
-            Tile tile = Main.tile[i, j];
-            Texture2D texture = TextureAssets.Tile[TileID.IceBlock].Value;
-            Vector2 zero = Main.drawToScreen ? Vector2.Zero : new Vector2(Main.offScreenRange);
-            Vector2 position = new Vector2(i * 16, j * 16) - Main.screenPosition + zero;
-            Rectangle frame = new Rectangle(tile.TileFrameX, tile.TileFrameY, 16, 16);
-            Color color = new Color(Lighting.GetColor(i, j).ToVector4() * RaptureTint.ToVector4());
-
-            spriteBatch.Draw(texture, position, frame, color, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-            return false;
         }
 
         public override void RandomUpdate(int i, int j)
