@@ -4,7 +4,6 @@ using Terraria.GameContent.UI.States;
 using Terraria.ModLoader;
 using VanillaPlus.Common.Systems;
 using VanillaPlus.Common.UI;
-using VanillaPlus.Content.Biomes;
 
 namespace VanillaPlus
 {

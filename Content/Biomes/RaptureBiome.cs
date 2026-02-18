@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Common.Systems;
+using VanillaPlus.Content.Biomes.Backgrounds;
 
 namespace VanillaPlus.Content.Biomes
 {
@@ -54,15 +55,69 @@ namespace VanillaPlus.Content.Biomes
         }
 
         /// <summary>
-        /// Use Hallow background as placeholder until custom backgrounds are created.
-        /// Returns null to fall back to vanilla handling.
+        /// Surface background style - desert or regular Hallow variants.
         /// </summary>
-        public override ModSurfaceBackgroundStyle SurfaceBackgroundStyle => null;
+        public override ModSurfaceBackgroundStyle SurfaceBackgroundStyle
+        {
+            get
+            {
+                if (Main.LocalPlayer.ZoneDesert)
+                    return ModContent.GetInstance<RaptureDesertSurfaceBackgroundStyle>();
+                return ModContent.GetInstance<RaptureSurfaceBackgroundStyle>();
+            }
+        }
 
         /// <summary>
-        /// Map background path - use Hallow's for now.
+        /// Underground background style with ice variant.
+        /// Uses cavern (196-199) or ice (203-206) backgrounds.
         /// </summary>
-        public override string MapBackground => "Terraria/Images/MapBG1";
+        public override ModUndergroundBackgroundStyle UndergroundBackgroundStyle
+        {
+            get
+            {
+                // Check depth for underground BG display
+                double num2 = Main.maxTilesY - 330;
+                double num3 = (int)((num2 - Main.worldSurface) / 6.0) * 6;
+                num2 = Main.worldSurface + num3 - 5.0;
+
+                if ((double)(Main.screenPosition.Y / 16f) > Main.rockLayer + 60.0
+                    && (double)(Main.screenPosition.Y / 16f) < num2 - 60.0)
+                {
+                    if (Main.LocalPlayer.ZoneSnow)
+                        return ModContent.GetInstance<RaptureUndergroundSnowBackgroundStyle>();
+                    // Desert underground uses same cavern backgrounds as regular underground
+                    return ModContent.GetInstance<RaptureUndergroundBackgroundStyle>();
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Map background path - conditional based on player zone.
+        /// Surface Hallow = MapBG8, Underground Hallow = MapBG22, Ice Hallow = MapBG36, Desert Hallow = MapBG39
+        /// </summary>
+        public override string MapBackground
+        {
+            get
+            {
+                bool isUnderground = Main.LocalPlayer.ZoneDirtLayerHeight || Main.LocalPlayer.ZoneRockLayerHeight;
+
+                // Ice - surface uses regular ice (MapBG12), underground uses ice hallow (MapBG36)
+                if (Main.LocalPlayer.ZoneSnow)
+                    return isUnderground ? "Terraria/Images/MapBG36" : "Terraria/Images/MapBG12";
+
+                // Desert variant (surface only has special bg)
+                if (Main.LocalPlayer.ZoneDesert && !Main.LocalPlayer.ZoneBeach)
+                    return "Terraria/Images/MapBG39";
+
+                // Underground hallow
+                if (isUnderground)
+                    return "Terraria/Images/MapBG22";
+
+                // Surface hallow (default)
+                return "Terraria/Images/MapBG8";
+            }
+        }
 
         /// <summary>
         /// Bestiary background icon path.
@@ -107,6 +162,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/RaptureUndergroundBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/RaptureUndergroundBiomeBackground";
+        public override string MapBackground => "Terraria/Images/MapBG22";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -124,6 +180,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/IceRaptureBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/IceRaptureBiomeBackground";
+        public override string MapBackground => "Terraria/Images/MapBG36";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -140,6 +197,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/IceRaptureUndergroundBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/IceRaptureUndergroundBiomeBackground";
+        public override string MapBackground => "Terraria/Images/MapBG36";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -156,6 +214,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/DesertRaptureBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/DesertRaptureBiomeBackground";
+        public override string MapBackground => "Terraria/Images/MapBG39";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -172,6 +231,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/DesertRaptureUndergroundBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/DesertRaptureUndergroundBiomeBackground";
+        public override string MapBackground => "Terraria/Images/MapBG22";
 
         public override bool IsBiomeActive(Player player)
         {
