@@ -143,6 +143,8 @@ Tiles: {
 	HardenedBlissand.MapEntry: Hardened Blissand
 	Blissandstone.MapEntry: Blissandstone
 	HedonTree.MapEntry: Hedon Tree
+	RadiantShard.MapEntry: Radiant Shard
+	GlowingRadiantShard.MapEntry: Radiant Shard
 }
 
 Biomes: {

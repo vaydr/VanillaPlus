@@ -435,7 +435,7 @@ def recolor_water(image):
     return result
 
 def recolor_radiant_shard(image):
-    """RadiantShard: cyan -> baby blue, pink/magenta -> gold, purple -> white"""
+    """RadiantShard: cyan -> very light pastel baby blue, pink/magenta -> gold, purple -> white"""
     if image.mode != 'RGBA':
         image = image.convert('RGBA')
 
@@ -456,10 +456,11 @@ def recolor_radiant_shard(image):
         elif 0.7 < h <= 0.8:
             s = s * 0.1  # Nearly white
             l = min(1.0, l + 0.2)
-        # Cyan/teal (hue ~0.45-0.55) -> baby blue (brighten)
-        elif 0.45 < h < 0.55:
-            h = 0.55  # Sky/baby blue
-            l = min(1.0, l + 0.1)
+        # Cyan/teal/blue (hue ~0.45-0.6) -> soft baby blue (not too washed out)
+        elif 0.45 < h < 0.6:
+            h = 0.56  # Baby blue
+            l = min(1.0, l + 0.15)  # Moderate brightness
+            s = max(0.45, s * 0.7)  # Keep more saturation for visibility
 
         r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
         new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
@@ -469,7 +470,7 @@ def recolor_radiant_shard(image):
     return result
 
 def recolor_glowing_radiant_shard(image):
-    """GlowingRadiantShard: same as radiant but brighter"""
+    """GlowingRadiantShard: same as radiant but even brighter/more glowing"""
     if image.mode != 'RGBA':
         image = image.convert('RGBA')
 
@@ -492,10 +493,11 @@ def recolor_glowing_radiant_shard(image):
         elif 0.7 < h <= 0.8:
             s = s * 0.05
             l = min(1.0, l + 0.3)
-        # Cyan -> bright baby blue
-        elif 0.45 < h < 0.55:
-            h = 0.55
-            l = min(1.0, l + 0.2)
+        # Cyan/teal/blue -> brighter baby blue (glowing but still visible)
+        elif 0.45 < h < 0.6:
+            h = 0.56  # Baby blue
+            l = min(1.0, l + 0.25)  # Brighter for glow
+            s = max(0.4, s * 0.6)  # Keep some saturation for visibility
 
         r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
         new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))

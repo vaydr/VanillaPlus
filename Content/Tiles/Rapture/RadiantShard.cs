@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace VanillaPlus.Content.Tiles.Rapture
@@ -32,7 +33,10 @@ namespace VanillaPlus.Content.Tiles.Rapture
 
             DustType = DustID.YellowTorch; // Gold dust
             HitSound = SoundID.Item27;
-            AddMapEntry(new Color(255, 215, 100)); // Gold
+
+            // Map entry with hover text
+            LocalizedText name = CreateMapEntryName();
+            AddMapEntry(new Color(255, 215, 100), name); // Gold
 
             RegisterItemDrop(ModContent.ItemType<Items.Rapture.RadiantShard>());
         }
@@ -42,36 +46,69 @@ namespace VanillaPlus.Content.Tiles.Rapture
             num = fail ? 1 : 3;
         }
 
+        /// <summary>
+        /// Called when the tile frame is being recalculated.
+        /// Returns false to destroy the tile if the attached block is gone.
+        /// </summary>
+        public override bool TileFrame(int i, int j, ref bool resetFrame, ref bool noBreak)
+        {
+            Tile tile = Main.tile[i, j];
+            short frameY = tile.TileFrameY;
+
+            // Check if the attached tile still exists based on orientation
+            Tile attachedTile;
+            if (frameY == 0)
+                attachedTile = Main.tile[i, j + 1]; // Floor attachment - check below
+            else if (frameY == 18)
+                attachedTile = Main.tile[i, j - 1]; // Ceiling attachment - check above
+            else if (frameY == 36)
+                attachedTile = Main.tile[i + 1, j]; // Right wall attachment - check right
+            else if (frameY == 54)
+                attachedTile = Main.tile[i - 1, j]; // Left wall attachment - check left
+            else
+                return true; // Unknown orientation, let it be
+
+            // If attached tile is no longer solid, kill this shard
+            if (!attachedTile.HasTile || !Main.tileSolid[attachedTile.TileType] ||
+                attachedTile.IsHalfBlock || attachedTile.Slope != SlopeType.Solid)
+            {
+                WorldGen.KillTile(i, j);
+                return false;
+            }
+
+            return true;
+        }
+
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)
         {
             // Get the frame to determine crystal color
             Tile tile = Main.tile[i, j];
-            int frameColumn = tile.TileFrameX / 18;
+            int frameColumn = tile.TileFrameX / 18; // 0-17
 
-            // Sprite sheet has 3 color groups repeating: blue, gold, white
-            // Pattern appears to be roughly: 0-5 blue, 6-11 gold, 12-17 white
-            int colorGroup = frameColumn % 18;
+            // Sprite sheet cycles: blue, yellow, white repeating
+            // Column 0,3,6,9,12,15 = blue | 1,4,7,10,13,16 = yellow | 2,5,8,11,14,17 = white
+            int colorIndex = frameColumn % 3;
 
-            if (colorGroup < 6)
+            if (colorIndex == 0)
             {
-                // Blue/cyan crystals - subtle blue glow
-                r = 0.15f;
-                g = 0.25f;
-                b = 0.35f;
+                // Baby blue crystals - pastel baby blue glow
+                r = 0.5f;
+                g = 0.7f;
+                b = 0.85f;
             }
-            else if (colorGroup < 12)
+            else if (colorIndex == 1)
             {
-                // Gold/yellow crystals - subtle gold glow
-                r = 0.35f;
-                g = 0.30f;
-                b = 0.1f;
+                // Yellow/gold crystals - warm yellow glow
+                r = 0.55f;
+                g = 0.5f;
+                b = 0.15f;
             }
             else
             {
                 // White/silver crystals - subtle white glow
-                r = 0.3f;
-                g = 0.3f;
-                b = 0.3f;
+                r = 0.4f;
+                g = 0.4f;
+                b = 0.4f;
             }
         }
 
