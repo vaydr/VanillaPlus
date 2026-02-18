@@ -88,9 +88,7 @@ namespace VanillaPlus.Common
                 for (int ny = j - 4; ny <= j + 4; ny++)
                 {
                     if (!WorldGen.InWorld(nx, ny)) continue;
-                    var checkType = Main.tile[nx, ny].TileType;
-                    if (checkType == ModContent.TileType<RadiantShard>() ||
-                        checkType == ModContent.TileType<GlowingRadiantShard>())
+                    if (Main.tile[nx, ny].TileType == ModContent.TileType<RadiantShard>())
                         return;
                 }
             }
@@ -122,13 +120,8 @@ namespace VanillaPlus.Common
 
                 if (!WorldGen.InWorld(nx, ny, 1)) continue;
 
-                // ~17% chance for glowing variant
-                ushort shardType = WorldGen.genRand.NextBool(6)
-                    ? (ushort)ModContent.TileType<GlowingRadiantShard>()
-                    : (ushort)ModContent.TileType<RadiantShard>();
-
                 // Use the helper method that properly sets TileFrameX/Y for orientation
-                if (RadiantShard.PlaceShardWithFrame(nx, ny, shardType))
+                if (RadiantShard.PlaceShardWithFrame(nx, ny, (ushort)ModContent.TileType<RadiantShard>()))
                     break;
             }
         }

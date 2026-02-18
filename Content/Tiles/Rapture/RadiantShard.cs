@@ -27,9 +27,8 @@ namespace VanillaPlus.Content.Tiles.Rapture
 
             TileID.Sets.ChecksForMerge[Type] = true;
 
-            // Merge with Blisstone and GlowingRadiantShard
+            // Merge with Blisstone
             Main.tileMerge[Type][ModContent.TileType<Blisstone>()] = true;
-            Main.tileMerge[Type][ModContent.TileType<GlowingRadiantShard>()] = true;
 
             DustType = DustID.YellowTorch; // Gold dust
             HitSound = SoundID.Item27;
@@ -181,12 +180,7 @@ namespace VanillaPlus.Content.Tiles.Rapture
             if (growTile.HasTile || growTile.LiquidType == LiquidID.Lava)
                 return;
 
-            // 15% chance for glowing variant when growing from existing shard
-            ushort shardType = WorldGen.genRand.NextBool(6)  // ~17% for glowing
-                ? (ushort)ModContent.TileType<GlowingRadiantShard>()
-                : Type;
-
-            PlaceShardWithFrame(growX, growY, shardType);
+            PlaceShardWithFrame(growX, growY, Type);
         }
 
         /// <summary>
