@@ -219,8 +219,8 @@ namespace VanillaPlus.Common.UI
             Color[][] colors =
             {
                 new[] { Color.White },
-                new[] { Color.Cyan, Color.Magenta }, // Hallow cycles cyan/magenta
-                new[] { Color.Yellow, Color.White, Color.SkyBlue }, // Rapture cycles yellow/white/sky blue
+                new[] { Color.Cyan, Color.LightPink }, // Hallow cycles cyan/magenta
+                new[] { Color.Yellow, Color.White, Color.LightBlue }, // Rapture cycles yellow/white/sky blue
             };
             Asset<Texture2D>[] icons =
             {
