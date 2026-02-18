@@ -344,6 +344,90 @@ def recolor_cavern1(image):
     result.putdata(new_pixels)
     return result
 
+def recolor_ice_mapbg(image):
+    """IceMapBackground: pinks/purples -> banana yellow"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Pinks/magentas/purples/violets (hue ~0.6-1.0 or 0.0-0.05) -> banana yellow
+        # Catches even dark purples
+        if h > 0.6 or h < 0.05:
+            h = 0.14  # Banana yellow
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_underground_mapbg(image):
+    """UndergroundMapBackground: pinks/purples -> banana yellow, blues -> baby blue"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Pinks/magentas/purples/violets (hue ~0.6-1.0 or 0.0-0.05) -> banana yellow
+        # Catches even dark purples
+        if h > 0.6 or h < 0.05:
+            h = 0.14  # Banana yellow
+        # Blues (hue ~0.5-0.6) -> lighter baby blue
+        elif 0.5 < h <= 0.6:
+            h = 0.55  # Sky/baby blue
+            l = min(1.0, l + 0.25)  # Brighten significantly
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_desert_mapbg(image):
+    """DesertMapBackground: cyans (not blues) -> bright yellow"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Cyans (hue ~0.45-0.55) -> bright yellow, leave blues (0.55-0.7) alone
+        if 0.42 < h < 0.55:
+            h = 0.14  # Bright yellow
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
 def main():
     bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "Content", "Biomes", "Backgrounds")
@@ -534,6 +618,43 @@ def main():
         print("  Done!")
     else:
         print(f"  WARNING: {ug295_path} not found")
+
+    # Map backgrounds are in Content/Biomes (parent folder)
+    mapbg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              "Content", "Biomes")
+
+    # Process IceMapBackground
+    ice_mapbg = os.path.join(mapbg_dir, "RaptureIceMapBackground.png")
+    if os.path.exists(ice_mapbg):
+        print(f"Processing RaptureIceMapBackground.png...")
+        img = Image.open(ice_mapbg)
+        recolored = recolor_ice_mapbg(img)
+        recolored.save(ice_mapbg)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {ice_mapbg} not found")
+
+    # Process UndergroundMapBackground
+    ug_mapbg = os.path.join(mapbg_dir, "RaptureUndergroundMapBackground.png")
+    if os.path.exists(ug_mapbg):
+        print(f"Processing RaptureUndergroundMapBackground.png...")
+        img = Image.open(ug_mapbg)
+        recolored = recolor_underground_mapbg(img)
+        recolored.save(ug_mapbg)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {ug_mapbg} not found")
+
+    # Process DesertMapBackground
+    desert_mapbg = os.path.join(mapbg_dir, "RaptureDesertMapBackground.png")
+    if os.path.exists(desert_mapbg):
+        print(f"Processing RaptureDesertMapBackground.png...")
+        img = Image.open(desert_mapbg)
+        recolored = recolor_desert_mapbg(img)
+        recolored.save(desert_mapbg)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {desert_mapbg} not found")
 
     print("\nComplete!")
 
