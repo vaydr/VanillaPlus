@@ -1,0 +1,343 @@
+"""
+Recolor Rapture background sprites in-place.
+"""
+
+import os
+from PIL import Image
+import colorsys
+
+def recolor_cavern0(image):
+    """Cavern0: dark purple -> dark yellow"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Purple hue is around 0.75-0.85 (270-310 degrees)
+        # Shift purple to dark yellow/gold (hue ~0.12-0.15)
+        if 0.65 < h < 0.95:  # Purple/violet range
+            h = 0.12  # Gold/yellow
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_surface2(image):
+    """Surface2: lavender/pinks -> light yellow, greens/blues -> white"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Skip very low saturation (true greys) - preserve them
+        if s < 0.08:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        # Lavender/pinks/magentas (hue ~0.75-1.0 or 0.0-0.05) -> light yellow
+        if h > 0.75 or h < 0.05:
+            h = 0.15  # Light yellow
+            l = min(1.0, l + 0.1)  # Brighten slightly
+        # Greens (hue ~0.25-0.45) -> white
+        elif 0.25 < h < 0.45:
+            s = s * 0.1  # Desaturate to white
+            l = min(1.0, l + 0.2)
+        # Blues/teals (hue ~0.45-0.75) -> white
+        elif 0.45 <= h <= 0.75:
+            s = s * 0.1  # Desaturate to white
+            l = min(1.0, l + 0.15)
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_surface1(image):
+    """Surface1: light blues->white, browns->white, reds/purples->sky blue, oranges->sky blue, greens->banana"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Skip very low saturation (true greys) - preserve them
+        if s < 0.08:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        # Browns/trunk (hue ~0.02-0.15, lower saturation or darker) -> grey-white
+        if 0.02 < h < 0.15 and (s < 0.45 or l < 0.45):
+            s = s * 0.05  # Desaturate to grey-white
+            l = min(1.0, l + 0.15)
+        # Light blues (hue ~0.5-0.7) -> white (desaturate)
+        elif 0.5 < h < 0.7:
+            s = s * 0.1  # Nearly desaturate to white
+            l = min(1.0, l + 0.2)  # Brighten
+        # Purple-reds (hue ~0.8-1.0) -> sky blue
+        elif h > 0.8:
+            h = 0.55  # Sky blue
+        # Reds (hue ~0.0-0.04) -> sky blue
+        elif h < 0.04:
+            h = 0.55  # Sky blue
+        # Oranges and orange-yellows (hue ~0.04-0.14) -> sky blue
+        elif 0.04 <= h < 0.14:
+            h = 0.55  # Sky blue
+        # Greens (hue ~0.2-0.45) -> banana
+        elif 0.2 < h < 0.45:
+            h = 0.14  # Banana yellow
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_ice2_3(image):
+    """Ice2/3: darken yellows -> bright banana/gold (boost lightness)"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Yellow/gold range (hue ~0.08-0.20) - brighten them
+        if 0.05 < h < 0.22 and s > 0.15:
+            # Boost lightness toward brighter banana gold
+            l = min(1.0, l * 1.25 + 0.1)
+            # Shift hue slightly toward bright banana yellow
+            h = 0.14
+            # Boost saturation slightly
+            s = min(1.0, s * 1.15)
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_ice1(image):
+    """Ice1: pinks -> bright gold/banana yellow"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Pink/magenta (hue ~0.85-1.0 or 0.0-0.1) -> bright gold/banana yellow
+        if h > 0.8 or h < 0.1:
+            h = 0.14  # Bright gold/banana yellow
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_cavern1(image):
+    """Cavern1: purples -> golds, pink -> sky blue, preserve grays"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Skip grays (low saturation) - preserve them
+        if s < 0.15:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        # Pink (hue ~0.9-1.0 or 0.0-0.05) -> sky blue (hue ~0.55)
+        if h > 0.9 or h < 0.05:
+            h = 0.55  # Sky blue
+        # Purple/violet/blue (0.6-0.85) -> gold
+        elif 0.6 < h < 0.85:
+            h = 0.12  # Gold
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def main():
+    bg_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "Content", "Biomes", "Backgrounds")
+
+    # Process Cavern0
+    cavern0_path = os.path.join(bg_dir, "RaptureCavern0.png")
+    if os.path.exists(cavern0_path):
+        print(f"Processing RaptureCavern0.png...")
+        img = Image.open(cavern0_path)
+        recolored = recolor_cavern0(img)
+        recolored.save(cavern0_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {cavern0_path} not found")
+
+    # Process Surface2_Close
+    surf2_close = os.path.join(bg_dir, "RaptureSurface2_Close.png")
+    if os.path.exists(surf2_close):
+        print(f"Processing RaptureSurface2_Close.png...")
+        img = Image.open(surf2_close)
+        recolored = recolor_surface2(img)
+        recolored.save(surf2_close)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {surf2_close} not found")
+
+    # Process Surface2_Mid
+    surf2_mid = os.path.join(bg_dir, "RaptureSurface2_Mid.png")
+    if os.path.exists(surf2_mid):
+        print(f"Processing RaptureSurface2_Mid.png...")
+        img = Image.open(surf2_mid)
+        recolored = recolor_surface2(img)
+        recolored.save(surf2_mid)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {surf2_mid} not found")
+
+    # Process Surface2_Far
+    surf2_far = os.path.join(bg_dir, "RaptureSurface2_Far.png")
+    if os.path.exists(surf2_far):
+        print(f"Processing RaptureSurface2_Far.png...")
+        img = Image.open(surf2_far)
+        recolored = recolor_surface2(img)
+        recolored.save(surf2_far)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {surf2_far} not found")
+
+    # Process Surface1_Close
+    surf1_close = os.path.join(bg_dir, "RaptureSurface1_Close.png")
+    if os.path.exists(surf1_close):
+        print(f"Processing RaptureSurface1_Close.png...")
+        img = Image.open(surf1_close)
+        recolored = recolor_surface1(img)
+        recolored.save(surf1_close)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {surf1_close} not found")
+
+    # Process Surface1_Mid
+    surf1_mid = os.path.join(bg_dir, "RaptureSurface1_Mid.png")
+    if os.path.exists(surf1_mid):
+        print(f"Processing RaptureSurface1_Mid.png...")
+        img = Image.open(surf1_mid)
+        recolored = recolor_surface1(img)
+        recolored.save(surf1_mid)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {surf1_mid} not found")
+
+    # Process Surface1_Far
+    surf1_far = os.path.join(bg_dir, "RaptureSurface1_Far.png")
+    if os.path.exists(surf1_far):
+        print(f"Processing RaptureSurface1_Far.png...")
+        img = Image.open(surf1_far)
+        recolored = recolor_surface1(img)
+        recolored.save(surf1_far)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {surf1_far} not found")
+
+    # Process Ice2
+    ice2_path = os.path.join(bg_dir, "RaptureIce2.png")
+    if os.path.exists(ice2_path):
+        print(f"Processing RaptureIce2.png...")
+        img = Image.open(ice2_path)
+        recolored = recolor_ice2_3(img)
+        recolored.save(ice2_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {ice2_path} not found")
+
+    # Process Ice3
+    ice3_path = os.path.join(bg_dir, "RaptureIce3.png")
+    if os.path.exists(ice3_path):
+        print(f"Processing RaptureIce3.png...")
+        img = Image.open(ice3_path)
+        recolored = recolor_ice2_3(img)
+        recolored.save(ice3_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {ice3_path} not found")
+
+    # Process Ice1
+    ice1_path = os.path.join(bg_dir, "RaptureIce1.png")
+    if os.path.exists(ice1_path):
+        print(f"Processing RaptureIce1.png...")
+        img = Image.open(ice1_path)
+        recolored = recolor_ice1(img)
+        recolored.save(ice1_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {ice1_path} not found")
+
+    # Process Cavern1
+    cavern1_path = os.path.join(bg_dir, "RaptureCavern1.png")
+    if os.path.exists(cavern1_path):
+        print(f"Processing RaptureCavern1.png...")
+        img = Image.open(cavern1_path)
+        recolored = recolor_cavern1(img)
+        recolored.save(cavern1_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {cavern1_path} not found")
+
+    print("\nComplete!")
+
+if __name__ == "__main__":
+    main()
