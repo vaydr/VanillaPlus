@@ -219,7 +219,7 @@ namespace VanillaPlus.Common.UI
             Color[] colors =
             {
                 Color.White,
-                Color.LightPink,
+                Color.HotPink,
                 new Color(255, 255, 150), // Banana yellow for Rapture
             };
             Asset<Texture2D>[] icons =
