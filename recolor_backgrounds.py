@@ -504,6 +504,38 @@ def recolor_glowing_radiant_shard(image):
     result.putdata(new_pixels)
     return result
 
+def recolor_blissand(image):
+    """Blissand variants: yellow/gold/tan -> baby blue"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Skip very low saturation (greys)
+        if s < 0.05:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        # Yellow/gold/tan/orange range (hue ~0.05-0.2) -> baby blue (hue ~0.55)
+        if 0.02 < h < 0.22:
+            h = 0.55  # Baby blue hue
+            # Keep the same lightness and saturation for natural look
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
 def recolor_desert_mapbg(image):
     """DesertMapBackground: cyans (not blues) -> bright yellow"""
     if image.mode != 'RGBA':
@@ -813,6 +845,71 @@ def main():
         print("  Done!")
     else:
         print(f"  WARNING: {item_path} not found")
+
+    # Process Blissand tiles (yellow -> baby blue)
+    blissand_tiles = [
+        "Blissand.png",
+        "HardenedBlissand.png",
+        "Blissandstone.png"
+    ]
+    for tile_file in blissand_tiles:
+        tile_path = os.path.join(tiles_dir, tile_file)
+        if os.path.exists(tile_path):
+            print(f"Processing {tile_file}...")
+            img = Image.open(tile_path)
+            recolored = recolor_blissand(img)
+            recolored.save(tile_path)
+            print("  Done!")
+        else:
+            print(f"  WARNING: {tile_path} not found")
+
+    # Process Blissand items
+    blissand_items = [
+        "Blissand.png",
+        "HardenedBlissand.png",
+        "Blissandstone.png"
+    ]
+    for item_file in blissand_items:
+        item_path = os.path.join(items_dir, item_file)
+        if os.path.exists(item_path):
+            print(f"Processing {item_file} item...")
+            img = Image.open(item_path)
+            recolored = recolor_blissand(img)
+            recolored.save(item_path)
+            print("  Done!")
+        else:
+            print(f"  WARNING: {item_path} not found")
+
+    # Process Blissand walls
+    walls_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "Content", "Walls", "Rapture")
+    blissand_walls = [
+        "HardenedBlissandWall.png",
+        "BlissandstoneWall.png"
+    ]
+    for wall_file in blissand_walls:
+        wall_path = os.path.join(walls_dir, wall_file)
+        if os.path.exists(wall_path):
+            print(f"Processing {wall_file}...")
+            img = Image.open(wall_path)
+            recolored = recolor_blissand(img)
+            recolored.save(wall_path)
+            print("  Done!")
+        else:
+            print(f"  WARNING: {wall_path} not found")
+
+    # Process Blissand projectile
+    proj_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "Content", "Projectiles", "Rapture")
+    proj_path = os.path.join(proj_dir, "BlissandProjectile.png")
+    if os.path.exists(proj_path):
+        print(f"Processing BlissandProjectile.png...")
+        img = Image.open(proj_path)
+        recolored = recolor_blissand(img)
+        recolored.save(proj_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {proj_path} not found")
 
     print("\nComplete!")
 

@@ -38,8 +38,8 @@ namespace VanillaPlus.Content.Tiles.Rapture
             RaptureIDs.Sets.Rapture[Type] = true;
             RaptureIDs.Sets.IsNaturalRaptureTile[Type] = true;
 
-            // Color: Light golden sand
-            AddMapEntry(new Color(230, 215, 180));
+            // Color: Light baby blue sand
+            AddMapEntry(new Color(180, 215, 230));
 
             MineResist = 0.5f;
             DustType = DustID.Sand;

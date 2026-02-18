@@ -36,8 +36,8 @@ namespace VanillaPlus.Content.Tiles.Rapture
             Main.tileMerge[Type][ModContent.TileType<Blissand>()] = true;
             Main.tileMerge[Type][ModContent.TileType<HardenedBlissand>()] = true;
 
-            // Color: Rich golden sandstone
-            AddMapEntry(new Color(195, 175, 140));
+            // Color: Baby blue sandstone
+            AddMapEntry(new Color(140, 175, 195));
 
             DustType = DustID.Sand;
 
