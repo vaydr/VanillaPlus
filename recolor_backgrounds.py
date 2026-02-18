@@ -538,6 +538,39 @@ def recolor_blissand(image):
     result.putdata(new_pixels)
     return result
 
+def recolor_blissand_wall(image):
+    """Blissand walls (from pearlsandstone): dark purple -> dark blue, pinks -> yellow, blues -> baby blue"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Pink/magenta sparkles (hue ~0.85-1.0 or 0.0-0.05) -> yellow
+        if h > 0.85 or h < 0.05:
+            h = 0.14  # Yellow
+        # Dark purple main wall (hue ~0.7-0.85) -> dark blue
+        elif 0.7 < h <= 0.85:
+            h = 0.58  # Dark blue
+        # Blues/cyans (hue ~0.5-0.7) -> baby blue
+        elif 0.5 < h <= 0.7:
+            h = 0.56  # Baby blue
+            l = min(1.0, l + 0.1)  # Slightly brighter
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
 def recolor_desert_mapbg(image):
     """DesertMapBackground: cyans (not blues) -> bright yellow"""
     if image.mode != 'RGBA':
@@ -882,7 +915,7 @@ def main():
         else:
             print(f"  WARNING: {item_path} not found")
 
-    # Process Blissand walls
+    # Process Blissand walls (using pearlsandstone wall recolor)
     walls_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "Content", "Walls", "Rapture")
     blissand_walls = [
@@ -894,7 +927,7 @@ def main():
         if os.path.exists(wall_path):
             print(f"Processing {wall_file}...")
             img = Image.open(wall_path)
-            recolored = recolor_blissand(img)
+            recolored = recolor_blissand_wall(img)
             recolored.save(wall_path)
             print("  Done!")
         else:
