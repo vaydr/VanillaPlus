@@ -102,20 +102,20 @@ namespace VanillaPlus.Content.Biomes
             {
                 bool isUnderground = Main.LocalPlayer.ZoneDirtLayerHeight || Main.LocalPlayer.ZoneRockLayerHeight;
 
-                // Ice - surface uses regular ice (MapBG12), underground uses ice hallow (MapBG36)
+                // Ice - surface uses regular ice (MapBG12), underground uses Rapture ice
                 if (Main.LocalPlayer.ZoneSnow)
-                    return isUnderground ? "Terraria/Images/MapBG36" : "Terraria/Images/MapBG12";
+                    return isUnderground ? "VanillaPlus/Content/Biomes/RaptureIceMapBackground" : "Terraria/Images/MapBG12";
 
                 // Desert variant (surface only has special bg)
                 if (Main.LocalPlayer.ZoneDesert && !Main.LocalPlayer.ZoneBeach)
-                    return "Terraria/Images/MapBG39";
+                    return "VanillaPlus/Content/Biomes/RaptureDesertMapBackground";
 
-                // Underground hallow
+                // Underground Rapture
                 if (isUnderground)
-                    return "Terraria/Images/MapBG22";
+                    return "VanillaPlus/Content/Biomes/RaptureUndergroundMapBackground";
 
-                // Surface hallow (default)
-                return "Terraria/Images/MapBG8";
+                // Surface Rapture (default)
+                return "VanillaPlus/Content/Biomes/RaptureSurfaceMapBackground";
             }
         }
 
@@ -162,7 +162,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/RaptureUndergroundBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/RaptureUndergroundBiomeBackground";
-        public override string MapBackground => "Terraria/Images/MapBG22";
+        public override string MapBackground => "VanillaPlus/Content/Biomes/RaptureUndergroundMapBackground";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -180,7 +180,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/IceRaptureBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/IceRaptureBiomeBackground";
-        public override string MapBackground => "Terraria/Images/MapBG36";
+        public override string MapBackground => "VanillaPlus/Content/Biomes/RaptureIceMapBackground";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -197,7 +197,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/IceRaptureUndergroundBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/IceRaptureUndergroundBiomeBackground";
-        public override string MapBackground => "Terraria/Images/MapBG36";
+        public override string MapBackground => "VanillaPlus/Content/Biomes/RaptureIceMapBackground";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -214,7 +214,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/DesertRaptureBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/DesertRaptureBiomeBackground";
-        public override string MapBackground => "Terraria/Images/MapBG39";
+        public override string MapBackground => "VanillaPlus/Content/Biomes/RaptureDesertMapBackground";
 
         public override bool IsBiomeActive(Player player)
         {
@@ -231,7 +231,7 @@ namespace VanillaPlus.Content.Biomes
     {
         public override string BestiaryIcon => "VanillaPlus/Content/Biomes/DesertRaptureUndergroundBiomeIcon";
         public override string BackgroundPath => "VanillaPlus/Content/Biomes/DesertRaptureUndergroundBiomeBackground";
-        public override string MapBackground => "Terraria/Images/MapBG22";
+        public override string MapBackground => "VanillaPlus/Content/Biomes/RaptureUndergroundMapBackground";
 
         public override bool IsBiomeActive(Player player)
         {
