@@ -3,6 +3,7 @@ Recolor Rapture background sprites in-place.
 """
 
 import os
+import shutil
 from PIL import Image
 import colorsys
 
@@ -433,6 +434,76 @@ def recolor_water(image):
     result.putdata(new_pixels)
     return result
 
+def recolor_radiant_shard(image):
+    """RadiantShard: cyan -> baby blue, pink/magenta -> gold, purple -> white"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Pink/magenta (hue ~0.8-1.0 or 0.0-0.05) -> gold
+        if h > 0.8 or h < 0.05:
+            h = 0.12  # Gold hue
+        # Purple (hue ~0.7-0.8) -> white (desaturate)
+        elif 0.7 < h <= 0.8:
+            s = s * 0.1  # Nearly white
+            l = min(1.0, l + 0.2)
+        # Cyan/teal (hue ~0.45-0.55) -> baby blue (brighten)
+        elif 0.45 < h < 0.55:
+            h = 0.55  # Sky/baby blue
+            l = min(1.0, l + 0.1)
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
+def recolor_glowing_radiant_shard(image):
+    """GlowingRadiantShard: same as radiant but brighter"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Pink/magenta -> bright gold
+        if h > 0.8 or h < 0.05:
+            h = 0.12
+            l = min(1.0, l + 0.15)  # Brighter
+            s = min(1.0, s * 1.2)
+        # Purple -> bright white
+        elif 0.7 < h <= 0.8:
+            s = s * 0.05
+            l = min(1.0, l + 0.3)
+        # Cyan -> bright baby blue
+        elif 0.45 < h < 0.55:
+            h = 0.55
+            l = min(1.0, l + 0.2)
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
 def recolor_desert_mapbg(image):
     """DesertMapBackground: cyans (not blues) -> bright yellow"""
     if image.mode != 'RGBA':
@@ -704,6 +775,44 @@ def main():
             print("  Done!")
         else:
             print(f"  WARNING: {water_path} not found")
+
+    # Process RadiantShard tiles
+    tiles_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "Content", "Tiles", "Rapture")
+
+    radiant_path = os.path.join(tiles_dir, "RadiantShard.png")
+    if os.path.exists(radiant_path):
+        print(f"Processing RadiantShard.png...")
+        img = Image.open(radiant_path)
+        recolored = recolor_radiant_shard(img)
+        recolored.save(radiant_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {radiant_path} not found")
+
+    glowing_path = os.path.join(tiles_dir, "GlowingRadiantShard.png")
+    if os.path.exists(glowing_path):
+        print(f"Processing GlowingRadiantShard.png...")
+        img = Image.open(glowing_path)
+        recolored = recolor_glowing_radiant_shard(img)
+        recolored.save(glowing_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {glowing_path} not found")
+
+    # Process RadiantShard item
+    items_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "Content", "Items", "Rapture")
+
+    item_path = os.path.join(items_dir, "RadiantShard.png")
+    if os.path.exists(item_path):
+        print(f"Processing RadiantShard item...")
+        img = Image.open(item_path)
+        recolored = recolor_radiant_shard(img)
+        recolored.save(item_path)
+        print("  Done!")
+    else:
+        print(f"  WARNING: {item_path} not found")
 
     print("\nComplete!")
 

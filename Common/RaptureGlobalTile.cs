@@ -66,5 +66,66 @@ namespace VanillaPlus.Common
 
             return true;
         }
+
+        public override void RandomUpdate(int i, int j, int type)
+        {
+            // Only tiles that can grow Radiant Shards
+            if (!RaptureIDs.Sets.CanGrowRadiantShard[type])
+                return;
+
+            // Only underground
+            if (j <= Main.rockLayer)
+                return;
+
+            // Check 8-tile radius for existing shards (prevent overcrowding)
+            for (int nx = i - 4; nx <= i + 4; nx++)
+            {
+                for (int ny = j - 4; ny <= j + 4; ny++)
+                {
+                    if (!WorldGen.InWorld(nx, ny)) continue;
+                    var checkType = Main.tile[nx, ny].TileType;
+                    if (checkType == ModContent.TileType<RadiantShard>() ||
+                        checkType == ModContent.TileType<GlowingRadiantShard>())
+                        return;
+                }
+            }
+
+            // 12.5% chance to spawn on adjacent empty tile (similar to vanilla crystal spawn rate)
+            if (!WorldGen.genRand.NextBool(8))
+                return;
+
+            Tile tile = Main.tile[i, j];
+            if (tile.IsHalfBlock || tile.Slope != SlopeType.Solid)
+                return;
+
+            // Try adjacent positions (in random order to avoid bias)
+            int[] dx = { 1, -1, 0, 0 };
+            int[] dy = { 0, 0, 1, -1 };
+
+            // Shuffle directions
+            for (int s = 3; s > 0; s--)
+            {
+                int r = WorldGen.genRand.Next(s + 1);
+                (dx[s], dx[r]) = (dx[r], dx[s]);
+                (dy[s], dy[r]) = (dy[r], dy[s]);
+            }
+
+            for (int d = 0; d < 4; d++)
+            {
+                int nx = i + dx[d];
+                int ny = j + dy[d];
+
+                if (!WorldGen.InWorld(nx, ny, 1)) continue;
+
+                // ~17% chance for glowing variant
+                ushort shardType = WorldGen.genRand.NextBool(6)
+                    ? (ushort)ModContent.TileType<GlowingRadiantShard>()
+                    : (ushort)ModContent.TileType<RadiantShard>();
+
+                // Use the helper method that properly sets TileFrameX/Y for orientation
+                if (RadiantShard.PlaceShardWithFrame(nx, ny, shardType))
+                    break;
+            }
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace VanillaPlus.Content.Tiles.Rapture
             TileID.Sets.CanBeClearedDuringOreRunner[Type] = true;
 
             // Rapture-specific sets
-            RaptureIDs.Sets.CanGrowDivineShard[Type] = true;
+            RaptureIDs.Sets.CanGrowRadiantShard[Type] = true;
             RaptureIDs.Sets.RaptureBiomeSight[Type] = true;
             RaptureIDs.Sets.Rapture[Type] = true;
             RaptureIDs.Sets.IsNaturalRaptureTile[Type] = true;

@@ -28,10 +28,10 @@ namespace VanillaPlus.Common
                 .RegisterBoolSet();
 
             /// <summary>
-            /// Whether a tile can grow Divine Shards (crystal shards equivalent).
+            /// Whether a tile can grow Radiant Shards (crystal shards equivalent).
             /// </summary>
-            public static bool[] CanGrowDivineShard = TileID.Sets.Factory.CreateNamedSet("CanGrowDivineShard")
-                .Description("Whether a tile can grow Divine Shards")
+            public static bool[] CanGrowRadiantShard = TileID.Sets.Factory.CreateNamedSet("CanGrowRadiantShard")
+                .Description("Whether a tile can grow Radiant Shards")
                 .RegisterBoolSet();
 
             /// <summary>

@@ -93,6 +93,11 @@ Items: {
 		DisplayName: Hedonwood
 		Tooltip: ""
 	}
+
+	RadiantShard: {
+		DisplayName: Radiant Shard
+		Tooltip: ""
+	}
 }
 
 Buffs: {
