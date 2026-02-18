@@ -93,8 +93,8 @@ namespace VanillaPlus.Common
                 }
             }
 
-            // 12.5% chance to spawn on adjacent empty tile (similar to vanilla crystal spawn rate)
-            if (!WorldGen.genRand.NextBool(8))
+            // 2.5% chance to spawn on adjacent empty tile (matching vanilla crystal shard rate)
+            if (!WorldGen.genRand.NextBool(40))
                 return;
 
             Tile tile = Main.tile[i, j];
