@@ -402,6 +402,37 @@ def recolor_underground_mapbg(image):
     result.putdata(new_pixels)
     return result
 
+def recolor_water(image):
+    """Water styles: cream yellow -> bright #ffff66 yellow"""
+    if image.mode != 'RGBA':
+        image = image.convert('RGBA')
+
+    pixels = list(image.getdata())
+    new_pixels = []
+
+    # Target color #ffff66 = RGB(255, 255, 102) -> HLS(0.167, 0.7, 1.0)
+    target_h = 0.167  # Pure yellow hue
+
+    for r, g, b, a in pixels:
+        if a == 0:
+            new_pixels.append((r, g, b, a))
+            continue
+
+        h, l, s = colorsys.rgb_to_hls(r/255, g/255, b/255)
+
+        # Shift all yellowish colors toward #ffff66
+        if 0.08 < h < 0.25 or s < 0.3:  # Yellow range or low saturation (cream)
+            h = target_h  # Pure yellow hue
+            s = 1.0  # Full saturation like #ffff66
+            # Keep relative lightness but bias toward 0.7
+
+        r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
+        new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
+
+    result = Image.new('RGBA', image.size)
+    result.putdata(new_pixels)
+    return result
+
 def recolor_desert_mapbg(image):
     """DesertMapBackground: cyans (not blues) -> bright yellow"""
     if image.mode != 'RGBA':
@@ -655,6 +686,24 @@ def main():
         print("  Done!")
     else:
         print(f"  WARNING: {desert_mapbg} not found")
+
+    # Process Water styles
+    water_files = [
+        "RaptureWaterStyle.png",
+        "RaptureWaterStyle_Block.png",
+        "RaptureWaterStyle_Slope.png",
+        "RaptureWaterfallStyle.png"
+    ]
+    for water_file in water_files:
+        water_path = os.path.join(mapbg_dir, water_file)
+        if os.path.exists(water_path):
+            print(f"Processing {water_file}...")
+            img = Image.open(water_path)
+            recolored = recolor_water(img)
+            recolored.save(water_path)
+            print("  Done!")
+        else:
+            print(f"  WARNING: {water_path} not found")
 
     print("\nComplete!")
 
