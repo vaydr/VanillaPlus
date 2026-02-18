@@ -20,15 +20,20 @@ namespace VanillaPlus.Common
             {
                 WorldGen.GetTreeBottom(i, j, out var x, out var y);
                 Tile tileBelow = Main.tile[x, y + 1];
-                Tile tileCurrent = Main.tile[x, y];
 
-                // Check if tree is on Blissgrass or already part of HedonTree
-                if (tileBelow.TileType == ModContent.TileType<Blissgrass>() ||
-                    tileBelow.TileType == ModContent.TileType<HedonTree>() ||
-                    tileCurrent.TileType == ModContent.TileType<Blissgrass>() ||
-                    tileCurrent.TileType == ModContent.TileType<HedonTree>())
+                // Only check the tile directly below the tree base - this is the grass
+                if (tileBelow.TileType == ModContent.TileType<Blissgrass>())
                 {
-                    Main.tile[i, j].TileType = (ushort)ModContent.TileType<HedonTree>();
+                    ushort hedonTreeType = (ushort)ModContent.TileType<HedonTree>();
+                    if (Main.tile[i, j].TileType != hedonTreeType)
+                    {
+                        Main.tile[i, j].TileType = hedonTreeType;
+
+                        if (Main.netMode == NetmodeID.Server)
+                        {
+                            NetMessage.SendTileSquare(-1, i, j, 1);
+                        }
+                    }
                 }
             }
         }

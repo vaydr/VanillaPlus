@@ -111,20 +111,10 @@ namespace VanillaPlus.Content.Tiles.Rapture.Trees
             yield return new Item(ModContent.ItemType<Items.Rapture.Hedonwood>(), dropItemStack);
         }
 
-        public override void NearbyEffects(int i, int j, bool closer)
-        {
-            // Convert back to vanilla tree if not on Blissgrass
-            WorldGen.GetTreeBottom(i, j, out var x, out var y);
-            Tile tileBelow = Main.tile[x, y + 1];
-            Tile tileCurrent = Main.tile[x, y];
-
-            if (tileBelow.TileType != ModContent.TileType<Blissgrass>() &&
-                tileCurrent.TileType != ModContent.TileType<Blissgrass>() &&
-                tileBelow.TileType != Type && tileCurrent.TileType != Type)
-            {
-                Main.tile[i, j].TileType = TileID.Trees;
-            }
-        }
+        // Note: We intentionally don't convert HedonTree back to vanilla Trees in NearbyEffects.
+        // The conversion TO HedonTree is handled by RaptureGlobalTile.NearbyEffects.
+        // Reverse conversion (if grass changes) should be handled by clentaminator/spreading,
+        // not by checking every frame which causes flickering due to race conditions.
 
         public override void PostDraw(int i, int j, SpriteBatch spriteBatch)
         {
