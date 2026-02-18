@@ -216,17 +216,23 @@ namespace VanillaPlus.Common.UI
                 Language.GetText("Mods.VanillaPlus.RaptureSelection.Hallow.Description"),
                 Language.GetText("Mods.VanillaPlus.RaptureSelection.Rapture.Description"),
             };
-            Color[] colors =
+            Color[][] colors =
             {
-                Color.White,
-                Color.HotPink,
-                new Color(255, 255, 150), // Banana yellow for Rapture
+                new[] { Color.White },
+                new[] { Color.Cyan, Color.Magenta }, // Hallow cycles cyan/magenta
+                new[] { Color.Yellow, Color.White, Color.SkyBlue }, // Rapture cycles yellow/white/sky blue
             };
             Asset<Texture2D>[] icons =
             {
                 Main.Assets.Request<Texture2D>("Images/UI/WorldCreation/IconEvilRandom"),
                 ModContent.Request<Texture2D>("VanillaPlus/Assets/WorldCreation/IconGoodHallow"),
                 ModContent.Request<Texture2D>("VanillaPlus/Assets/WorldCreation/IconGoodRapture"),
+            };
+            float[] cycleSpeeds =
+            {
+                1f,         // Random (no cycling)
+                2f / 3f,    // Hallow cycles 2/3 as fast (2 colors)
+                1f,         // Rapture (3 colors)
             };
 
             for (int i = 0; i < RaptureButtons.Length; i++)
@@ -237,8 +243,9 @@ namespace VanillaPlus.Common.UI
                     descriptions[i],
                     colors[i],
                     icons[i],
-                    1f,
-                    1f,
+                    cycleSpeeds[i],
+                    1f, // textSize
+                    1f, // titleAlignmentX
                     16f)
                 {
                     Width = StyleDimension.FromPixelsAndPercent(
