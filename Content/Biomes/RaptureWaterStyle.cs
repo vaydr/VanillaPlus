@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 namespace VanillaPlus.Content.Biomes
 {
     /// <summary>
-    /// Custom water style for the Rapture biome - bright gold water.
+    /// Custom water style for the Rapture biome - white/baby blue water.
     /// </summary>
     public class RaptureWaterStyle : ModWaterStyle
     {
@@ -16,28 +16,26 @@ namespace VanillaPlus.Content.Biomes
 
         public override int GetSplashDust()
         {
-            // Use vanilla gold/yellow dust for now
-            return Terraria.ID.DustID.GoldCoin;
+            return Terraria.ID.DustID.Cloud;
         }
 
         public override int GetDropletGore()
         {
-            // Use vanilla water droplet for now
-            return Terraria.ID.GoreID.WaterDripCorrupt; // Yellowish droplet
+            return Terraria.ID.GoreID.WaterDrip;
         }
 
         public override void LightColorMultiplier(ref float r, ref float g, ref float b)
         {
-            // Bright banana yellow tint for light passing through water
-            r = 1f;
-            g = 1f;
-            b = 0.6f;
+            // Soft baby blue tint for light passing through water
+            r = 0.9f;
+            g = 0.95f;
+            b = 1f;
         }
 
         public override Color BiomeHairColor()
         {
-            // Bright banana yellow hair color for mermaids
-            return new Color(255, 255, 150);
+            // Baby blue hair color for mermaids
+            return new Color(220, 235, 255);
         }
 
         public override byte GetRainVariant()
