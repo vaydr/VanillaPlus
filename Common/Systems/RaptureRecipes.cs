@@ -22,15 +22,32 @@ namespace VanillaPlus.Common.Systems
         public override void AddRecipeGroups()
         {
             // Register Radiant Shard as alternative to Crystal Shard
-            // This makes Radiant Shards usable in ALL vanilla Crystal Shard recipes:
-            // - Phasesabers, Crystal Storm, Crystal Bullets, Crystal Darts
-            // - Chik, Magical Harp, Rainbow Rod, Greater Healing Potion, Super Mana Potion
             CrystalShardRecipeGroup = new RecipeGroup(
                 () => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(ItemID.CrystalShard)}",
                 ItemID.CrystalShard,
                 ModContent.ItemType<RadiantShard>()
             );
             RecipeGroup.RegisterGroup(Lang.GetItemNameValue(ItemID.CrystalShard), CrystalShardRecipeGroup);
+        }
+
+        public override void PostAddRecipes()
+        {
+            // Iterate through all recipes and replace Crystal Shard with the RecipeGroup
+            for (int i = 0; i < Recipe.numRecipes; i++)
+            {
+                Recipe recipe = Main.recipe[i];
+
+                // Skip Crystal Block and Shifting Pearlsands Dye (Hallow-specific items)
+                if (recipe.HasResult(ItemID.CrystalBlock) || recipe.HasResult(ItemID.ShiftingPearlSandsDye))
+                    continue;
+
+                // Replace Crystal Shard ingredient with RecipeGroup
+                if (recipe.TryGetIngredient(ItemID.CrystalShard, out var crystalShard))
+                {
+                    recipe.AddRecipeGroup(Lang.GetItemNameValue(ItemID.CrystalShard), crystalShard.stack);
+                    recipe.RemoveIngredient(crystalShard);
+                }
+            }
         }
     }
 }
