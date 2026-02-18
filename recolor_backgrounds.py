@@ -122,7 +122,7 @@ def recolor_surface1(image):
     return result
 
 def recolor_ice2(image):
-    """Ice2: purples -> yellows, pinks -> whites, blues -> sky blue"""
+    """Ice2: purples -> gold, pinks -> bright yellow, dark blues -> bright blues"""
     if image.mode != 'RGBA':
         image = image.convert('RGBA')
 
@@ -141,17 +141,16 @@ def recolor_ice2(image):
             new_pixels.append((r, g, b, a))
             continue
 
-        # Purples (hue ~0.7-0.85) -> yellow
+        # Purples (hue ~0.7-0.85) -> gold (dark-ish yellow)
         if 0.7 < h < 0.85:
-            h = 0.14  # Yellow
-        # Pinks/magentas (hue ~0.85-1.0 or 0.0-0.05) -> white
+            h = 0.12  # Gold
+        # Pinks/magentas (hue ~0.85-1.0 or 0.0-0.05) -> bright yellow
         elif h > 0.85 or h < 0.05:
-            s = s * 0.08  # Desaturate to white
-            l = min(1.0, l + 0.1)
-        # Blues (hue ~0.5-0.7) -> sky blue (brighten)
-        elif 0.5 < h < 0.7:
-            h = 0.55  # Sky blue
-            l = min(1.0, l + 0.15)  # Brighten dark blues
+            h = 0.14  # Bright yellow
+            l = min(1.0, l + 0.1)  # Brighten
+        # Blues (hue ~0.45-0.72) -> brighten them significantly
+        elif 0.45 < h < 0.72:
+            l = min(1.0, l + 0.35)  # Brighten dark blues more aggressively
 
         r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
         new_pixels.append((int(r2*255), int(g2*255), int(b2*255), a))
@@ -442,7 +441,7 @@ def main():
     if os.path.exists(ice3_path):
         print(f"Processing RaptureIce3.png...")
         img = Image.open(ice3_path)
-        recolored = recolor_ice2_3(img)
+        recolored = recolor_ice2(img)
         recolored.save(ice3_path)
         print("  Done!")
     else:
