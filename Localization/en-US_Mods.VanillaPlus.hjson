@@ -150,6 +150,26 @@ Biomes: {
 		DisplayName: Underground Rapture
 		TownNPCDialogueName: the Underground Rapture
 	}
+
+	DesertRaptureSurfaceBiome: {
+		DisplayName: Desert Rapture Surface Biome
+		TownNPCDialogueName: the Desert Rapture Surface Biome
+	}
+
+	DesertRaptureUndergroundBiome: {
+		DisplayName: Desert Rapture Underground Biome
+		TownNPCDialogueName: the Desert Rapture Underground Biome
+	}
+
+	IceRaptureSurfaceBiome: {
+		DisplayName: Ice Rapture Surface Biome
+		TownNPCDialogueName: the Ice Rapture Surface Biome
+	}
+
+	IceRaptureUndergroundBiome: {
+		DisplayName: Ice Rapture Underground Biome
+		TownNPCDialogueName: the Ice Rapture Underground Biome
+	}
 }
 
 RaptureSelection: {
