@@ -107,6 +107,36 @@ Items: {
 			Spreads the Rapture
 			'''
 	}
+
+	RaptureCavernWallItem: {
+		DisplayName: Rapture Cavern Wall
+		Tooltip: ""
+	}
+
+	RaptureCrystallineWallItem: {
+		DisplayName: Rapture Crystalline Wall
+		Tooltip: ""
+	}
+
+	RapturePrismWallItem: {
+		DisplayName: Rapture Prism Wall
+		Tooltip: ""
+	}
+
+	RaptureShardWallItem: {
+		DisplayName: Rapture Shard Wall
+		Tooltip: ""
+	}
+
+	BlisstoneWallItem: {
+		DisplayName: Blisstone Wall
+		Tooltip: ""
+	}
+
+	GoldenIceWallItem: {
+		DisplayName: Golden Ice Wall
+		Tooltip: ""
+	}
 }
 
 Buffs: {

@@ -22,9 +22,9 @@ namespace VanillaPlus.Content.Walls.Rapture
             // Rapture-specific sets
             RaptureIDs.Sets.RaptureWall[Type] = true;
 
-            AddMapEntry(new Color(220, 215, 210));
+            AddMapEntry(new Color(140, 130, 100));
 
-            DustType = DustID.Marble;
+            DustType = DustID.Gold;
         }
     }
 }

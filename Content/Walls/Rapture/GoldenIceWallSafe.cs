@@ -3,28 +3,24 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Common;
+using VanillaPlus.Content.Items.Rapture;
 
 namespace VanillaPlus.Content.Walls.Rapture
 {
-    /// <summary>
-    /// GoldenIceWall - the Rapture equivalent of Ice walls.
-    /// Golden ice wall that generates during Rapture spread.
-    /// </summary>
-    public class GoldenIceWall : ModWall
+    public class GoldenIceWallSafe : ModWall
     {
         public override void SetStaticDefaults()
         {
-            Main.wallHouse[Type] = false;
+            Main.wallHouse[Type] = true;
 
-            // Mark as ice wall for conversions
             WallID.Sets.Conversion.Ice[Type] = true;
 
-            // Rapture-specific sets
             RaptureIDs.Sets.RaptureWall[Type] = true;
 
-            AddMapEntry(new Color(180, 160, 110));
+            AddMapEntry(new Color(200, 180, 130));
 
             DustType = DustID.GoldCoin;
+            RegisterItemDrop(ModContent.ItemType<GoldenIceWallItem>());
         }
     }
 }

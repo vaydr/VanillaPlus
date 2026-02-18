@@ -207,6 +207,33 @@ namespace VanillaPlus.Common.Systems
                     break;
             }
 
+            // Handle NewWall1-4 conversions using the Sets system
+            if (newWall < 0)
+            {
+                ushort wallType = tile.WallType;
+
+                // NewWall1 (Cavern walls) → RaptureCavernWall
+                if (WallID.Sets.Conversion.NewWall1[wallType] && wallType != ModContent.WallType<RaptureCavernWall>())
+                {
+                    newWall = ModContent.WallType<RaptureCavernWall>();
+                }
+                // NewWall2 (Crystalline walls) → RaptureCrystallineWall
+                else if (WallID.Sets.Conversion.NewWall2[wallType] && wallType != ModContent.WallType<RaptureCrystallineWall>())
+                {
+                    newWall = ModContent.WallType<RaptureCrystallineWall>();
+                }
+                // NewWall3 (Prism walls) → RapturePrismWall
+                else if (WallID.Sets.Conversion.NewWall3[wallType] && wallType != ModContent.WallType<RapturePrismWall>())
+                {
+                    newWall = ModContent.WallType<RapturePrismWall>();
+                }
+                // NewWall4 (Shard walls) → RaptureShardWall
+                else if (WallID.Sets.Conversion.NewWall4[wallType] && wallType != ModContent.WallType<RaptureShardWall>())
+                {
+                    newWall = ModContent.WallType<RaptureShardWall>();
+                }
+            }
+
             // Apply wall conversion
             if (newWall >= 0 && tile.WallType != newWall)
             {
