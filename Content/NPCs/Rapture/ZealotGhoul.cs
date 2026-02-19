@@ -5,8 +5,6 @@ using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
-using VanillaPlus.Content.Items.Rapture;
-
 namespace VanillaPlus.Content.NPCs.Rapture
 {
     public class ZealotGhoul : ModNPC
@@ -43,8 +41,8 @@ namespace VanillaPlus.Content.NPCs.Rapture
 
             NPC.npcSlots = 0.5f;
 
-            Banner = NPC.type;
-            BannerItem = ModContent.ItemType<ZealotGhoulBanner>();
+            Banner = NPCID.DesertGhoulHallow;
+            BannerItem = Item.BannerToItem(Item.NPCtoBanner(NPCID.DesertGhoulHallow));
             SpawnModBiomes = new int[1] { ModContent.GetInstance<DesertRaptureUndergroundBiome>().Type };
         }
 

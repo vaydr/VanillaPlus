@@ -46,7 +46,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             NPC.value = Item.buyPrice(silver: 5);
 
             NPC.HitSound = SoundID.NPCHit1;
-            NPC.DeathSound = SoundID.NPCDeath1;
+            NPC.DeathSound = SoundID.NPCDeath6;
 
             NPC.alpha = 100;
             NPC.noGravity = false;
