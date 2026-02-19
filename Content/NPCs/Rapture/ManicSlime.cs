@@ -109,20 +109,20 @@ namespace VanillaPlus.Content.NPCs.Rapture
             return 0.4f;
         }
 
-        private Vector2 preAIVelocity;
+        private const float SpeedMultiplier = 2f;
 
         public override bool PreAI()
         {
-            preAIVelocity = NPC.velocity;
+            // Undo horizontal scaling so the AI sees "normal" speed for its internal logic
+            NPC.velocity.X /= SpeedMultiplier;
             return true;
         }
 
         public override void PostAI()
         {
-            // Scale the AI's velocity change by 1.25x so it moves faster
-            // without compounding each frame
-            Vector2 delta = NPC.velocity - preAIVelocity;
-            NPC.velocity = preAIVelocity + delta * 1.25f;
+            // Reapply horizontal scaling — the AI targeted normal speeds,
+            // so the actual movement is 2x faster without compounding
+            NPC.velocity.X *= SpeedMultiplier;
 
             // Emit cycling light
             float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
