@@ -142,6 +142,11 @@ Items: {
 		DisplayName: Manic Slime Banner
 		Tooltip: ""
 	}
+
+	ZealotGhoulBanner: {
+		DisplayName: Zealot Ghoul Banner
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -185,9 +190,11 @@ Conditions: {
 NPCs: {
 	TempleGuardian.DisplayName: Temple Guardian
 	ManicSlime.DisplayName: Manic Slime
+	ZealotGhoul.DisplayName: Zealot Ghoul
 }
 
 Bestiary.ManicSlime: A frenzied slime pulsing with divine energy. Its erratic glow shifts between heavenly gold and celestial blue as it bounces through the underground Rapture.
+Bestiary.ZealotGhoul: A zealous ghoul prowling the golden deserts of the Rapture. Its fervent devotion has twisted its mind, leaving it in a perpetual state of divine madness.
 
 // Rapture Biome Content
 Tiles: {

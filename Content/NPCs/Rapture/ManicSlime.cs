@@ -109,8 +109,21 @@ namespace VanillaPlus.Content.NPCs.Rapture
             return 0.4f;
         }
 
-        public override void AI()
+        private Vector2 preAIVelocity;
+
+        public override bool PreAI()
         {
+            preAIVelocity = NPC.velocity;
+            return true;
+        }
+
+        public override void PostAI()
+        {
+            // Scale the AI's velocity change by 1.25x so it moves faster
+            // without compounding each frame
+            Vector2 delta = NPC.velocity - preAIVelocity;
+            NPC.velocity = preAIVelocity + delta * 1.25f;
+
             // Emit cycling light
             float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
             Color lightColor = Color.Lerp(BananaYellow, BabyBlue, cycle);
