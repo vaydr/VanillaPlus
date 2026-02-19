@@ -34,8 +34,10 @@ namespace VanillaPlus.Content.Tiles.Rapture
             RaptureIDs.Sets.Rapture[Type] = true;
             RaptureIDs.Sets.IsNaturalRaptureTile[Type] = true;
 
-            // Merge with other ice types and Rapture tiles
+            // Merge with other ice types, Rapture tiles, and stalactites
             Main.tileMerge[Type][ModContent.TileType<Blisstone>()] = true;
+            Main.tileMerge[Type][ModContent.TileType<GoldenIceStalactite>()] = true;
+            Main.tileMerge[Type][ModContent.TileType<BlisstoneStalactite>()] = true;
             Main.tileMerge[Type][TileID.IceBlock] = true;
             Main.tileMerge[Type][TileID.SnowBlock] = true;
             Main.tileMerge[Type][TileID.FleshIce] = true;
@@ -65,8 +67,46 @@ namespace VanillaPlus.Content.Tiles.Rapture
                 return;
 
             SpreadRapture(i, j);
+            GenerateStalactites(i, j);
+        }
 
-            // TODO: Generate ice stalactites/stalagmites
+        /// <summary>
+        /// Generate GoldenIce stalactites below this ice block.
+        /// Follows the same pattern as Confection's BlueIce.RandomUpdate.
+        /// </summary>
+        private void GenerateStalactites(int i, int j)
+        {
+            if (!Main.tile[i, j].HasUnactuatedTile)
+                return;
+
+            if (!Main.rand.NextBool(10))
+                return;
+
+            if (Main.tile[i, j + 1].HasTile || Main.tile[i, j + 2].HasTile)
+                return;
+
+            // Count existing stalactites in a 7-wide window to prevent overcrowding
+            int count = 0;
+            for (int x = i - 3; x < i + 4; x++)
+            {
+                for (int dy = 0; dy <= 3; dy++)
+                {
+                    if (WorldGen.InWorld(x, j + dy, 1) &&
+                        Main.tile[x, j + dy].TileType == ModContent.TileType<GoldenIceStalactite>() &&
+                        Main.tile[x, j + dy].HasTile)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            if (count < 2)
+            {
+                RaptureStalactiteHelper.PlaceTight(i, j + 1);
+                WorldGen.SquareTileFrame(i, j + 1);
+                if (Main.netMode == NetmodeID.Server && Main.tile[i, j + 1].HasTile)
+                    NetMessage.SendTileSquare(-1, i, j + 1, 1, 2);
+            }
         }
 
         /// <summary>

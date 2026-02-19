@@ -52,7 +52,6 @@ namespace VanillaPlus.Common
         public override bool TileFrame(int i, int j, int type, ref bool resetFrame, ref bool noBreak)
         {
             Tile tile = Main.tile[i, j];
-            Tile tileBelow = Main.tile[i, j + 1];
 
             // Convert vines growing from Blissgrass to vanilla Hallow vines (until we have custom vines)
             if (TileID.Sets.IsVine[type])
@@ -69,7 +68,93 @@ namespace VanillaPlus.Common
                 }
             }
 
+            // Convert vanilla stalactites adjacent to Rapture tiles
+            if (type == TileID.Stalactite)
+            {
+                ConvertVanillaStalactite(i, j);
+            }
+
             return true;
+        }
+
+        /// <summary>
+        /// Convert a vanilla stalactite to Rapture variant if its parent tile is a Rapture tile.
+        /// Called during TileFrame when the parent block changes (e.g., spreading).
+        /// </summary>
+        private void ConvertVanillaStalactite(int i, int j)
+        {
+            Tile tile = Main.tile[i, j];
+            int parentType = -1;
+
+            // Determine parent tile based on frame orientation
+            if (tile.TileFrameY == 72)
+            {
+                // Small stalactite - parent above
+                parentType = Main.tile[i, j - 1].TileType;
+            }
+            else if (tile.TileFrameY == 90)
+            {
+                // Small stalagmite - parent below
+                parentType = Main.tile[i, j + 1].TileType;
+            }
+            else if (tile.TileFrameY >= 36)
+            {
+                // Large stalagmite - find top tile, parent below bottom
+                int topY = tile.TileFrameY == 54 ? j - 1 : j;
+                parentType = Main.tile[i, topY + 2].TileType;
+            }
+            else
+            {
+                // Large stalactite - find top tile, parent above top
+                int topY = tile.TileFrameY == 18 ? j - 1 : j;
+                parentType = Main.tile[i, topY - 1].TileType;
+            }
+
+            ushort newTileType = 0;
+            if (parentType == ModContent.TileType<GoldenIce>())
+            {
+                newTileType = (ushort)ModContent.TileType<GoldenIceStalactite>();
+            }
+            else if (parentType == ModContent.TileType<Blisstone>() ||
+                     parentType == ModContent.TileType<Blissandstone>() ||
+                     parentType == ModContent.TileType<HardenedBlissand>())
+            {
+                newTileType = (ushort)ModContent.TileType<BlisstoneStalactite>();
+            }
+
+            if (newTileType == 0)
+                return;
+
+            // Convert this tile and its partner (if large stalactite/stalagmite)
+            int frameX = WorldGen.genRand.Next(3) * 18;
+
+            if (tile.TileFrameY == 72 || tile.TileFrameY == 90)
+            {
+                // Single-tile stalactite/stalagmite
+                tile.TileType = newTileType;
+                tile.TileFrameX = (short)frameX;
+            }
+            else if (tile.TileFrameY >= 36)
+            {
+                // Large stalagmite
+                int topY = tile.TileFrameY == 54 ? j - 1 : j;
+                Main.tile[i, topY].TileType = newTileType;
+                Main.tile[i, topY].TileFrameX = (short)frameX;
+                Main.tile[i, topY + 1].TileType = newTileType;
+                Main.tile[i, topY + 1].TileFrameX = (short)frameX;
+            }
+            else
+            {
+                // Large stalactite
+                int topY = tile.TileFrameY == 18 ? j - 1 : j;
+                Main.tile[i, topY].TileType = newTileType;
+                Main.tile[i, topY].TileFrameX = (short)frameX;
+                Main.tile[i, topY + 1].TileType = newTileType;
+                Main.tile[i, topY + 1].TileFrameX = (short)frameX;
+            }
+
+            if (Main.netMode == NetmodeID.Server)
+                NetMessage.SendTileSquare(-1, i, j, 1, 2);
         }
 
         public override void RandomUpdate(int i, int j, int type)

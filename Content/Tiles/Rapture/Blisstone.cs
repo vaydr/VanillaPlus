@@ -47,6 +47,55 @@ namespace VanillaPlus.Content.Tiles.Rapture
                 return;
 
             SpreadRapture(i, j);
+            GenerateStalactites(i, j);
+        }
+
+        /// <summary>
+        /// Generate Blisstone stalactites/stalagmites adjacent to this block.
+        /// Stalactites hang below, stalagmites grow above. Similar to pearlstone behavior.
+        /// </summary>
+        private void GenerateStalactites(int i, int j)
+        {
+            if (!Main.tile[i, j].HasUnactuatedTile)
+                return;
+
+            if (!Main.rand.NextBool(10))
+                return;
+
+            // Count existing stalactites in a 7-wide window
+            int count = 0;
+            for (int x = i - 3; x < i + 4; x++)
+            {
+                for (int dy = -3; dy <= 3; dy++)
+                {
+                    if (WorldGen.InWorld(x, j + dy, 1) &&
+                        Main.tile[x, j + dy].TileType == ModContent.TileType<BlisstoneStalactite>() &&
+                        Main.tile[x, j + dy].HasTile)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            if (count >= 2)
+                return;
+
+            // Try stalactite below (ceiling)
+            if (!Main.tile[i, j + 1].HasTile && !Main.tile[i, j + 2].HasTile)
+            {
+                RaptureStalactiteHelper.PlaceTight(i, j + 1);
+                WorldGen.SquareTileFrame(i, j + 1);
+                if (Main.netMode == NetmodeID.Server && Main.tile[i, j + 1].HasTile)
+                    NetMessage.SendTileSquare(-1, i, j + 1, 1, 2);
+            }
+            // Try stalagmite above (floor)
+            else if (!Main.tile[i, j - 1].HasTile && !Main.tile[i, j - 2].HasTile)
+            {
+                RaptureStalactiteHelper.PlaceTight(i, j - 1);
+                WorldGen.SquareTileFrame(i, j - 1);
+                if (Main.netMode == NetmodeID.Server && Main.tile[i, j - 1].HasTile)
+                    NetMessage.SendTileSquare(-1, i, j - 1, 1, 2);
+            }
         }
 
         private void SpreadRapture(int i, int j)

@@ -12,6 +12,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.WorldBuilding;
+using VanillaPlus.Common;
 using VanillaPlus.Content.Tiles.Rapture;
 using VanillaPlus.Content.Walls.Rapture;
 
@@ -267,6 +268,12 @@ namespace VanillaPlus.Common.Systems
                         else if (Main.tile[x, y].TileType == TileID.HardenedSand || Main.tile[x, y].TileType == TileID.CorruptHardenedSand || Main.tile[x, y].TileType == TileID.CrimsonHardenedSand)
                         {
                             Main.tile[x, y].TileType = (ushort)ModContent.TileType<HardenedBlissand>();
+                            WorldGen.SquareTileFrame(x, y);
+                        }
+                        // Convert vanilla stalactites to Rapture variants based on parent tile
+                        else if (Main.tile[x, y].TileType == TileID.Stalactite)
+                        {
+                            RaptureStalactiteHelper.PlaceTight(x, y);
                             WorldGen.SquareTileFrame(x, y);
                         }
                     }
