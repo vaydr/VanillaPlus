@@ -9,7 +9,7 @@ namespace VanillaPlus.Content.Items.Rapture
     {
         public override void SetDefaults()
         {
-            Item.DefaultToPlaceableTile(ModContent.TileType<RaptureBanners>(), (int)RaptureBanners.StyleID.ManicBat);
+            Item.DefaultToPlaceableTile(ModContent.TileType<ManicBatBannerTile>(), 0);
             Item.width = 10;
             Item.height = 24;
             Item.rare = ItemRarityID.Blue;
