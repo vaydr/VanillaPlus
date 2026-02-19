@@ -140,17 +140,17 @@ Items: {
 
 	ManicSlimeBanner: {
 		DisplayName: Manic Slime Banner
-		Tooltip: ""
+		Tooltip: Nearby players get a bonus against: Manic Slime
 	}
 
 	BrightMummyBanner: {
 		DisplayName: Bright Mummy Banner
-		Tooltip: ""
+		Tooltip: Nearby players get a bonus against: Bright Mummy
 	}
 
 	ManicBatBanner: {
 		DisplayName: Manic Bat Banner
-		Tooltip: ""
+		Tooltip: Nearby players get a bonus against: Manic Bat
 	}
 }
 
