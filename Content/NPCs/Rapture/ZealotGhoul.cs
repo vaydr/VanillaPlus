@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
@@ -36,14 +37,22 @@ namespace VanillaPlus.Content.NPCs.Rapture
 
             NPC.value = Item.buyPrice(silver: 8);
 
-            NPC.HitSound = SoundID.NPCHit1;
-            NPC.DeathSound = SoundID.NPCDeath1;
+            NPC.HitSound = SoundID.NPCHit37;
+            NPC.DeathSound = SoundID.NPCDeath40;
 
             NPC.npcSlots = 0.5f;
 
-            Banner = NPCID.DesertGhoulHallow;
-            BannerItem = Item.BannerToItem(Item.NPCtoBanner(NPCID.DesertGhoulHallow));
+            Banner = NPCID.DesertGhoul;
+            BannerItem = Item.BannerToItem(Item.NPCtoBanner(NPCID.DesertGhoul));
             SpawnModBiomes = new int[1] { ModContent.GetInstance<DesertRaptureUndergroundBiome>().Type };
+        }
+
+        public override bool PreAI()
+        {
+            if (Main.rand.NextBool(700))
+                SoundEngine.PlaySound(Main.rand.NextBool(2) ? SoundID.Zombie55 : SoundID.Zombie56, NPC.position);
+
+            return true;
         }
 
         public override void ApplyDifficultyAndPlayerScaling(int numPlayers, float balance, float bossAdjustment)

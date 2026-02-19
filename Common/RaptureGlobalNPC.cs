@@ -31,6 +31,9 @@ namespace VanillaPlus.Common
             if (!spawnInfo.Player.InModBiome<RaptureBiome>())
                 return;
 
+            // Remove vanilla ghoul - Zealot Ghoul replaces it in Rapture
+            pool.Remove(NPCID.DesertGhoul);
+
             int tileType = spawnInfo.SpawnTileType;
             bool isRaptureTile = tileType == ModContent.TileType<Tiles.Blissgrass>()
                 || tileType == ModContent.TileType<Tiles.Blisstone>()
