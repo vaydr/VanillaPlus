@@ -137,6 +137,11 @@ Items: {
 		DisplayName: Golden Ice Wall
 		Tooltip: ""
 	}
+
+	ManicSlimeBanner: {
+		DisplayName: Manic Slime Banner
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -177,7 +182,12 @@ Conditions: {
 	NotInRapture: While not in Rapture
 }
 
-NPCs.TempleGuardian.DisplayName: Temple Guardian
+NPCs: {
+	TempleGuardian.DisplayName: Temple Guardian
+	ManicSlime.DisplayName: Manic Slime
+}
+
+Bestiary.ManicSlime: A frenzied slime pulsing with divine energy. Its erratic glow shifts between heavenly gold and celestial blue as it bounces through the underground Rapture.
 
 // Rapture Biome Content
 Tiles: {

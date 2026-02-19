@@ -5,7 +5,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
 using VanillaPlus.Content.Items.Rapture;
-using VanillaPlus.Content.Tiles.Rapture;
+using Tiles = VanillaPlus.Content.Tiles.Rapture;
 
 namespace VanillaPlus.Common
 {
@@ -32,12 +32,12 @@ namespace VanillaPlus.Common
                 return;
 
             int tileType = spawnInfo.SpawnTileType;
-            bool isRaptureTile = tileType == ModContent.TileType<Blissgrass>()
-                || tileType == ModContent.TileType<Blisstone>()
-                || tileType == ModContent.TileType<Blissand>()
-                || tileType == ModContent.TileType<GoldenIce>()
-                || tileType == ModContent.TileType<HardenedBlissand>()
-                || tileType == ModContent.TileType<Blissandstone>();
+            bool isRaptureTile = tileType == ModContent.TileType<Tiles.Blissgrass>()
+                || tileType == ModContent.TileType<Tiles.Blisstone>()
+                || tileType == ModContent.TileType<Tiles.Blissand>()
+                || tileType == ModContent.TileType<Tiles.GoldenIce>()
+                || tileType == ModContent.TileType<Tiles.HardenedBlissand>()
+                || tileType == ModContent.TileType<Tiles.Blissandstone>();
 
             if (!isRaptureTile)
                 return;
