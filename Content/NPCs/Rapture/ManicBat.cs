@@ -21,7 +21,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
 
         public override void SetStaticDefaults()
         {
-            Main.npcFrameCount[Type] = 5;
+            Main.npcFrameCount[Type] = 4;
 
             NPCID.Sets.TrailCacheLength[Type] = 8;
             NPCID.Sets.TrailingMode[Type] = 1;
@@ -34,8 +34,8 @@ namespace VanillaPlus.Content.NPCs.Rapture
             NPC.width = 26;
             NPC.height = 22;
             NPC.aiStyle = NPCAIStyleID.Bat;
-            AIType = NPCID.IlluminantBat;
-            AnimationType = NPCID.IlluminantBat;
+            AIType = NPCID.GiantBat;
+            AnimationType = NPCID.GiantBat;
 
             NPC.damage = 38;
             NPC.defense = 30;

@@ -56,23 +56,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             SpawnModBiomes = new int[1] { ModContent.GetInstance<RaptureUndergroundBiome>().Type };
         }
 
-        public override void ApplyDifficultyAndPlayerScaling(int numPlayers, float balance, float bossAdjustment)
-        {
-            if (Main.expertMode)
-            {
-                NPC.damage = 160;
-                NPC.lifeMax = 380;
-                NPC.knockBackResist = 0.75f; // 25% resist
-            }
-            if (Main.masterMode)
-            {
-                NPC.damage = 240;
-                NPC.lifeMax = 570;
-                NPC.knockBackResist = 0.7f; // 30% resist
-            }
-        }
-
-        public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
+public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry)
         {
             bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[] {
                 new FlavorTextBestiaryInfoElement("Mods.VanillaPlus.Bestiary.ManicSlime")
