@@ -142,6 +142,11 @@ Items: {
 		DisplayName: Manic Slime Banner
 		Tooltip: ""
 	}
+
+	BrightMummyBanner: {
+		DisplayName: Bright Mummy Banner
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -186,11 +191,15 @@ NPCs: {
 	TempleGuardian.DisplayName: Temple Guardian
 	ManicSlime.DisplayName: Manic Slime
 	ZealotGhoul.DisplayName: Zealot Ghoul
+	BrightMummy.DisplayName: Bright Mummy
+	GoldenPigron.DisplayName: Golden Pigron
 }
 
 Bestiary: {
 	ManicSlime: A frenzied slime pulsing with divine energy. Its erratic glow shifts between heavenly gold and celestial blue as it bounces through the underground Rapture.
 	ZealotGhoul: A zealous ghoul prowling the golden deserts of the Rapture. Its fervent devotion has twisted its mind, leaving it in a perpetual state of divine madness.
+	BrightMummy: Wrapped in radiant golden bindings, this mummy shambles through the sanctified deserts of the Rapture. Its luminous wrappings confuse any who dare strike it.
+	GoldenPigron: A gilded pig-dragon hybrid found lurking in the frozen depths of the Rapture. Its radiant golden scales shimmer as it phases through walls in pursuit of prey.
 }
 
 // Rapture Biome Content

@@ -34,6 +34,12 @@ namespace VanillaPlus.Common
             // Remove vanilla ghoul - Zealot Ghoul replaces it in Rapture
             pool.Remove(NPCID.DesertGhoul);
 
+            // Remove vanilla Light Mummy - Bright Mummy replaces it in Rapture
+            pool.Remove(NPCID.LightMummy);
+
+            // Remove vanilla Hallow Pigron - Golden Pigron replaces it in Rapture
+            pool.Remove(NPCID.PigronHallow);
+
             int tileType = spawnInfo.SpawnTileType;
             bool isRaptureTile = tileType == ModContent.TileType<Tiles.Blissgrass>()
                 || tileType == ModContent.TileType<Tiles.Blisstone>()

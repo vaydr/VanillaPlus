@@ -6,7 +6,8 @@ namespace VanillaPlus.Content.Tiles.Rapture
     {
         public enum StyleID
         {
-            ManicSlime
+            ManicSlime,
+            BrightMummy
         }
     }
 }
