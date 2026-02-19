@@ -147,6 +147,11 @@ Items: {
 		DisplayName: Bright Mummy Banner
 		Tooltip: ""
 	}
+
+	ManicBatBanner: {
+		DisplayName: Manic Bat Banner
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -193,6 +198,7 @@ NPCs: {
 	ZealotGhoul.DisplayName: Zealot Ghoul
 	BrightMummy.DisplayName: Bright Mummy
 	GoldenPigron.DisplayName: Golden Pigron
+	ManicBat.DisplayName: Manic Bat
 }
 
 Bestiary: {
@@ -200,6 +206,7 @@ Bestiary: {
 	ZealotGhoul: A zealous ghoul prowling the golden deserts of the Rapture. Its fervent devotion has twisted its mind, leaving it in a perpetual state of divine madness.
 	BrightMummy: Wrapped in radiant golden bindings, this mummy shambles through the sanctified deserts of the Rapture. Its luminous wrappings confuse any who dare strike it.
 	GoldenPigron: A gilded pig-dragon hybrid found lurking in the frozen depths of the Rapture. Its radiant golden scales shimmer as it phases through walls in pursuit of prey.
+	ManicBat: A frenzied bat suffused with divine light. It darts through the underground Rapture at blinding speed, leaving a shimmering trail of gold and blue in its wake.
 }
 
 // Rapture Biome Content

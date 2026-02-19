@@ -40,6 +40,9 @@ namespace VanillaPlus.Common
             // Remove vanilla Hallow Pigron - Golden Pigron replaces it in Rapture
             pool.Remove(NPCID.PigronHallow);
 
+            // Remove vanilla Illuminant Bat - Manic Bat replaces it in Rapture
+            pool.Remove(NPCID.IlluminantBat);
+
             int tileType = spawnInfo.SpawnTileType;
             bool isRaptureTile = tileType == ModContent.TileType<Tiles.Blissgrass>()
                 || tileType == ModContent.TileType<Tiles.Blisstone>()
