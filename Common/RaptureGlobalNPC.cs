@@ -1,15 +1,17 @@
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
 using VanillaPlus.Content.Items.Rapture;
+using VanillaPlus.Content.Tiles.Rapture;
 
 namespace VanillaPlus.Common
 {
     /// <summary>
     /// Global NPC hooks for Rapture biome integration.
-    /// Handles shop modifications for NPCs like the Steampunker.
+    /// Handles shop modifications and critter/enemy spawning.
     /// </summary>
     public class RaptureGlobalNPC : GlobalNPC
     {
@@ -23,6 +25,61 @@ namespace VanillaPlus.Common
             "Mods.VanillaPlus.Conditions.NotInRapture",
             () => !Main.LocalPlayer.InModBiome<RaptureBiome>()
         );
+
+        public override void EditSpawnPool(IDictionary<int, float> pool, NPCSpawnInfo spawnInfo)
+        {
+            if (!spawnInfo.Player.InModBiome<RaptureBiome>())
+                return;
+
+            int tileType = spawnInfo.SpawnTileType;
+            bool isRaptureTile = tileType == ModContent.TileType<Blissgrass>()
+                || tileType == ModContent.TileType<Blisstone>()
+                || tileType == ModContent.TileType<Blissand>()
+                || tileType == ModContent.TileType<GoldenIce>()
+                || tileType == ModContent.TileType<HardenedBlissand>()
+                || tileType == ModContent.TileType<Blissandstone>();
+
+            if (!isRaptureTile)
+                return;
+
+            bool surface = (double)spawnInfo.SpawnTileY <= Main.worldSurface;
+            bool underground = (double)spawnInfo.SpawnTileY > Main.rockLayer;
+
+            // Lightning Bug - surface, night, same as vanilla Hallow behavior
+            if (surface && !Main.dayTime && !spawnInfo.Water)
+            {
+                if (!NPC.TooWindyForButterflies && Main.rand.NextBool(NPC.fireFlyFriendly))
+                {
+                    pool[NPCID.LightningBug] = 1f;
+                }
+            }
+
+            // Fairies - underground Rapture, any time
+            if (underground && !spawnInfo.Water)
+            {
+                if (Main.rand.NextBool(4))
+                {
+                    int fairy = Main.rand.NextFromList(
+                        NPCID.FairyCritterBlue,
+                        NPCID.FairyCritterGreen,
+                        NPCID.FairyCritterPink
+                    );
+                    pool[fairy] = 0.5f;
+                }
+            }
+
+            // Prismatic Lacewing - post-Plantera, surface, night (7:30 PM to 12:00 AM)
+            if (surface && !Main.dayTime && NPC.downedPlantBoss && !spawnInfo.Water)
+            {
+                // Vanilla spawns between 7:30 PM and midnight
+                // In Terraria, night time goes from 0 to 32400 (9 hours)
+                // 7:30 PM = time 0, midnight = time 16200
+                if (Main.time < 16200.0 && !NPC.AnyNPCs(NPCID.EmpressButterfly))
+                {
+                    pool[NPCID.EmpressButterfly] = 0.05f;
+                }
+            }
+        }
 
         public override void ModifyShop(NPCShop shop)
         {
