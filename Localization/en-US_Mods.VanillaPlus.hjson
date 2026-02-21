@@ -99,6 +99,11 @@ Items: {
 		Tooltip: ""
 	}
 
+	ExaltedBar: {
+		DisplayName: Exalted Bar
+		Tooltip: ""
+	}
+
 	Diorama: {
 		DisplayName: Diorama
 		Tooltip: ""
