@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -81,6 +83,12 @@ namespace VanillaPlus.Common
                 }
             }
 
+            // Rainbow Slime - same conditions as vanilla Hallow: surface, raining, only one at a time
+            if (surface && Main.hardMode && Main.cloudAlpha > 0f && !NPC.AnyNPCs(NPCID.RainbowSlime))
+            {
+                pool[NPCID.RainbowSlime] = 0.05f;
+            }
+
             // Prismatic Lacewing - post-Plantera, surface, night (7:30 PM to 12:00 AM)
             if (surface && !Main.dayTime && NPC.downedPlantBoss && !spawnInfo.Water)
             {
@@ -90,6 +98,25 @@ namespace VanillaPlus.Common
                 if (Main.time < 16200.0 && !NPC.AnyNPCs(NPCID.EmpressButterfly))
                 {
                     pool[NPCID.EmpressButterfly] = 0.05f;
+                }
+            }
+        }
+
+        public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
+        {
+            if (npc.type == NPCID.DukeFishron)
+            {
+                // Add Laguna to Duke Fishron's weapon drop pool (1/5 -> 1/6)
+                foreach (var rule in npcLoot.Get(false))
+                {
+                    if (rule is OneFromOptionsNotScaledWithLuckDropRule notScaled
+                        && notScaled.dropIds.Contains(ItemID.Flairon))
+                    {
+                        var newIds = notScaled.dropIds.ToList();
+                        newIds.Add(ModContent.ItemType<Laguna>());
+                        notScaled.dropIds = newIds.ToArray();
+                        break;
+                    }
                 }
             }
         }

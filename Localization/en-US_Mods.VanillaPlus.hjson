@@ -99,6 +99,26 @@ Items: {
 		Tooltip: ""
 	}
 
+	Diorama: {
+		DisplayName: Diorama
+		Tooltip: ""
+	}
+
+	Laguna: {
+		DisplayName: Laguna
+		Tooltip: ""
+	}
+
+	Prescription: {
+		DisplayName: Prescription
+		Tooltip: ""
+	}
+
+	LunarEclipse: {
+		DisplayName: Lunar Eclipse
+		Tooltip: ""
+	}
+
 	GoldenSolution: {
 		DisplayName: Golden Solution
 		Tooltip:
@@ -152,6 +172,11 @@ Items: {
 		DisplayName: Manic Bat Banner
 		Tooltip: Nearby players get a bonus against: Manic Bat
 	}
+
+	ArmedMinaretBanner: {
+		DisplayName: Armed Minaret Banner
+		Tooltip: Nearby players get a bonus against: Armed Minaret
+	}
 }
 
 Buffs: {
@@ -184,6 +209,11 @@ Projectiles: {
 	PurpleTerraBeam.DisplayName: Lepton Sword Beam
 	PaintedFlare.DisplayName: Painted Flare
 	BlissandProjectile.DisplayName: Blissand Projectile
+	DioramaProjectile.DisplayName: Diorama
+	LagunaProjectile.DisplayName: Laguna
+	PrescriptionProjectile.DisplayName: Prescription
+	LunarEclipseProjectile.DisplayName: Lunar Eclipse
+	MinaretSwordBeam.DisplayName: Sword Beam
 	GoldenSolution.DisplayName: Golden Solution
 }
 
@@ -197,8 +227,9 @@ NPCs: {
 	ManicSlime.DisplayName: Manic Slime
 	ZealotGhoul.DisplayName: Zealot Ghoul
 	BrightMummy.DisplayName: Bright Mummy
-	GoldenPigron.DisplayName: Golden Pigron
+	GoldenPigron.DisplayName: Pigron
 	ManicBat.DisplayName: Manic Bat
+	ArmedMinaret.DisplayName: Armed Minaret
 }
 
 Bestiary: {
@@ -207,6 +238,7 @@ Bestiary: {
 	BrightMummy: Wrapped in radiant golden bindings, this mummy shambles through the sanctified deserts of the Rapture. Its luminous wrappings confuse any who dare strike it.
 	GoldenPigron: A gilded pig-dragon hybrid found lurking in the frozen depths of the Rapture. Its radiant golden scales shimmer as it phases through walls in pursuit of prey.
 	ManicBat: A frenzied bat suffused with divine light. It darts through the underground Rapture at blinding speed, leaving a shimmering trail of gold and blue in its wake.
+	ArmedMinaret: A crystalline tendril rooted deep within the walls of the underground Rapture. Its gilded segments sway menacingly as it launches radiant sword beams at any who wander too close.
 }
 
 // Rapture Biome Content

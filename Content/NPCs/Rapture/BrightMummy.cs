@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
 using VanillaPlus.Content.Items.Rapture;
+using RaptureTiles = VanillaPlus.Content.Tiles.Rapture;
 
 namespace VanillaPlus.Content.NPCs.Rapture
 {
@@ -72,17 +73,11 @@ namespace VanillaPlus.Content.NPCs.Rapture
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)
         {
-            if (!Main.hardMode)
-                return 0f;
+            // Match vanilla Light Mummy: hardmode + spawns on Pearlsand (→ Blissand), weight 0.5f
+            if (Main.hardMode && spawnInfo.SpawnTileType == ModContent.TileType<RaptureTiles.Blissand>())
+                return 0.5f;
 
-            if (!spawnInfo.Player.InModBiome<DesertRaptureSurfaceBiome>()
-                && !spawnInfo.Player.InModBiome<DesertRaptureUndergroundBiome>())
-                return 0f;
-
-            if (spawnInfo.Water)
-                return 0f;
-
-            return 0.4f;
+            return 0f;
         }
 
         public override void OnHitPlayer(Player target, Player.HurtInfo hurtInfo)

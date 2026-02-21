@@ -13,10 +13,13 @@ namespace VanillaPlus.Common.Systems
     public class RaptureRecipes : ModSystem
     {
         public static RecipeGroup CrystalShardRecipeGroup;
+        public static RecipeGroup LunarFragmentRecipeGroup;
+        public const string LunarFragmentGroupName = "VanillaPlus:AnyLunarFragment";
 
         public override void Unload()
         {
             CrystalShardRecipeGroup = null;
+            LunarFragmentRecipeGroup = null;
         }
 
         public override void AddRecipeGroups()
@@ -28,6 +31,16 @@ namespace VanillaPlus.Common.Systems
                 ModContent.ItemType<RadiantShard>()
             );
             RecipeGroup.RegisterGroup(Lang.GetItemNameValue(ItemID.CrystalShard), CrystalShardRecipeGroup);
+
+            // Any Lunar Fragment (Solar, Vortex, Nebula, Stardust)
+            LunarFragmentRecipeGroup = new RecipeGroup(
+                () => $"{Language.GetTextValue("LegacyMisc.37")} Lunar Fragment",
+                ItemID.FragmentSolar,
+                ItemID.FragmentVortex,
+                ItemID.FragmentNebula,
+                ItemID.FragmentStardust
+            );
+            RecipeGroup.RegisterGroup(LunarFragmentGroupName, LunarFragmentRecipeGroup);
         }
 
         public override void PostAddRecipes()
@@ -37,8 +50,9 @@ namespace VanillaPlus.Common.Systems
             {
                 Recipe recipe = Main.recipe[i];
 
-                // Skip Crystal Block and Shifting Pearlsands Dye (Hallow-specific items)
-                if (recipe.HasResult(ItemID.CrystalBlock) || recipe.HasResult(ItemID.ShiftingPearlSandsDye))
+                // Skip Hallow-specific items and Chik (Chik uses Crystal Shards only; Tempo uses Radiant Shards)
+                if (recipe.HasResult(ItemID.CrystalBlock) || recipe.HasResult(ItemID.ShiftingPearlSandsDye)
+                    || recipe.HasResult(ItemID.Chik))
                     continue;
 
                 // Replace Crystal Shard ingredient with RecipeGroup
