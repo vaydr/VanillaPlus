@@ -219,6 +219,18 @@ namespace VanillaPlus.Common
             }
         }
 
+        public override void GetChat(NPC npc, ref string chat)
+        {
+            // Pre-hardmode Guide musing — hints at whether this world will get Hallow or Rapture
+            if (npc.type == NPCID.Guide && !Main.hardMode && Main.rand.NextBool(8))
+            {
+                if (RaptureWorldSystem.WillBeRapture)
+                    chat = Language.GetTextValue("Mods.VanillaPlus.Dialogue.GuideRaptureHint");
+                else
+                    chat = Language.GetTextValue("Mods.VanillaPlus.Dialogue.GuideHallowHint");
+            }
+        }
+
         public override void ModifyShop(NPCShop shop)
         {
             if (shop.NpcType == NPCID.Steampunker)

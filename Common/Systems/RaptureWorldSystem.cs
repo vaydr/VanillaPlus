@@ -48,6 +48,12 @@ namespace VanillaPlus.Common.Systems
         public static bool HasRapture { get; set; }
 
         /// <summary>
+        /// Pre-determined at world creation whether this world will have Rapture.
+        /// Resolved immediately even for Random selection so hints can work pre-hardmode.
+        /// </summary>
+        public static bool WillBeRapture { get; set; }
+
+        /// <summary>
         /// Random style variants for trees/backgrounds (future use).
         /// </summary>
         public static int RaptureTreeStyle { get; set; }
@@ -68,6 +74,7 @@ namespace VanillaPlus.Common.Systems
         {
             // Reset to defaults when loading a world
             HasRapture = false;
+            WillBeRapture = false;
             RaptureTreeStyle = 0;
             RaptureBGStyle = 0;
         }
@@ -75,6 +82,7 @@ namespace VanillaPlus.Common.Systems
         public override void OnWorldUnload()
         {
             HasRapture = false;
+            WillBeRapture = false;
             RaptureTreeStyle = 0;
             RaptureBGStyle = 0;
         }
@@ -82,6 +90,7 @@ namespace VanillaPlus.Common.Systems
         public override void SaveWorldData(TagCompound tag)
         {
             tag["VanillaPlus:HasRapture"] = HasRapture;
+            tag["VanillaPlus:WillBeRapture"] = WillBeRapture;
             tag["VanillaPlus:RaptureTreeStyle"] = RaptureTreeStyle;
             tag["VanillaPlus:RaptureBGStyle"] = RaptureBGStyle;
         }
@@ -95,13 +104,19 @@ namespace VanillaPlus.Common.Systems
         public override void LoadWorldData(TagCompound tag)
         {
             HasRapture = tag.GetBool("VanillaPlus:HasRapture");
+            WillBeRapture = tag.GetBool("VanillaPlus:WillBeRapture");
             RaptureTreeStyle = tag.GetInt("VanillaPlus:RaptureTreeStyle");
             RaptureBGStyle = tag.GetInt("VanillaPlus:RaptureBGStyle");
+
+            // Backcompat: old hardmode worlds that predate WillBeRapture
+            if (HasRapture)
+                WillBeRapture = true;
         }
 
         public override void NetSend(BinaryWriter writer)
         {
             writer.Write(HasRapture);
+            writer.Write(WillBeRapture);
             writer.Write(RaptureTreeStyle);
             writer.Write(RaptureBGStyle);
         }
@@ -109,20 +124,27 @@ namespace VanillaPlus.Common.Systems
         public override void NetReceive(BinaryReader reader)
         {
             HasRapture = reader.ReadBoolean();
+            WillBeRapture = reader.ReadBoolean();
             RaptureTreeStyle = reader.ReadInt32();
             RaptureBGStyle = reader.ReadInt32();
         }
 
-        public override void ModifyHardmodeTasks(List<GenPass> list)
+        public override void PostWorldGen()
         {
-            // Decide if this world gets Rapture or Hallow based on world creation selection
-            HasRapture = SelectedRaptureOption switch
+            // Pre-determine Rapture/Hallow at world creation so Guide hints work pre-hardmode
+            WillBeRapture = SelectedRaptureOption switch
             {
                 RaptureOptions.Random => Main.rand.NextBool(),
                 RaptureOptions.Hallow => false,
                 RaptureOptions.Rapture => true,
                 _ => Main.rand.NextBool(),
             };
+        }
+
+        public override void ModifyHardmodeTasks(List<GenPass> list)
+        {
+            // Use the pre-determined choice from world creation
+            HasRapture = WillBeRapture;
 
             // Vanilla "Hardmode Announcement" will play - no custom message needed
 

@@ -202,6 +202,11 @@ Items: {
 		DisplayName: Bada Bing
 		Tooltip: ""
 	}
+
+	TomeOfMyths: {
+		DisplayName: Tome of Myths
+		Tooltip: Summons piercing radiant beams
+	}
 }
 
 Buffs: {
@@ -244,6 +249,7 @@ Projectiles: {
 	BadaBingExplosion.DisplayName: Bada Bing Explosion
 	LunarEclipseOrb.DisplayName: Lunar Eclipse Orb
 	VenomRainDrop.DisplayName: Venom Rain
+	RadiantBeam.DisplayName: Radiant Beam
 }
 
 Conditions: {
@@ -337,4 +343,9 @@ RaptureSelection: {
 		Title: Rapture
 		Description: Seraph-like Rapture is guaranteed to be present in your world.
 	}
+}
+
+Dialogue: {
+	GuideRaptureHint: I keep dreaming about the deepest reaches of our world. Something down there feels ominously calm. I'd investigate, but I've grown fond of it here.
+	GuideHallowHint: I keep dreaming about some outlandish things in the deepest reaches of our world. I'd investigate, but I've grown fond of it here.
 }

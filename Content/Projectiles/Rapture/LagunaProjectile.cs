@@ -29,15 +29,15 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             if (Main.myPlayer != Projectile.owner)
                 return;
 
-            // Spawn a homing bubble every 60 ticks (1 second)
+            // Spawn a homing bubble every 20 ticks (~3x per second)
             Projectile.localAI[1] += 1f;
-            if (Projectile.localAI[1] >= 60f)
+            if (Projectile.localAI[1] >= 20f)
             {
                 Projectile.localAI[1] = 0f;
 
                 float angle = Main.rand.NextFloat(MathHelper.TwoPi);
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
-                int bubbleDamage = (int)(Projectile.damage * 0.75f);
+                int bubbleDamage = (int)(Projectile.damage * 0.6f);
 
                 Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(),

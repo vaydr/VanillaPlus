@@ -9,7 +9,7 @@ namespace VanillaPlus.Content.Items.Rapture
     {
         public override void SetDefaults()
         {
-            Item.damage = 41;
+            Item.damage = 43;
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.width = 24;
             Item.height = 24;

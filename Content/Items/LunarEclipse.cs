@@ -10,7 +10,7 @@ namespace VanillaPlus.Content.Items
     {
         public override void SetDefaults()
         {
-            Item.damage = 140;
+            Item.damage = 120;
             Item.DamageType = DamageClass.MeleeNoSpeed;
             Item.width = 24;
             Item.height = 24;
