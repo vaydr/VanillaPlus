@@ -199,9 +199,9 @@ namespace VanillaPlus.Content.NPCs.Rapture
             // Clamp velocity
             NPC.velocity = Vector2.Clamp(NPC.velocity, new Vector2(-maxVelocity), new Vector2(maxVelocity));
 
-            // Rotation and sprite direction (faces player)
+            // Rotation and sprite direction (faces player, +90 degrees for sprite orientation)
             NPC.spriteDirection = (distanceVector.X > 0f).ToDirectionInt();
-            NPC.rotation = NPC.AngleTo(Main.player[NPC.target].Center) + (distanceVector.X < 0f).ToInt() * MathHelper.Pi;
+            NPC.rotation = NPC.AngleTo(Main.player[NPC.target].Center) + MathHelper.PiOver2 + (distanceVector.X < 0f).ToInt() * MathHelper.Pi;
 
             // Collision bounce-back
             if (NPC.collideX)
@@ -252,14 +252,8 @@ namespace VanillaPlus.Content.NPCs.Rapture
 
         public override void FindFrame(int frameHeight)
         {
-            NPC.frameCounter += 1.0;
-            if (NPC.frameCounter >= 8.0)
-            {
-                NPC.frameCounter = 0.0;
-                NPC.frame.Y += frameHeight;
-                if (NPC.frame.Y >= frameHeight * Main.npcFrameCount[Type])
-                    NPC.frame.Y = 0;
-            }
+            // Lock to frame 0 (crystal head)
+            NPC.frame.Y = 0;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
