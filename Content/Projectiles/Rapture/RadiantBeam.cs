@@ -91,60 +91,74 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             float fade = Projectile.timeLeft / 80f;
 
             Vector2 dir = BeamAngle.ToRotationVector2();
+            Vector2 perp = new Vector2(-dir.Y, dir.X);
             float rotation = BeamAngle;
 
             // Two sheens traveling at different speeds for texture
             float sheen1 = ((Main.GameUpdateCount * 0.05f + Projectile.ai[0] * 3f) % 1.6f) - 0.3f;
             float sheen2 = ((Main.GameUpdateCount * 0.03f + Projectile.ai[0] * 5f + 0.7f) % 1.6f) - 0.3f;
 
+            // Blur offsets perpendicular to beam direction
+            float[] blurOffsets = { -3f, -1.5f, 0f, 1.5f, 3f };
+            float[] blurWeights = { 0.15f, 0.35f, 1f, 0.35f, 0.15f };
+
             float segStep = 3f;
             int segments = (int)(BeamLength / segStep);
 
-            for (int i = 0; i <= segments; i++)
+            for (int b = 0; b < blurOffsets.Length; b++)
             {
-                float t = (float)i / segments;
+                Vector2 blurShift = perp * blurOffsets[b];
+                float w = blurWeights[b];
 
-                // Diamond profile
-                float diamondWidth = (float)Math.Sin(t * MathHelper.Pi) * MaxWidth;
-                if (diamondWidth < 0.5f)
-                    continue;
+                for (int i = 0; i <= segments; i++)
+                {
+                    float t = (float)i / segments;
 
-                Vector2 pos = Projectile.Center + dir * (t * BeamLength) - Main.screenPosition;
+                    // Diamond profile
+                    float diamondWidth = (float)Math.Sin(t * MathHelper.Pi) * MaxWidth;
+                    if (diamondWidth < 0.5f)
+                        continue;
 
-                Color baseColor = GetBeamColor(t * 2f) * fade;
+                    Vector2 pos = Projectile.Center + dir * (t * BeamLength) + blurShift - Main.screenPosition;
 
-                // Double sheen for shimmer texture
-                float sheenDist1 = Math.Abs(t - sheen1);
-                float sheenDist2 = Math.Abs(t - sheen2);
-                float sheen = Math.Max(0f, 1f - sheenDist1 * 5f) + Math.Max(0f, 1f - sheenDist2 * 7f) * 0.6f;
+                    Color baseColor = GetBeamColor(t * 2f) * fade * w;
 
-                // Wide glare — additive makes this bloom naturally
-                Color glareColor = baseColor * (0.15f + sheen * 0.25f);
-                Main.EntitySpriteDraw(pixel, pos, src, glareColor,
-                    rotation, new Vector2(0.5f, 0.5f),
-                    new Vector2(segStep + 1f, diamondWidth * 2.2f),
-                    SpriteEffects.None, 0);
+                    // Double sheen for shimmer texture
+                    float sheenDist1 = Math.Abs(t - sheen1);
+                    float sheenDist2 = Math.Abs(t - sheen2);
+                    float sheen = Math.Max(0f, 1f - sheenDist1 * 5f) + Math.Max(0f, 1f - sheenDist2 * 7f) * 0.6f;
 
-                // Outer glow
-                Color glowColor = baseColor * (0.3f + sheen * 0.3f);
-                Main.EntitySpriteDraw(pixel, pos, src, glowColor,
-                    rotation, new Vector2(0.5f, 0.5f),
-                    new Vector2(segStep + 1f, diamondWidth * 1.4f),
-                    SpriteEffects.None, 0);
+                    // Wide glare
+                    Color glareColor = baseColor * (0.15f + sheen * 0.25f);
+                    Main.EntitySpriteDraw(pixel, pos, src, glareColor,
+                        rotation, new Vector2(0.5f, 0.5f),
+                        new Vector2(segStep + 1f, diamondWidth * 2.2f),
+                        SpriteEffects.None, 0);
 
-                // Mid body
-                Color midColor = baseColor * (0.5f + sheen * 0.25f);
-                Main.EntitySpriteDraw(pixel, pos, src, midColor,
-                    rotation, new Vector2(0.5f, 0.5f),
-                    new Vector2(segStep + 1f, diamondWidth),
-                    SpriteEffects.None, 0);
+                    // Outer glow
+                    Color glowColor = baseColor * (0.3f + sheen * 0.3f);
+                    Main.EntitySpriteDraw(pixel, pos, src, glowColor,
+                        rotation, new Vector2(0.5f, 0.5f),
+                        new Vector2(segStep + 1f, diamondWidth * 1.4f),
+                        SpriteEffects.None, 0);
 
-                // Bright core
-                Color coreColor = baseColor * (0.8f + sheen * 0.4f);
-                Main.EntitySpriteDraw(pixel, pos, src, coreColor,
-                    rotation, new Vector2(0.5f, 0.5f),
-                    new Vector2(segStep + 1f, diamondWidth * 0.35f),
-                    SpriteEffects.None, 0);
+                    // Mid body
+                    Color midColor = baseColor * (0.5f + sheen * 0.25f);
+                    Main.EntitySpriteDraw(pixel, pos, src, midColor,
+                        rotation, new Vector2(0.5f, 0.5f),
+                        new Vector2(segStep + 1f, diamondWidth),
+                        SpriteEffects.None, 0);
+
+                    // Bright core (only on center pass)
+                    if (b == 2)
+                    {
+                        Color coreColor = baseColor * (0.8f + sheen * 0.4f);
+                        Main.EntitySpriteDraw(pixel, pos, src, coreColor,
+                            rotation, new Vector2(0.5f, 0.5f),
+                            new Vector2(segStep + 1f, diamondWidth * 0.35f),
+                            SpriteEffects.None, 0);
+                    }
+                }
             }
         }
     }
