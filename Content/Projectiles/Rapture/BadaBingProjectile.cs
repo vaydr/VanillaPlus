@@ -27,8 +27,8 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
         public override void SetDefaults()
         {
-            Projectile.width = 14;
-            Projectile.height = 14;
+            Projectile.width = 60;
+            Projectile.height = 26;
             Projectile.aiStyle = -1;
             Projectile.friendly = true;
             Projectile.DamageType = DamageClass.Ranged;
@@ -40,33 +40,75 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
         public override void AI()
         {
-            // Point in direction of travel, offset 90 degrees CCW
             Projectile.rotation = Projectile.velocity.ToRotation();
 
-            // Rocket fire particles (vanilla rocket style)
-            if (Main.rand.NextBool(2))
-            {
-                Dust smoke = Dust.NewDustDirect(
-                    Projectile.position - Projectile.velocity * 0.5f,
-                    Projectile.width, Projectile.height,
-                    DustID.Smoke, 0f, 0f, 100, default, 1.2f);
-                smoke.noGravity = true;
-                smoke.velocity *= 0.3f;
-            }
+            // Tail position: back end of the rocket sprite
+            Vector2 velDir = Projectile.velocity.SafeNormalize(Vector2.Zero);
+            Vector2 tailPos = Projectile.Center - velDir * 18f;
 
-            // Rocket fire trail
+            // === Rocket exhaust effect ===
+
+            // 1) Bright inner flame core (white-hot center)
             for (int i = 0; i < 2; i++)
             {
-                Dust fire = Dust.NewDustDirect(
-                    Projectile.position - Projectile.velocity * 0.5f,
-                    Projectile.width, Projectile.height,
-                    DustID.Torch, 0f, 0f, 100, default, 1.4f);
-                fire.noGravity = true;
-                fire.velocity = Projectile.velocity * -0.3f + Main.rand.NextVector2Circular(1f, 1f);
+                Dust core = Dust.NewDustPerfect(
+                    tailPos + Main.rand.NextVector2Circular(2f, 2f),
+                    DustID.WhiteTorch,
+                    -velDir * Main.rand.NextFloat(3f, 6f) + Main.rand.NextVector2Circular(0.8f, 0.8f),
+                    0, default, 1.3f);
+                core.noGravity = true;
+                core.fadeIn = 0.8f;
             }
 
-            // Warm orange tile lighting
-            Lighting.AddLight(Projectile.Center, new Vector3(1f, 0.6f, 0.2f) * 0.6f);
+            // 2) Mid flame (orange fire, wider spread)
+            for (int i = 0; i < 3; i++)
+            {
+                Dust flame = Dust.NewDustPerfect(
+                    tailPos + Main.rand.NextVector2Circular(4f, 4f),
+                    DustID.Torch,
+                    -velDir * Main.rand.NextFloat(2f, 5f) + Main.rand.NextVector2Circular(1.5f, 1.5f),
+                    50, default, Main.rand.NextFloat(1.4f, 2f));
+                flame.noGravity = true;
+            }
+
+            // 3) Outer flame (dimmer, larger, more spread)
+            if (Main.rand.NextBool(2))
+            {
+                Dust outer = Dust.NewDustPerfect(
+                    tailPos + Main.rand.NextVector2Circular(5f, 5f),
+                    DustID.Torch,
+                    -velDir * Main.rand.NextFloat(1f, 3f) + Main.rand.NextVector2Circular(2.5f, 2.5f),
+                    100, default, Main.rand.NextFloat(1.8f, 2.5f));
+                outer.noGravity = true;
+                outer.fadeIn = 1.8f;
+            }
+
+            // 4) Smoke trail (drifts behind, slight gravity)
+            if (Main.rand.NextBool(3))
+            {
+                Dust smoke = Dust.NewDustPerfect(
+                    tailPos + Main.rand.NextVector2Circular(6f, 6f),
+                    DustID.Smoke,
+                    -velDir * Main.rand.NextFloat(0.5f, 2f) + Main.rand.NextVector2Circular(1f, 1f),
+                    120, default, Main.rand.NextFloat(1.5f, 2.2f));
+                smoke.noGravity = false;
+                smoke.velocity.Y -= 0.3f;
+            }
+
+            // 5) Tiny ember sparks that scatter
+            if (Main.rand.NextBool(4))
+            {
+                Dust ember = Dust.NewDustPerfect(
+                    tailPos + Main.rand.NextVector2Circular(3f, 3f),
+                    DustID.Torch,
+                    -velDir * Main.rand.NextFloat(4f, 8f) + Main.rand.NextVector2Circular(3f, 3f),
+                    0, default, 0.7f);
+                ember.noGravity = false;
+            }
+
+            // Warm lighting at exhaust point
+            Lighting.AddLight(tailPos, new Vector3(1f, 0.7f, 0.3f) * 0.8f);
+            Lighting.AddLight(Projectile.Center, new Vector3(1f, 0.5f, 0.15f) * 0.4f);
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -75,6 +117,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                 ? _ammoTexture.Value
                 : TextureAssets.Projectile[Type].Value;
             Vector2 origin = texture.Size() * 0.5f;
+            SpriteEffects flip = Projectile.velocity.X < 0f ? SpriteEffects.FlipVertically : SpriteEffects.None;
 
             // Draw afterimage trail
             for (int i = Projectile.oldPos.Length - 1; i > 0; i--)
@@ -87,7 +130,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                 trailColor.A = 0;
 
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Main.EntitySpriteDraw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, DrawScale * (0.7f + 0.3f * progress), SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, DrawScale * (0.7f + 0.3f * progress), flip, 0);
             }
 
             // Draw main sprite with normal lighting (no color cycling)
@@ -99,7 +142,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                 Projectile.rotation,
                 origin,
                 DrawScale,
-                SpriteEffects.None,
+                flip,
                 0
             );
 
@@ -108,6 +151,14 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
         public override void OnKill(int timeLeft)
         {
+            // AoE explosion - 80% damage to nearby enemies
+            if (Projectile.owner == Main.myPlayer)
+            {
+                Projectile.NewProjectile(Projectile.GetSource_Death(), Projectile.Center, Vector2.Zero,
+                    ModContent.ProjectileType<BadaBingExplosion>(), (int)(Projectile.damage * 0.8f),
+                    Projectile.knockBack * 0.5f, Projectile.owner);
+            }
+
             SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
 
             // Smoke burst

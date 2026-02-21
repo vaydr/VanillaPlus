@@ -65,10 +65,19 @@ namespace VanillaPlus.Content.Items
 
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            // Always show unloaded sprite in inventory
+            // Draw default texture at a fixed size independent of HoldItem's texture swap
+            // The game computes scale/origin from TextureAssets.Item[Type] which may be the loaded texture during firing,
+            // so we bypass vanilla entirely and compute our own draw parameters from the default texture
             if (_defaultTexture != null && _defaultTexture.IsLoaded)
             {
-                spriteBatch.Draw(_defaultTexture.Value, position, null, drawColor, 0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
+                Texture2D tex = _defaultTexture.Value;
+                Vector2 fixedOrigin = tex.Size() / 2f;
+                float maxDim = System.Math.Max(tex.Width, tex.Height);
+                float fixedScale = Main.inventoryScale;
+                if (maxDim > 32f)
+                    fixedScale *= 32f / maxDim;
+                fixedScale *= 1.5f;
+                spriteBatch.Draw(tex, position, null, drawColor, 0f, fixedOrigin, fixedScale, SpriteEffects.None, 0f);
                 return false;
             }
             return true;
