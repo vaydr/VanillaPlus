@@ -9,10 +9,31 @@ using VanillaPlus.Content.Biomes;
 using VanillaPlus.Content.Items;
 using VanillaPlus.Content.Items.Rapture;
 using VanillaPlus.Content.NPCs.Rapture;
+using VanillaPlus.Common.Systems;
 using Tiles = VanillaPlus.Content.Tiles.Rapture;
 
 namespace VanillaPlus.Common
 {
+    /// <summary>
+    /// Drop condition: only drops when the world has Rapture (not Hallow).
+    /// </summary>
+    public class RaptureDropRule : IItemDropRuleCondition
+    {
+        public bool CanDrop(DropAttemptInfo info) => RaptureWorldSystem.HasRapture;
+        public bool CanShowItemDropInUI() => false;
+        public string GetConditionDescription() => null;
+    }
+
+    /// <summary>
+    /// Drop condition: only drops when the world has Hallow (not Rapture).
+    /// </summary>
+    public class HallowDropRule : IItemDropRuleCondition
+    {
+        public bool CanDrop(DropAttemptInfo info) => !RaptureWorldSystem.HasRapture;
+        public bool CanShowItemDropInUI() => false;
+        public string GetConditionDescription() => null;
+    }
+
     /// <summary>
     /// Global NPC hooks for Rapture biome integration.
     /// Handles shop modifications and critter/enemy spawning.
@@ -154,6 +175,31 @@ namespace VanillaPlus.Common
             if (_undergroundRaptureTypes.Contains(npc.type))
             {
                 npcLoot.Add(ItemDropRule.Common(ItemID.SoulofLight, 5));
+            }
+
+            // Hallowed Bar → Exalted Bar swap for mech bosses in Rapture worlds
+            if (npc.type == NPCID.TheDestroyer || npc.type == NPCID.SkeletronPrime
+                || npc.type == NPCID.Retinazer || npc.type == NPCID.Spazmatism)
+            {
+                // Remove all vanilla Hallowed Bar drops
+                npcLoot.RemoveWhere(
+                    rule => rule is ItemDropWithConditionRule drop && drop.itemId == ItemID.HallowedBar,
+                    false
+                );
+                npcLoot.RemoveWhere(
+                    rule => rule is CommonDrop common && common.itemId == ItemID.HallowedBar,
+                    false
+                );
+
+                // Add conditional drops: Exalted Bar in Rapture, Hallowed Bar in Hallow
+                // Mech bosses drop 15-30 bars in normal mode
+                LeadingConditionRule raptureCondition = new LeadingConditionRule(new RaptureDropRule());
+                raptureCondition.OnSuccess(ItemDropRule.Common(ModContent.ItemType<ExaltedBar>(), 1, 15, 30));
+                npcLoot.Add(raptureCondition);
+
+                LeadingConditionRule hallowCondition = new LeadingConditionRule(new HallowDropRule());
+                hallowCondition.OnSuccess(ItemDropRule.Common(ItemID.HallowedBar, 1, 15, 30));
+                npcLoot.Add(hallowCondition);
             }
 
             if (npc.type == NPCID.DukeFishron)

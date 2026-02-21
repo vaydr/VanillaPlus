@@ -13,12 +13,14 @@ namespace VanillaPlus.Common.Systems
     public class RaptureRecipes : ModSystem
     {
         public static RecipeGroup CrystalShardRecipeGroup;
+        public static RecipeGroup HallowedBarRecipeGroup;
         public static RecipeGroup LunarFragmentRecipeGroup;
         public const string LunarFragmentGroupName = "VanillaPlus:AnyLunarFragment";
 
         public override void Unload()
         {
             CrystalShardRecipeGroup = null;
+            HallowedBarRecipeGroup = null;
             LunarFragmentRecipeGroup = null;
         }
 
@@ -31,6 +33,14 @@ namespace VanillaPlus.Common.Systems
                 ModContent.ItemType<RadiantShard>()
             );
             RecipeGroup.RegisterGroup(Lang.GetItemNameValue(ItemID.CrystalShard), CrystalShardRecipeGroup);
+
+            // Register Exalted Bar as alternative to Hallowed Bar
+            HallowedBarRecipeGroup = new RecipeGroup(
+                () => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(ItemID.HallowedBar)}",
+                ItemID.HallowedBar,
+                ModContent.ItemType<ExaltedBar>()
+            );
+            RecipeGroup.RegisterGroup(Lang.GetItemNameValue(ItemID.HallowedBar), HallowedBarRecipeGroup);
 
             // Any Lunar Fragment (Solar, Vortex, Nebula, Stardust)
             LunarFragmentRecipeGroup = new RecipeGroup(
@@ -60,6 +70,13 @@ namespace VanillaPlus.Common.Systems
                 {
                     recipe.AddRecipeGroup(Lang.GetItemNameValue(ItemID.CrystalShard), crystalShard.stack);
                     recipe.RemoveIngredient(crystalShard);
+                }
+
+                // Replace Hallowed Bar ingredient with RecipeGroup
+                if (recipe.TryGetIngredient(ItemID.HallowedBar, out var hallowedBar))
+                {
+                    recipe.AddRecipeGroup(Lang.GetItemNameValue(ItemID.HallowedBar), hallowedBar.stack);
+                    recipe.RemoveIngredient(hallowedBar);
                 }
             }
         }
