@@ -199,9 +199,8 @@ namespace VanillaPlus.Content.NPCs.Rapture
             // Clamp velocity
             NPC.velocity = Vector2.Clamp(NPC.velocity, new Vector2(-maxVelocity), new Vector2(maxVelocity));
 
-            // Rotation and sprite direction (faces player, +90 degrees for sprite orientation)
-            NPC.spriteDirection = (distanceVector.X > 0f).ToDirectionInt();
-            NPC.rotation = NPC.AngleTo(Main.player[NPC.target].Center) + MathHelper.PiOver2 + (distanceVector.X < 0f).ToInt() * MathHelper.Pi;
+            // Rotation: head always faces the player, no conditional flipping
+            NPC.rotation = NPC.AngleTo(Main.player[NPC.target].Center) - MathHelper.PiOver2;
 
             // Collision bounce-back
             if (NPC.collideX)
