@@ -36,11 +36,31 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             }
         }
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        public override void PostAI()
         {
-            // 100% Venom: 2/3 chance for 3 seconds, 1/3 chance for 6 seconds
-            int duration = Main.rand.NextBool(3) ? 360 : 180;
-            target.AddBuff(BuffID.Venom, duration);
+            if (Main.myPlayer != Projectile.owner)
+                return;
+
+            // Venom rain — spawn acid droplets frequently below the yoyo
+            Projectile.localAI[1]++;
+            if (Projectile.localAI[1] >= 5f) // every ~0.08 seconds
+            {
+                Projectile.localAI[1] = 0f;
+
+                Vector2 spawnPos = Projectile.Center + new Vector2(Main.rand.NextFloat(-2.5f, 2.5f), 18f);
+                Vector2 vel = new Vector2(Main.rand.NextFloat(-0.3f, 0.3f), Main.rand.NextFloat(4.8f, 7.2f));
+
+                Projectile.NewProjectile(
+                    Projectile.GetSource_FromThis(),
+                    spawnPos,
+                    vel,
+                    ModContent.ProjectileType<VenomRainDrop>(),
+                    (int)(Projectile.damage * 0.3f),
+                    0f,
+                    Projectile.owner,
+                    ai0: Main.rand.NextFloat()
+                );
+            }
         }
     }
 }

@@ -24,5 +24,11 @@ namespace VanillaPlus.Content.Items.Rapture
             spriteBatch.Draw(ModContent.Request<Texture2D>(Texture).Value, position, frame, drawColor, 0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
             return false;
         }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            scale *= 1.5f;
+            return true;
+        }
     }
 }

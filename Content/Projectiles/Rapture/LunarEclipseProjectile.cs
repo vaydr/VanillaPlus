@@ -39,67 +39,38 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                 dust.velocity *= 0.5f;
             }
 
-            // Occasionally spawn a shadow fireball while spinning (~every 2 seconds)
+            // Spawn a homing cosmic orb every 0.5-1 second
             if (Main.myPlayer == Projectile.owner)
             {
                 Projectile.localAI[1]++;
-                if (Projectile.localAI[1] >= 60)
+                if (Projectile.localAI[1] >= 45f)
                 {
-                    Projectile.localAI[1] = 0;
-                    SpawnShadowFireball();
+                    Projectile.localAI[1] = Main.rand.Next(-8, 8);
+                    SpawnOrb();
                 }
             }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            // Spawn a shadow fireball on every hit
             if (Main.myPlayer == Projectile.owner)
-                SpawnShadowFireball();
+                SpawnOrb();
         }
 
-        private void SpawnShadowFireball()
+        private void SpawnOrb()
         {
-            // Find nearest enemy to aim at
-            Vector2 velocity = new Vector2(Main.rand.NextFloat(-4f, 4f), Main.rand.NextFloat(-4f, 4f));
-            float closestDist = 600f;
-            NPC closestNPC = null;
+            // Launch from yoyo center with a random initial direction
+            Vector2 vel = Main.rand.NextVector2CircularEdge(6f, 6f);
 
-            for (int i = 0; i < Main.maxNPCs; i++)
-            {
-                NPC npc = Main.npc[i];
-                if (npc.active && !npc.friendly && npc.CanBeChasedBy())
-                {
-                    float dist = Vector2.Distance(Projectile.Center, npc.Center);
-                    if (dist < closestDist)
-                    {
-                        closestDist = dist;
-                        closestNPC = npc;
-                    }
-                }
-            }
-
-            if (closestNPC != null)
-            {
-                velocity = Vector2.Normalize(closestNPC.Center - Projectile.Center) * 8f;
-            }
-
-            // Projectile 468 = CultistBossFireBallClone (homing shadow fireball)
-            int idx = Projectile.NewProjectile(
+            Projectile.NewProjectile(
                 Projectile.GetSource_FromThis(),
                 Projectile.Center,
-                velocity,
-                468,
-                Projectile.damage,
-                Projectile.knockBack,
+                vel,
+                ModContent.ProjectileType<LunarEclipseOrb>(),
+                (int)(Projectile.damage * 0.6f),
+                Projectile.knockBack * 0.5f,
                 Projectile.owner
             );
-            // Vanilla projectile 468 is hostile by default — flip it to friendly
-            if (idx >= 0 && idx < Main.maxProjectiles)
-            {
-                Main.projectile[idx].friendly = true;
-                Main.projectile[idx].hostile = false;
-            }
         }
     }
 }

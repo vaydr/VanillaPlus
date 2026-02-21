@@ -1,3 +1,5 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,6 +26,12 @@ namespace VanillaPlus.Content.Items
             Item.scale = 2f;
 
             Item.ResearchUnlockCount = 99;
+        }
+
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            scale *= 1.5f;
+            return true;
         }
 
         public override void AddRecipes()

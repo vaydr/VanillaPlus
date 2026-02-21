@@ -24,28 +24,26 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             Projectile.penetrate = -1;
         }
 
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        public override void PostAI()
         {
             if (Main.myPlayer != Projectile.owner)
                 return;
 
-            int bubbleCount = Main.rand.Next(1, 3); // 1-2 bubbles
-            int bubbleDamage = (int)(Projectile.damage * 0.75f);
-
-            for (int i = 0; i < bubbleCount; i++)
+            // Spawn a homing bubble every 60 ticks (1 second)
+            Projectile.localAI[1] += 1f;
+            if (Projectile.localAI[1] >= 60f)
             {
-                // Aim bubbles at the hit target with some spread
-                Vector2 toTarget = target.Center - Projectile.Center;
-                if (toTarget != Vector2.Zero)
-                    toTarget = Vector2.Normalize(toTarget) * Main.rand.NextFloat(6f, 10f);
-                toTarget += new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f));
+                Projectile.localAI[1] = 0f;
 
-                // Bubble Gun bubble (ID 409) — visible, moves, pops on hit
+                float angle = Main.rand.NextFloat(MathHelper.TwoPi);
+                Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(3f, 6f);
+                int bubbleDamage = (int)(Projectile.damage * 0.75f);
+
                 Projectile.NewProjectile(
                     Projectile.GetSource_FromThis(),
                     Projectile.Center,
-                    toTarget,
-                    409,
+                    vel,
+                    ProjectileID.FlaironBubble,
                     bubbleDamage,
                     Projectile.knockBack,
                     Projectile.owner

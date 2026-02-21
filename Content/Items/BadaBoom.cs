@@ -83,6 +83,12 @@ namespace VanillaPlus.Content.Items
             return true;
         }
 
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            scale *= 1.5f;
+            return true;
+        }
+
         public override void AddRecipes()
         {
             CreateRecipe()

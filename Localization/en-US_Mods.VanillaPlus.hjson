@@ -237,6 +237,8 @@ Projectiles: {
 	GoldenSolution.DisplayName: Golden Solution
 	BadaBingProjectile.DisplayName: Bada Bing
 	BadaBingExplosion.DisplayName: Bada Bing Explosion
+	LunarEclipseOrb.DisplayName: Lunar Eclipse Orb
+	VenomRainDrop.DisplayName: Venom Rain
 }
 
 Conditions: {
