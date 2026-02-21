@@ -14,7 +14,19 @@ namespace VanillaPlus.Content.Projectiles.Rapture
         private static readonly Color Warm = new Color(255, 255, 240);
         private static readonly Color SkyBlue = new Color(140, 210, 255);
 
-        private const float BeamLength = 300f;
+        // 50% chance 18-22 tiles, 25% chance 14-18 tiles, 25% chance 10-14 tiles
+        private float BeamLengthActual
+        {
+            get
+            {
+                float r = Projectile.ai[0];
+                if (r < 0.25f)
+                    return 160f + (r / 0.25f) * 64f;       // 10-14 tiles
+                if (r < 0.5f)
+                    return 224f + ((r - 0.25f) / 0.25f) * 64f; // 14-18 tiles
+                return 352f + ((r - 0.5f) / 0.5f) * 64f;      // 22-26 tiles
+            }
+        }
         private const float MaxWidth = 14f;
 
         public override string Texture => $"Terraria/Images/Projectile_{ProjectileID.RainbowCrystalExplosion}";
@@ -51,7 +63,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             Vector2 dir = BeamAngle.ToRotationVector2();
             Color c = GetBeamColor(0f);
 
-            for (float d = 0; d < BeamLength; d += 48f)
+            for (float d = 0; d < BeamLengthActual; d += 48f)
             {
                 Lighting.AddLight(Projectile.Center + dir * d, c.ToVector3() * 0.5f * fade);
             }
@@ -61,7 +73,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
         {
             float point = 0f;
             Vector2 start = Projectile.Center;
-            Vector2 end = start + BeamAngle.ToRotationVector2() * BeamLength;
+            Vector2 end = start + BeamAngle.ToRotationVector2() * BeamLengthActual;
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), start, end, 16f, ref point);
         }
 
@@ -103,7 +115,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             float[] blurWeights = { 0.15f, 0.35f, 1f, 0.35f, 0.15f };
 
             float segStep = 3f;
-            int segments = (int)(BeamLength / segStep);
+            int segments = (int)(BeamLengthActual / segStep);
 
             for (int b = 0; b < blurOffsets.Length; b++)
             {
@@ -119,7 +131,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                     if (diamondWidth < 0.5f)
                         continue;
 
-                    Vector2 pos = Projectile.Center + dir * (t * BeamLength) + blurShift - Main.screenPosition;
+                    Vector2 pos = Projectile.Center + dir * (t * BeamLengthActual) + blurShift - Main.screenPosition;
 
                     Color baseColor = GetBeamColor(t * 2f) * fade * w;
 

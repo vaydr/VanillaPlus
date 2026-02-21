@@ -62,7 +62,7 @@ namespace VanillaPlus.Common.Systems
 
                 // Skip Hallow-specific items and Chik (Chik uses Crystal Shards only; Tempo uses Radiant Shards)
                 if (recipe.HasResult(ItemID.CrystalBlock) || recipe.HasResult(ItemID.ShiftingPearlSandsDye)
-                    || recipe.HasResult(ItemID.Chik))
+                    || recipe.HasResult(ItemID.Chik) || recipe.HasResult(ItemID.CrystalStorm))
                     continue;
 
                 // Replace Crystal Shard ingredient with RecipeGroup
