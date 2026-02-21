@@ -177,6 +177,26 @@ Items: {
 		DisplayName: Armed Minaret Banner
 		Tooltip: Nearby players get a bonus against: Armed Minaret
 	}
+
+	GildedFeather: {
+		DisplayName: Gilded Feather
+		Tooltip: ""
+	}
+
+	HaloScrap: {
+		DisplayName: Halo Scrap
+		Tooltip: ""
+	}
+
+	BadaBoom: {
+		DisplayName: Bada Boom
+		Tooltip: ""
+	}
+
+	BadaBing: {
+		DisplayName: Bada Bing
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -215,6 +235,7 @@ Projectiles: {
 	LunarEclipseProjectile.DisplayName: Lunar Eclipse
 	MinaretSwordBeam.DisplayName: Sword Beam
 	GoldenSolution.DisplayName: Golden Solution
+	BadaBingProjectile.DisplayName: Bada Bing
 }
 
 Conditions: {

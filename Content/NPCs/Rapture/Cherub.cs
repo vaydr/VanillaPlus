@@ -1,8 +1,10 @@
 using Terraria;
 using Terraria.GameContent.Bestiary;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
+using VanillaPlus.Content.Items.Rapture;
 
 namespace VanillaPlus.Content.NPCs.Rapture
 {
@@ -32,6 +34,11 @@ namespace VanillaPlus.Content.NPCs.Rapture
             bestiaryEntry.Info.AddRange(new IBestiaryInfoElement[] {
                 new FlavorTextBestiaryInfoElement("Mods.VanillaPlus.Bestiary.Cherub")
             });
+        }
+
+        public override void ModifyNPCLoot(NPCLoot npcLoot)
+        {
+            npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<HaloScrap>(), 1, 1, 3));
         }
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)

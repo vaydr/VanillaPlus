@@ -7,6 +7,7 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
 using VanillaPlus.Content.Items.Rapture;
+using VanillaPlus.Content.NPCs.Rapture;
 using Tiles = VanillaPlus.Content.Tiles.Rapture;
 
 namespace VanillaPlus.Common
@@ -102,8 +103,33 @@ namespace VanillaPlus.Common
             }
         }
 
+        // Underground Rapture enemies that should drop Soul of Light (1/5, same as Hallow)
+        private static readonly HashSet<int> _undergroundRaptureTypes = new();
+        private static bool _typesInitialized;
+
+        private static void EnsureTypesInitialized()
+        {
+            if (_typesInitialized) return;
+            _undergroundRaptureTypes.Add(ModContent.NPCType<ManicSlime>());
+            _undergroundRaptureTypes.Add(ModContent.NPCType<ManicBat>());
+            _undergroundRaptureTypes.Add(ModContent.NPCType<ArmedMinaret>());
+            _undergroundRaptureTypes.Add(ModContent.NPCType<BlessedSword>());
+            _undergroundRaptureTypes.Add(ModContent.NPCType<BrightMummy>());
+            _undergroundRaptureTypes.Add(ModContent.NPCType<ZealotGhoul>());
+            _undergroundRaptureTypes.Add(ModContent.NPCType<GoldenPigron>());
+            _typesInitialized = true;
+        }
+
         public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
         {
+            EnsureTypesInitialized();
+
+            // Soul of Light: 1/5 for all underground Rapture enemies (same as Hallow)
+            if (_undergroundRaptureTypes.Contains(npc.type))
+            {
+                npcLoot.Add(ItemDropRule.Common(ItemID.SoulofLight, 5));
+            }
+
             if (npc.type == NPCID.DukeFishron)
             {
                 // Add Laguna to Duke Fishron's weapon drop pool (1/5 -> 1/6)
