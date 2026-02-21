@@ -4,7 +4,7 @@ using Terraria.ModLoader;
 using VanillaPlus.Common.Systems;
 using VanillaPlus.Content.Projectiles.Rapture;
 
-namespace VanillaPlus.Content.Items.Rapture
+namespace VanillaPlus.Content.Items
 {
     public class LunarEclipse : ModItem
     {

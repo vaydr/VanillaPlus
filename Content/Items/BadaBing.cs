@@ -1,9 +1,10 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using VanillaPlus.Content.Items.Rapture;
 using VanillaPlus.Content.Projectiles.Rapture;
 
-namespace VanillaPlus.Content.Items.Rapture
+namespace VanillaPlus.Content.Items
 {
     public class BadaBing : ModItem
     {
@@ -20,6 +21,7 @@ namespace VanillaPlus.Content.Items.Rapture
             Item.knockBack = 3f;
             Item.value = Item.buyPrice(copper: 50);
             Item.rare = ItemRarityID.LightRed;
+            Item.scale = 2f;
 
             Item.ResearchUnlockCount = 99;
         }

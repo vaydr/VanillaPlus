@@ -41,19 +41,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             });
         }
 
-        public override float SpawnChance(NPCSpawnInfo spawnInfo)
-        {
-            if (!Main.hardMode)
-                return 0f;
-
-            if (!spawnInfo.Player.InModBiome<RaptureBiome>())
-                return 0f;
-
-            if (spawnInfo.Water)
-                return 0f;
-
-            return 0.3f;
-        }
+        // Spawn logic handled by RaptureGlobalNPC.EditSpawnPool (Gastropod-equivalent rate, night only)
 
         public override void HitEffect(NPC.HitInfo hit)
         {

@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Biomes;
+using VanillaPlus.Content.Items;
 using VanillaPlus.Content.Items.Rapture;
 using VanillaPlus.Content.NPCs.Rapture;
 using Tiles = VanillaPlus.Content.Tiles.Rapture;
@@ -60,6 +61,31 @@ namespace VanillaPlus.Common
 
             bool surface = (double)spawnInfo.SpawnTileY <= Main.worldSurface;
             bool underground = (double)spawnInfo.SpawnTileY > Main.rockLayer;
+
+            // === Surface Rapture enemies (matching Confection REBAKED spawn patterns) ===
+            if (surface && Main.hardMode && !spawnInfo.Water)
+            {
+                // Cherub (Pixie equivalent) - very common, any time of day
+                if (!Main.rand.NextBool(10)) // 90% chance to be in pool
+                {
+                    pool[ModContent.NPCType<Cherub>()] = 1f;
+                }
+
+                // Seraph (Unicorn equivalent) - moderate, any time of day
+                if (Main.rand.NextBool(2)) // 50% chance to be in pool
+                {
+                    pool[ModContent.NPCType<Seraph>()] = 1f;
+                }
+
+                // Acolyte (Gastropod equivalent) - night only
+                if (!Main.dayTime)
+                {
+                    if (!Main.rand.NextBool(10)) // 90% chance at night
+                    {
+                        pool[ModContent.NPCType<Acolyte>()] = 1f;
+                    }
+                }
+            }
 
             // Lightning Bug - surface, night, same as vanilla Hallow behavior
             if (surface && !Main.dayTime && !spawnInfo.Water)

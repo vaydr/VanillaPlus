@@ -3,7 +3,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using VanillaPlus.Content.Projectiles.Rapture;
 
-namespace VanillaPlus.Content.Items.Rapture
+namespace VanillaPlus.Content.Items
 {
     public class Prescription : ModItem
     {

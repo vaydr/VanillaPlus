@@ -2,19 +2,23 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using VanillaPlus.Content.Items.Rapture;
 using VanillaPlus.Content.Projectiles.Rapture;
 
-namespace VanillaPlus.Content.Items.Rapture
+namespace VanillaPlus.Content.Items
 {
     public class BadaBoom : ModItem
     {
         private static Asset<Texture2D> _loadedTexture;
+        private static Asset<Texture2D> _defaultTexture;
 
         public override void SetStaticDefaults()
         {
             _loadedTexture = ModContent.Request<Texture2D>(Texture + "Loaded");
+            _defaultTexture = ModContent.Request<Texture2D>(Texture);
         }
 
         public override void SetDefaults()
@@ -32,9 +36,11 @@ namespace VanillaPlus.Content.Items.Rapture
             Item.UseSound = SoundID.Item11;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<BadaBingProjectile>();
-            Item.shootSpeed = 8f;
+            Item.shootSpeed = 12f;
             Item.useAmmo = ModContent.ItemType<BadaBing>();
             Item.autoReuse = true;
+
+            Item.scale = 2f;
 
             Item.ResearchUnlockCount = 1;
         }
@@ -44,23 +50,25 @@ namespace VanillaPlus.Content.Items.Rapture
             return new Vector2(-10f, 0f);
         }
 
-        private static bool PlayerHasBadaBing(Player player)
+        public override void HoldItem(Player player)
         {
-            int ammoType = ModContent.ItemType<BadaBing>();
-            for (int i = 0; i < 58; i++)
+            // Swap held weapon texture to loaded version while firing
+            if (player.itemAnimation > 0 && _loadedTexture != null && _loadedTexture.IsLoaded)
             {
-                if (player.inventory[i].type == ammoType && player.inventory[i].stack > 0)
-                    return true;
+                TextureAssets.Item[Type] = _loadedTexture;
             }
-            return false;
+            else if (_defaultTexture != null && _defaultTexture.IsLoaded)
+            {
+                TextureAssets.Item[Type] = _defaultTexture;
+            }
         }
 
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            if (PlayerHasBadaBing(Main.LocalPlayer) && _loadedTexture != null && _loadedTexture.IsLoaded)
+            // Always show unloaded sprite in inventory
+            if (_defaultTexture != null && _defaultTexture.IsLoaded)
             {
-                Texture2D tex = _loadedTexture.Value;
-                spriteBatch.Draw(tex, position, null, drawColor, 0f, origin, scale, SpriteEffects.None, 0f);
+                spriteBatch.Draw(_defaultTexture.Value, position, null, drawColor, 0f, origin, scale * 1.5f, SpriteEffects.None, 0f);
                 return false;
             }
             return true;

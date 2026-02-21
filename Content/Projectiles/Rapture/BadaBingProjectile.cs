@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -11,15 +12,17 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 {
     public class BadaBingProjectile : ModProjectile
     {
-        private static readonly Color GoldColor = new Color(255, 215, 0);
-        private static readonly Color BlueColor = new Color(137, 207, 240);
+        private const float DrawScale = 2.4f;
 
-        public override string Texture => $"Terraria/Images/Projectile_{ProjectileID.RocketI}";
+        private static Asset<Texture2D> _ammoTexture;
+
+        public override string Texture => "VanillaPlus/Content/Items/BadaBing";
 
         public override void SetStaticDefaults()
         {
             ProjectileID.Sets.TrailCacheLength[Type] = 8;
             ProjectileID.Sets.TrailingMode[Type] = 2;
+            _ammoTexture = ModContent.Request<Texture2D>("VanillaPlus/Content/Items/BadaBing");
         }
 
         public override void SetDefaults()
@@ -37,40 +40,40 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
         public override void AI()
         {
-            Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2;
+            // Point in direction of travel, offset 90 degrees CCW
+            Projectile.rotation = Projectile.velocity.ToRotation();
 
-            float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.5f + 0.5f;
-
-            // Smoke trail
+            // Rocket fire particles (vanilla rocket style)
             if (Main.rand.NextBool(2))
             {
-                Dust smoke = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.Smoke, 0f, 0f, 100, default, 1f);
+                Dust smoke = Dust.NewDustDirect(
+                    Projectile.position - Projectile.velocity * 0.5f,
+                    Projectile.width, Projectile.height,
+                    DustID.Smoke, 0f, 0f, 100, default, 1.2f);
                 smoke.noGravity = true;
                 smoke.velocity *= 0.3f;
             }
 
-            // Gold/blue fire trail (Rapture themed)
-            Color dustColor = Color.Lerp(GoldColor, BlueColor, cycle);
-            Dust fire = Dust.NewDustDirect(
-                Projectile.position - Projectile.velocity * 0.5f,
-                Projectile.width, Projectile.height,
-                DustID.TintableDustLighted, 0f, 0f, 0, dustColor, 1.4f);
-            fire.noGravity = true;
-            fire.velocity = Projectile.velocity * -0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f);
-            fire.fadeIn = 1.3f;
+            // Rocket fire trail
+            for (int i = 0; i < 2; i++)
+            {
+                Dust fire = Dust.NewDustDirect(
+                    Projectile.position - Projectile.velocity * 0.5f,
+                    Projectile.width, Projectile.height,
+                    DustID.Torch, 0f, 0f, 100, default, 1.4f);
+                fire.noGravity = true;
+                fire.velocity = Projectile.velocity * -0.3f + Main.rand.NextVector2Circular(1f, 1f);
+            }
 
-            // Tile lighting
-            Vector3 lightColor = Vector3.Lerp(
-                new Vector3(1f, 0.84f, 0f),
-                new Vector3(0.53f, 0.81f, 0.98f),
-                cycle);
-            Lighting.AddLight(Projectile.Center, lightColor * 0.6f);
+            // Warm orange tile lighting
+            Lighting.AddLight(Projectile.Center, new Vector3(1f, 0.6f, 0.2f) * 0.6f);
         }
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = TextureAssets.Projectile[Type].Value;
+            Texture2D texture = _ammoTexture != null && _ammoTexture.IsLoaded
+                ? _ammoTexture.Value
+                : TextureAssets.Projectile[Type].Value;
             Vector2 origin = texture.Size() * 0.5f;
 
             // Draw afterimage trail
@@ -80,27 +83,22 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                     continue;
 
                 float progress = 1f - (float)i / Projectile.oldPos.Length;
-                float trailCycle = (float)Math.Sin((Main.GameUpdateCount - i * 4) * 0.1f) * 0.5f + 0.5f;
-                Color trailColor = Color.Lerp(GoldColor, BlueColor, trailCycle) * (progress * 0.4f);
+                Color trailColor = lightColor * (progress * 0.35f);
                 trailColor.A = 0;
 
                 Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
-                Main.EntitySpriteDraw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, Projectile.scale, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, DrawScale * (0.7f + 0.3f * progress), SpriteEffects.None, 0);
             }
 
-            // Draw main sprite with cycling color tint
-            float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.1f) * 0.5f + 0.5f;
-            Color drawColor = Color.Lerp(GoldColor, BlueColor, cycle);
-            drawColor.A = (byte)(255 - Projectile.alpha);
-
+            // Draw main sprite with normal lighting (no color cycling)
             Main.EntitySpriteDraw(
                 texture,
                 Projectile.Center - Main.screenPosition,
                 null,
-                drawColor,
+                lightColor,
                 Projectile.rotation,
                 origin,
-                Projectile.scale,
+                DrawScale,
                 SpriteEffects.None,
                 0
             );
@@ -120,16 +118,14 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                 dust.velocity *= 1.4f;
             }
 
-            // Gold/blue fire burst (Rapture themed)
+            // Fire burst
             for (int i = 0; i < 30; i++)
             {
                 float angle = MathHelper.TwoPi * i / 30f;
                 Vector2 vel = angle.ToRotationVector2() * Main.rand.NextFloat(2f, 6f);
-                float cycle = (float)Math.Sin(i * 0.5f) * 0.5f + 0.5f;
-                Color dustColor = Color.Lerp(GoldColor, BlueColor, cycle);
 
                 Dust dust = Dust.NewDustDirect(Projectile.Center, 0, 0,
-                    DustID.TintableDustLighted, vel.X, vel.Y, 0, dustColor, 2f);
+                    DustID.Torch, vel.X, vel.Y, 100, default, 2f);
                 dust.noGravity = true;
             }
 

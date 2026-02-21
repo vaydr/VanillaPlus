@@ -46,19 +46,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<GildedFeather>()));
         }
 
-        public override float SpawnChance(NPCSpawnInfo spawnInfo)
-        {
-            if (!Main.hardMode)
-                return 0f;
-
-            if (!spawnInfo.Player.InModBiome<RaptureBiome>())
-                return 0f;
-
-            if (spawnInfo.Water)
-                return 0f;
-
-            return 0.3f;
-        }
+        // Spawn logic handled by RaptureGlobalNPC.EditSpawnPool (Unicorn-equivalent rate)
 
         public override void HitEffect(NPC.HitInfo hit)
         {
