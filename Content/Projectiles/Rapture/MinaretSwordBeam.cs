@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -9,6 +10,15 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 {
     public class MinaretSwordBeam : ModProjectile
     {
+        private static readonly Color BananaYellow = new Color(255, 230, 80);
+        private static readonly Color BabyBlue = new Color(137, 207, 240);
+
+        public override void SetStaticDefaults()
+        {
+            ProjectileID.Sets.TrailCacheLength[Type] = 8;
+            ProjectileID.Sets.TrailingMode[Type] = 2;
+        }
+
         public override void SetDefaults()
         {
             Projectile.width = 32;
@@ -28,13 +38,16 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             // Rotate to face movement direction
             Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
 
-            // Dust trail
-            if (Main.rand.NextBool(3))
+            // Color-cycling particle trail
+            float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
+            Color dustColor = Color.Lerp(BananaYellow, BabyBlue, cycle);
+            for (int i = 0; i < 2; i++)
             {
                 Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height,
-                    DustID.GoldFlame, 0f, 0f, 100, default, 0.8f);
+                    DustID.TintableDustLighted, 0f, 0f, 100, dustColor, 1.1f);
                 dust.noGravity = true;
-                dust.velocity *= 0.3f;
+                dust.velocity = Projectile.velocity * -0.15f + Main.rand.NextVector2Circular(0.5f, 0.5f);
+                dust.fadeIn = 1.3f;
             }
         }
 
@@ -43,11 +56,24 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             Texture2D texture = TextureAssets.Projectile[Type].Value;
             Vector2 origin = texture.Size() * 0.5f;
 
-            // Fade between yellow and blue-tinted white
-            float cycle = (Main.GameUpdateCount + Projectile.identity * 7) % 60 / 60f;
-            Color yellow = new Color(255, 220, 100);
-            Color blueWhite = new Color(200, 220, 255);
-            Color drawColor = Color.Lerp(yellow, blueWhite, (float)System.Math.Sin(cycle * MathHelper.TwoPi) * 0.5f + 0.5f);
+            // Draw afterimage trail
+            for (int i = Projectile.oldPos.Length - 1; i > 0; i--)
+            {
+                if (Projectile.oldPos[i] == Vector2.Zero)
+                    continue;
+
+                float progress = 1f - (float)i / Projectile.oldPos.Length;
+                float trailCycle = (float)Math.Sin((Main.GameUpdateCount - i * 4) * 0.06f) * 0.5f + 0.5f;
+                Color trailColor = Color.Lerp(BananaYellow, BabyBlue, trailCycle) * (progress * 0.3f);
+                trailColor.A = 0;
+
+                Vector2 trailPos = Projectile.oldPos[i] + Projectile.Size / 2f - Main.screenPosition;
+                Main.EntitySpriteDraw(texture, trailPos, null, trailColor, Projectile.oldRot[i], origin, Projectile.scale, SpriteEffects.None, 0);
+            }
+
+            // Draw main sprite with cycling color
+            float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
+            Color drawColor = Color.Lerp(BananaYellow, BabyBlue, cycle);
             drawColor.A = (byte)(255 - Projectile.alpha);
 
             Main.EntitySpriteDraw(

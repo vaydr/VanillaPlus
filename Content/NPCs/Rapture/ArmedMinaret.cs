@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
@@ -16,6 +18,9 @@ namespace VanillaPlus.Content.NPCs.Rapture
     public class ArmedMinaret : ModNPC
     {
         public static Asset<Texture2D> SegmentTexture;
+
+        private static readonly Color BananaYellow = new Color(255, 230, 80);
+        private static readonly Color BabyBlue = new Color(137, 207, 240);
 
         public override void SetStaticDefaults()
         {
@@ -200,7 +205,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             NPC.velocity = Vector2.Clamp(NPC.velocity, new Vector2(-maxVelocity), new Vector2(maxVelocity));
 
             // Rotation: head always faces the player, no conditional flipping
-            NPC.rotation = NPC.AngleTo(Main.player[NPC.target].Center) - MathHelper.PiOver2;
+            NPC.rotation = NPC.AngleTo(Main.player[NPC.target].Center) + MathHelper.PiOver2;
 
             // Collision bounce-back
             if (NPC.collideX)
@@ -222,9 +227,14 @@ namespace VanillaPlus.Content.NPCs.Rapture
                     NPC.velocity.Y = -2f;
             }
 
-            // Fire sword beams periodically (~2.5 seconds)
+            // Emit cycling light from head
+            float glowCycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
+            Color lightColor = Color.Lerp(BananaYellow, BabyBlue, glowCycle);
+            Lighting.AddLight(NPC.Center, lightColor.ToVector3());
+
+            // Fire sword beams periodically (~2 seconds)
             NPC.localAI[3] += 1f;
-            if (NPC.localAI[3] >= 150f)
+            if (NPC.localAI[3] >= 120f)
             {
                 NPC.localAI[3] = 0f;
                 if (Main.netMode != NetmodeID.MultiplayerClient && NPC.HasValidTarget)
@@ -234,10 +244,12 @@ namespace VanillaPlus.Content.NPCs.Rapture
                     if (direction.Length() < 400f)
                     {
                         direction.Normalize();
-                        direction *= 10f;
+                        Vector2 spawnPos = NPC.Center + direction * 16f;
+                        direction *= 9f;
+                        SoundEngine.PlaySound(SoundID.Item43, NPC.Center);
                         Projectile.NewProjectile(
                             NPC.GetSource_FromAI(),
-                            NPC.Center,
+                            spawnPos,
                             direction,
                             ModContent.ProjectileType<MinaretSwordBeam>(),
                             60,
@@ -253,6 +265,14 @@ namespace VanillaPlus.Content.NPCs.Rapture
         {
             // Lock to frame 0 (crystal head)
             NPC.frame.Y = 0;
+        }
+
+        public override Color? GetAlpha(Color drawColor)
+        {
+            float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
+            Color tint = Color.Lerp(BananaYellow, BabyBlue, cycle) * 0.4f;
+            tint.A = 180;
+            return tint;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
@@ -281,14 +301,24 @@ namespace VanillaPlus.Content.NPCs.Rapture
                     center.Y += drawPositionY;
                     drawPositionX = NPC.ai[0] * 16f + 8f - center.X;
                     drawPositionY = NPC.ai[1] * 16f + 8f - center.Y;
-                    Color color = Lighting.GetColor((int)center.X / 16, (int)(center.Y / 16f));
+                    float segCycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
+                    Color segTint = Color.Lerp(BananaYellow, BabyBlue, segCycle);
+                    Color color = segTint * 0.4f;
+                    color.A = 180;
+                    Lighting.AddLight(center, segTint.ToVector3());
                     spriteBatch.Draw(chain, new Vector2(center.X - screenPos.X, center.Y - screenPos.Y),
                         new Rectangle(0, 0, chain.Width, chain.Height), color, rotation,
                         new Vector2(chain.Width * 0.5f, chain.Height * 0.5f), 1f, SpriteEffects.None, 0f);
                 }
             }
 
-            return true;
+            // Draw head with cycling glow tint
+            Texture2D texture = TextureAssets.Npc[Type].Value;
+            Vector2 origin = NPC.frame.Size() / 2f;
+            Color? alpha = GetAlpha(drawColor);
+            spriteBatch.Draw(texture, NPC.Center - screenPos, NPC.frame, alpha ?? drawColor, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
+
+            return false;
         }
 
         public override void HitEffect(NPC.HitInfo hit)

@@ -230,6 +230,10 @@ NPCs: {
 	GoldenPigron.DisplayName: Pigron
 	ManicBat.DisplayName: Manic Bat
 	ArmedMinaret.DisplayName: Armed Minaret
+	Cherub.DisplayName: Cherub
+	Seraph.DisplayName: The Seraph
+	Acolyte.DisplayName: Acolyte
+	BlessedSword.DisplayName: Blessed Sword
 }
 
 Bestiary: {
@@ -239,6 +243,10 @@ Bestiary: {
 	GoldenPigron: A gilded pig-dragon hybrid found lurking in the frozen depths of the Rapture. Its radiant golden scales shimmer as it phases through walls in pursuit of prey.
 	ManicBat: A frenzied bat suffused with divine light. It darts through the underground Rapture at blinding speed, leaving a shimmering trail of gold and blue in its wake.
 	ArmedMinaret: A crystalline tendril rooted deep within the walls of the underground Rapture. Its gilded segments sway menacingly as it launches radiant sword beams at any who wander too close.
+	Cherub: A small winged guardian of the Rapture, darting through the golden skies with reckless abandon.
+	Seraph: Majestic winged serpents that patrol the radiant skies of the Rapture, striking down trespassers with divine fury.
+	Acolyte: A diminutive but zealous warrior of the Rapture, hurling blessed hammers at any who would defile its sacred grounds.
+	BlessedSword: A sentient blade imbued with divine energy, floating silently through the underground Rapture in search of the unworthy.
 }
 
 // Rapture Biome Content
