@@ -170,11 +170,8 @@ namespace VanillaPlus.Content.NPCs.Rapture
             if (targetDist > minDistance)
                 targetPos = anchorPosition + anchorToTarget * (minDistance / targetDist);
 
-            // Damp perpendicular sway — movement along the player axis stays free
-            float velAlongPlayer = Vector2.Dot(NPC.velocity, playerDir);
-            Vector2 velPerp = NPC.velocity - playerDir * velAlongPlayer;
-            velPerp *= 0.94f;
-            NPC.velocity = playerDir * velAlongPlayer + velPerp;
+            // Uniform damping — no directional weirdness
+            NPC.velocity *= 0.96f;
 
             // Accelerate toward target
             Vector2 toTarget = targetPos - NPC.Center;
