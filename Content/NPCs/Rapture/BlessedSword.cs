@@ -44,6 +44,9 @@ namespace VanillaPlus.Content.NPCs.Rapture
             if (!spawnInfo.Player.InModBiome<RaptureUndergroundBiome>())
                 return 0f;
 
+            if ((double)spawnInfo.SpawnTileY <= Main.rockLayer)
+                return 0f;
+
             if (spawnInfo.Water)
                 return 0f;
 

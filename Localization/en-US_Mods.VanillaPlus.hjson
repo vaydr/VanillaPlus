@@ -207,6 +207,15 @@ Items: {
 		DisplayName: Tome of Myths
 		Tooltip: Summons piercing radiant beams
 	}
+
+	Tommygun: {
+		DisplayName: Tommygun
+		Tooltip:
+			'''
+			33% chance to save ammo
+			'Say hello to my little friend.'
+			'''
+	}
 }
 
 Buffs: {
@@ -266,7 +275,7 @@ NPCs: {
 	ManicBat.DisplayName: Manic Bat
 	ArmedMinaret.DisplayName: Armed Minaret
 	Cherub.DisplayName: Cherub
-	Seraph.DisplayName: The Seraph
+	Seraph.DisplayName: Seraph
 	Acolyte.DisplayName: Acolyte
 	BlessedSword.DisplayName: Blessed Sword
 }
@@ -288,11 +297,11 @@ Bestiary: {
 Tiles: {
 	Blisite.MapEntry: Blisite
 	Blissgrass.MapEntry: Blissgrass
-	Blissand.MapEntry: Blissand
+	Blissand.MapEntrmy: Blissand
 	GoldenIce.MapEntry: Golden Ice
 	HardenedBlissand.MapEntry: Hardened Blissand
 	Blissandstone.MapEntry: Blissandstone
-	HedonTree.MapEntry: Hedon Tree
+	HedonTree.MapEntry: Tree
 	RadiantShard.MapEntry: Radiant Shard
 }
 
@@ -341,7 +350,7 @@ RaptureSelection: {
 
 	Rapture: {
 		Title: Rapture
-		Description: Seraph-like Rapture is guaranteed to be present in your world.
+		Description: Devout, divine Rapture is guaranteed to be present in your world.
 	}
 }
 

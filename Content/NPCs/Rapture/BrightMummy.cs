@@ -73,8 +73,9 @@ namespace VanillaPlus.Content.NPCs.Rapture
 
         public override float SpawnChance(NPCSpawnInfo spawnInfo)
         {
-            // Match vanilla Light Mummy: hardmode + spawns on Pearlsand (→ Blissand), weight 0.5f
-            if (Main.hardMode && spawnInfo.SpawnTileType == ModContent.TileType<RaptureTiles.Blissand>())
+            // Match vanilla Light Mummy: hardmode + spawns on Pearlsand (→ Blissand), cavern layer only
+            if (Main.hardMode && spawnInfo.SpawnTileType == ModContent.TileType<RaptureTiles.Blissand>()
+                && (double)spawnInfo.SpawnTileY > Main.rockLayer)
                 return 0.5f;
 
             return 0f;
