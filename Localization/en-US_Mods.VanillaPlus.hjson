@@ -266,6 +266,7 @@ Projectiles: {
 	RadiantBeam.DisplayName: Radiant Beam
 	MinaretBeam.DisplayName: Radiant Beam
 	YellowSnowballProjectile.DisplayName: Yellow Snowball
+	MinaretBeamExplosion.DisplayName: Minaret Beam Explosion
 }
 
 Conditions: {
