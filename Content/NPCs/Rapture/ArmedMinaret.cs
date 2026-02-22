@@ -153,87 +153,43 @@ namespace VanillaPlus.Content.NPCs.Rapture
             // Target nearest player
             NPC.TargetClosest();
 
-            // Movement parameters — smoother, tighter player tracking
-            float acceleration = 0.06f;
-            float minDistance = 300f;
-            float maxVelocity = 3.5f;
+            // Movement — accelerate toward a point 3 blocks from the player along the anchor→player line
+            float acceleration = 0.08f;
+            float maxVelocity = 2.5f;
+            float minDistance = 450f;
 
-            // Subtle periodic distance extension cycle
-            NPC.ai[2] += 1f;
-            if (NPC.ai[2] > 300f)
-            {
-                minDistance *= 1.15f;
-
-                if (NPC.ai[2] > 400f)
-                    NPC.ai[2] = 0f;
-            }
-
-            // Dampen velocity for smoother motion
-            NPC.velocity *= 0.97f;
-
-            // Calculate target position: anchor + clamped direction toward player
             Vector2 anchorPosition = new Vector2(NPC.ai[0] * 16f + 8f, NPC.ai[1] * 16f + 8f);
-            Vector2 distanceVector = Main.player[NPC.target].Center - anchorPosition;
-            float distanceMagnitude = distanceVector.Length();
-            if (distanceMagnitude > minDistance)
-            {
-                distanceVector *= minDistance / distanceMagnitude;
-            }
+            Vector2 anchorToPlayer = Main.player[NPC.target].Center - anchorPosition;
+            float playerDist = anchorToPlayer.Length();
+            Vector2 playerDir = playerDist > 0.01f ? anchorToPlayer / playerDist : Vector2.UnitX;
 
-            // Accelerate toward target point
-            Vector2 targetPos = anchorPosition + distanceVector;
-            if (NPC.position.X < targetPos.X)
-            {
-                NPC.velocity.X += acceleration;
-                if (NPC.velocity.X < 0f && distanceVector.X > 0f)
-                    NPC.velocity.X += acceleration * 1.5f;
-            }
-            else if (NPC.position.X > targetPos.X)
-            {
-                NPC.velocity.X -= acceleration;
-                if (NPC.velocity.X > 0f && distanceVector.X < 0f)
-                    NPC.velocity.X -= acceleration * 1.5f;
-            }
+            // Target point: 48px (3 blocks) before the player on the anchor→player line, clamped to chain
+            Vector2 targetPos = Main.player[NPC.target].Center - playerDir * 16f;
+            Vector2 anchorToTarget = targetPos - anchorPosition;
+            float targetDist = anchorToTarget.Length();
+            if (targetDist > minDistance)
+                targetPos = anchorPosition + anchorToTarget * (minDistance / targetDist);
 
-            if (NPC.position.Y < targetPos.Y)
-            {
-                NPC.velocity.Y += acceleration;
-                if (NPC.velocity.Y < 0f && distanceVector.Y > 0f)
-                    NPC.velocity.Y += acceleration * 1.5f;
-            }
-            else if (NPC.position.Y > targetPos.Y)
-            {
-                NPC.velocity.Y -= acceleration;
-                if (NPC.velocity.Y > 0f && distanceVector.Y < 0f)
-                    NPC.velocity.Y -= acceleration * 1.5f;
-            }
+            // Damp perpendicular sway — movement along the player axis stays free
+            float velAlongPlayer = Vector2.Dot(NPC.velocity, playerDir);
+            Vector2 velPerp = NPC.velocity - playerDir * velAlongPlayer;
+            velPerp *= 0.94f;
+            NPC.velocity = playerDir * velAlongPlayer + velPerp;
+
+            // Accelerate toward target
+            Vector2 toTarget = targetPos - NPC.Center;
+            float distToTarget = toTarget.Length();
+            if (distToTarget > 1f)
+                NPC.velocity += toTarget / distToTarget * acceleration;
 
             // Clamp velocity
-            NPC.velocity = Vector2.Clamp(NPC.velocity, new Vector2(-maxVelocity), new Vector2(maxVelocity));
+            float speed = NPC.velocity.Length();
+            if (speed > maxVelocity)
+                NPC.velocity *= maxVelocity / speed;
 
             // Rotation: head aligned with chain direction (pointing away from anchor)
             Vector2 anchorPos = new Vector2(NPC.ai[0] * 16f + 8f, NPC.ai[1] * 16f + 8f);
             NPC.rotation = (NPC.Center - anchorPos).ToRotation() + MathHelper.PiOver2;
-
-            // Collision bounce-back
-            if (NPC.collideX)
-            {
-                NPC.netUpdate = true;
-                NPC.velocity.X = NPC.oldVelocity.X * -0.7f;
-                if (NPC.velocity.X > 0f && NPC.velocity.X < 2f)
-                    NPC.velocity.X = 2f;
-                if (NPC.velocity.X < 0f && NPC.velocity.X > -2f)
-                    NPC.velocity.X = -2f;
-            }
-            if (NPC.collideY)
-            {
-                NPC.netUpdate = true;
-                NPC.velocity.Y = NPC.oldVelocity.Y * -0.7f;
-                if (NPC.velocity.Y > 0f && NPC.velocity.Y < 2f)
-                    NPC.velocity.Y = 2f;
-                if (NPC.velocity.Y < 0f && NPC.velocity.Y > -2f)
-                    NPC.velocity.Y = -2f;
-            }
 
             // Emit cycling light from head
             float glowCycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
@@ -251,7 +207,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
                 NPC.localAI[1] = (target.Center - NPC.Center).ToRotation();
                 float[] samples = new float[3];
                 Vector2 aimDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
-                Collision.LaserScan(NPC.Center, aimDir, 0f, 2000f, samples);
+                Collision.LaserScan(NPC.Center, aimDir, 0f, 560f, samples);
                 NPC.localAI[2] = (samples[0] + samples[1] + samples[2]) / 3f;
                 NPC.ai[3] = NPC.Center.X;
                 NPC.localAI[0] = NPC.Center.Y;
@@ -347,8 +303,19 @@ namespace VanillaPlus.Content.NPCs.Rapture
         public override Color? GetAlpha(Color drawColor)
         {
             float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
-            Color tint = Color.Lerp(BananaYellow, BabyBlue, cycle) * 0.4f;
-            tint.A = 180;
+            Color baseTint = Color.Lerp(BananaYellow, BabyBlue, cycle);
+
+            // Charge-up glow: ramp 0→1 during telegraph (60-89), fade back over ~0.25s (15 ticks) after fire
+            float chargeIntensity = 0f;
+            float timer = NPC.localAI[3];
+            if (timer >= 60f && timer < 90f)
+                chargeIntensity = (timer - 60f) / 30f;
+            else if (timer >= 90f && timer < 105f)
+                chargeIntensity = 1f - (timer - 90f) / 15f;
+
+            float mult = MathHelper.Lerp(0.4f, 1f, chargeIntensity);
+            Color tint = Color.Lerp(baseTint * mult, Color.White, chargeIntensity * 0.4f);
+            tint.A = (byte)MathHelper.Lerp(180f, 255f, chargeIntensity);
             return tint;
         }
 
@@ -380,9 +347,19 @@ namespace VanillaPlus.Content.NPCs.Rapture
                     drawPositionY = NPC.ai[1] * 16f + 8f - center.Y;
                     float segCycle = (float)Math.Sin(Main.GameUpdateCount * 0.06f) * 0.5f + 0.5f;
                     Color segTint = Color.Lerp(BananaYellow, BabyBlue, segCycle);
-                    Color color = segTint * 0.4f;
-                    color.A = 180;
-                    Lighting.AddLight(center, segTint.ToVector3());
+
+                    // Charge-up glow on chain segments (same as head)
+                    float segCharge = 0f;
+                    float segTimer = NPC.localAI[3];
+                    if (segTimer >= 60f && segTimer < 90f)
+                        segCharge = (segTimer - 60f) / 30f;
+                    else if (segTimer >= 90f && segTimer < 105f)
+                        segCharge = 1f - (segTimer - 90f) / 15f;
+
+                    float segMult = MathHelper.Lerp(0.4f, 1f, segCharge);
+                    Color color = Color.Lerp(segTint * segMult, Color.White, segCharge * 0.4f);
+                    color.A = (byte)MathHelper.Lerp(180f, 255f, segCharge);
+                    Lighting.AddLight(center, segTint.ToVector3() * MathHelper.Lerp(1f, 1.5f, segCharge));
                     spriteBatch.Draw(chain, new Vector2(center.X - screenPos.X, center.Y - screenPos.Y),
                         new Rectangle(0, 0, chain.Width, chain.Height), color, rotation,
                         new Vector2(chain.Width * 0.5f, chain.Height * 0.5f), 1f, SpriteEffects.None, 0f);
