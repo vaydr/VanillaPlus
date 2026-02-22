@@ -216,6 +216,11 @@ Items: {
 			'Say hello to my little friend.'
 			'''
 	}
+
+	YellowSnowball: {
+		DisplayName: Yellow Snowball
+		Tooltip: Inflicts Ichor on hit
+	}
 }
 
 Buffs: {
@@ -259,6 +264,7 @@ Projectiles: {
 	LunarEclipseOrb.DisplayName: Lunar Eclipse Orb
 	VenomRainDrop.DisplayName: Venom Rain
 	RadiantBeam.DisplayName: Radiant Beam
+	YellowSnowballProjectile.DisplayName: Yellow Snowball
 }
 
 Conditions: {

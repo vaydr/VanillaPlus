@@ -114,7 +114,13 @@ namespace VanillaPlus.Content.Tiles.Rapture
                     ushort newType = 0;
 
                     if (tile.TileType == TileID.Stone || tile.TileType == TileID.Pearlstone ||
-                        tile.TileType == TileID.Ebonstone || tile.TileType == TileID.Crimstone)
+                        tile.TileType == TileID.Ebonstone || tile.TileType == TileID.Crimstone ||
+                        tile.TileType == TileID.GreenMoss || tile.TileType == TileID.BrownMoss ||
+                        tile.TileType == TileID.RedMoss || tile.TileType == TileID.BlueMoss ||
+                        tile.TileType == TileID.PurpleMoss || tile.TileType == TileID.LavaMoss ||
+                        tile.TileType == TileID.KryptonMoss || tile.TileType == TileID.XenonMoss ||
+                        tile.TileType == TileID.ArgonMoss || tile.TileType == TileID.VioletMoss ||
+                        tile.TileType == TileID.RainbowMoss)
                     {
                         newType = (ushort)ModContent.TileType<Blisstone>();
                     }

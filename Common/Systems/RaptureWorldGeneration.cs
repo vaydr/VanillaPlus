@@ -59,6 +59,18 @@ namespace VanillaPlus.Common.Systems
                 case TileID.Ebonstone:
                 case TileID.Crimstone:
                 case TileID.Pearlstone:
+                // === MOSS TYPES → BLISSTONE ===
+                case TileID.GreenMoss:
+                case TileID.BrownMoss:
+                case TileID.RedMoss:
+                case TileID.BlueMoss:
+                case TileID.PurpleMoss:
+                case TileID.LavaMoss:
+                case TileID.KryptonMoss:
+                case TileID.XenonMoss:
+                case TileID.ArgonMoss:
+                case TileID.VioletMoss:
+                case TileID.RainbowMoss:
                     newType = ModContent.TileType<Blisstone>();
                     break;
 

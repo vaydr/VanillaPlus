@@ -257,7 +257,13 @@ namespace VanillaPlus.Common.Systems
                             Main.tile[x, y].TileType = (ushort)ModContent.TileType<Blissgrass>();
                             WorldGen.SquareTileFrame(x, y);
                         }
-                        else if (Main.tile[x, y].TileType == TileID.Stone || Main.tile[x, y].TileType == TileID.Ebonstone || Main.tile[x, y].TileType == TileID.Crimstone)
+                        else if (Main.tile[x, y].TileType == TileID.Stone || Main.tile[x, y].TileType == TileID.Ebonstone || Main.tile[x, y].TileType == TileID.Crimstone
+                            || Main.tile[x, y].TileType == TileID.GreenMoss || Main.tile[x, y].TileType == TileID.BrownMoss
+                            || Main.tile[x, y].TileType == TileID.RedMoss || Main.tile[x, y].TileType == TileID.BlueMoss
+                            || Main.tile[x, y].TileType == TileID.PurpleMoss || Main.tile[x, y].TileType == TileID.LavaMoss
+                            || Main.tile[x, y].TileType == TileID.KryptonMoss || Main.tile[x, y].TileType == TileID.XenonMoss
+                            || Main.tile[x, y].TileType == TileID.ArgonMoss || Main.tile[x, y].TileType == TileID.VioletMoss
+                            || Main.tile[x, y].TileType == TileID.RainbowMoss)
                         {
                             Main.tile[x, y].TileType = (ushort)ModContent.TileType<Blisstone>();
                             WorldGen.SquareTileFrame(x, y);
