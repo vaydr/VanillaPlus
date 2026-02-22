@@ -153,20 +153,23 @@ namespace VanillaPlus.Content.NPCs.Rapture
             // Target nearest player
             NPC.TargetClosest();
 
-            // Movement parameters (Clinger values)
-            float acceleration = 0.035f;
-            float minDistance = 225f;
-            float maxVelocity = 2f;
+            // Movement parameters — smoother, tighter player tracking
+            float acceleration = 0.06f;
+            float minDistance = 300f;
+            float maxVelocity = 3.5f;
 
-            // Periodic distance extension cycle (300-450 ticks)
+            // Subtle periodic distance extension cycle
             NPC.ai[2] += 1f;
             if (NPC.ai[2] > 300f)
             {
-                minDistance *= 1.3f;
+                minDistance *= 1.15f;
 
-                if (NPC.ai[2] > 450f)
+                if (NPC.ai[2] > 400f)
                     NPC.ai[2] = 0f;
             }
+
+            // Dampen velocity for smoother motion
+            NPC.velocity *= 0.97f;
 
             // Calculate target position: anchor + clamped direction toward player
             Vector2 anchorPosition = new Vector2(NPC.ai[0] * 16f + 8f, NPC.ai[1] * 16f + 8f);
@@ -178,26 +181,27 @@ namespace VanillaPlus.Content.NPCs.Rapture
             }
 
             // Accelerate toward target point
-            if (NPC.position.X < NPC.ai[0] * 16f + 8f + distanceVector.X)
+            Vector2 targetPos = anchorPosition + distanceVector;
+            if (NPC.position.X < targetPos.X)
             {
                 NPC.velocity.X += acceleration;
                 if (NPC.velocity.X < 0f && distanceVector.X > 0f)
                     NPC.velocity.X += acceleration * 1.5f;
             }
-            else if (NPC.position.X > NPC.ai[0] * 16f + 8f + distanceVector.X)
+            else if (NPC.position.X > targetPos.X)
             {
                 NPC.velocity.X -= acceleration;
                 if (NPC.velocity.X > 0f && distanceVector.X < 0f)
                     NPC.velocity.X -= acceleration * 1.5f;
             }
 
-            if (NPC.position.Y < NPC.ai[1] * 16f + 8f + distanceVector.Y)
+            if (NPC.position.Y < targetPos.Y)
             {
                 NPC.velocity.Y += acceleration;
                 if (NPC.velocity.Y < 0f && distanceVector.Y > 0f)
                     NPC.velocity.Y += acceleration * 1.5f;
             }
-            else if (NPC.position.Y > NPC.ai[1] * 16f + 8f + distanceVector.Y)
+            else if (NPC.position.Y > targetPos.Y)
             {
                 NPC.velocity.Y -= acceleration;
                 if (NPC.velocity.Y > 0f && distanceVector.Y < 0f)
@@ -207,8 +211,9 @@ namespace VanillaPlus.Content.NPCs.Rapture
             // Clamp velocity
             NPC.velocity = Vector2.Clamp(NPC.velocity, new Vector2(-maxVelocity), new Vector2(maxVelocity));
 
-            // Rotation: head always faces the player, no conditional flipping
-            NPC.rotation = NPC.AngleTo(Main.player[NPC.target].Center) + MathHelper.PiOver2;
+            // Rotation: head aligned with chain direction (pointing away from anchor)
+            Vector2 anchorPos = new Vector2(NPC.ai[0] * 16f + 8f, NPC.ai[1] * 16f + 8f);
+            NPC.rotation = (NPC.Center - anchorPos).ToRotation() + MathHelper.PiOver2;
 
             // Collision bounce-back
             if (NPC.collideX)
@@ -235,32 +240,106 @@ namespace VanillaPlus.Content.NPCs.Rapture
             Color lightColor = Color.Lerp(BananaYellow, BabyBlue, glowCycle);
             Lighting.AddLight(NPC.Center, lightColor.ToVector3());
 
-            // Fire sword beams periodically (~2 seconds)
+            // Holy laser turret attack cycle (~3 seconds total)
+            // 0-59: Cooldown | 60-89: Telegraph | 90-119: Fire | 120-139: Fade | 140: Reset
             NPC.localAI[3] += 1f;
-            if (NPC.localAI[3] >= 120f)
+
+            if (NPC.localAI[3] == 60f && NPC.HasValidTarget)
             {
-                NPC.localAI[3] = 0f;
-                if (Main.netMode != NetmodeID.MultiplayerClient && NPC.HasValidTarget)
+                // Telegraph start: lock aim angle, beam length, and fire origin
+                Player target = Main.player[NPC.target];
+                NPC.localAI[1] = (target.Center - NPC.Center).ToRotation();
+                float[] samples = new float[3];
+                Vector2 aimDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                Collision.LaserScan(NPC.Center, aimDir, 0f, 2000f, samples);
+                NPC.localAI[2] = (samples[0] + samples[1] + samples[2]) / 3f;
+                NPC.ai[3] = NPC.Center.X;
+                NPC.localAI[0] = NPC.Center.Y;
+                SoundEngine.PlaySound(SoundID.Item15, NPC.Center);
+                NPC.netUpdate = true;
+            }
+
+            if (NPC.localAI[3] == 90f && NPC.HasValidTarget)
+            {
+                // Fire start: play laser sound and spawn invisible damage projectile at locked origin
+                Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
+                SoundEngine.PlaySound(SoundID.Item33, fireOrigin);
+
+                if (Main.netMode != NetmodeID.MultiplayerClient)
                 {
-                    Player target = Main.player[NPC.target];
-                    Vector2 direction = target.Center - NPC.Center;
-                    if (direction.Length() < 400f)
+                    Projectile.NewProjectile(
+                        NPC.GetSource_FromAI(),
+                        fireOrigin,
+                        Vector2.Zero,
+                        ModContent.ProjectileType<MinaretBeam>(),
+                        NPC.damage / 2,
+                        0f,
+                        Main.myPlayer,
+                        ai0: NPC.localAI[1],
+                        ai1: NPC.localAI[2],
+                        ai2: NPC.whoAmI
+                    );
+                }
+            }
+
+            // Impact dust during fire/fade
+            if (NPC.localAI[3] >= 90f && NPC.localAI[3] < 140f && Main.netMode != NetmodeID.Server)
+            {
+                Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
+                Vector2 dir = NPC.localAI[1].ToRotationVector2();
+                Vector2 endPos = fireOrigin + dir * NPC.localAI[2];
+                float beamAngle = NPC.localAI[1];
+
+                if (NPC.localAI[3] < 120f)
+                {
+                    // Fire phase: continuous perpendicular sparks
+                    for (int i = 0; i < 2; i++)
                     {
-                        direction.Normalize();
-                        Vector2 spawnPos = NPC.Center + direction * 16f;
-                        direction *= 9f;
-                        SoundEngine.PlaySound(SoundID.Item43, NPC.Center);
-                        Projectile.NewProjectile(
-                            NPC.GetSource_FromAI(),
-                            spawnPos,
-                            direction,
-                            ModContent.ProjectileType<MinaretSwordBeam>(),
-                            60,
-                            0f,
-                            Main.myPlayer
-                        );
+                        float perpAngle = beamAngle + (Main.rand.NextBool() ? MathHelper.PiOver2 : -MathHelper.PiOver2);
+                        Vector2 dustVel = perpAngle.ToRotationVector2() * Main.rand.NextFloat(1.5f, 3.5f);
+                        Dust d = Dust.NewDustDirect(endPos, 0, 0, DustID.GoldFlame, dustVel.X, dustVel.Y);
+                        d.noGravity = true;
+                        d.scale = 1.4f;
                     }
                 }
+
+                if (NPC.localAI[3] == 120f)
+                {
+                    // Fade start: radial explosion burst
+                    for (int i = 0; i < 12; i++)
+                    {
+                        Vector2 vel = (i / 12f * MathHelper.TwoPi).ToRotationVector2() * Main.rand.NextFloat(2f, 5f);
+                        Dust d = Dust.NewDustDirect(endPos, 0, 0, DustID.GoldFlame, vel.X, vel.Y);
+                        d.noGravity = true;
+                        d.scale = Main.rand.NextFloat(1.5f, 2.5f);
+                    }
+
+                    // Extra perpendicular splashes
+                    for (int i = 0; i < 4; i++)
+                    {
+                        float perpAngle = beamAngle + (i < 2 ? MathHelper.PiOver2 : -MathHelper.PiOver2);
+                        Vector2 vel = perpAngle.ToRotationVector2() * Main.rand.NextFloat(4f, 7f);
+                        Dust d = Dust.NewDustDirect(endPos, 0, 0, DustID.GoldFlame, vel.X, vel.Y);
+                        d.noGravity = true;
+                        d.scale = Main.rand.NextFloat(1.8f, 2.8f);
+                    }
+                }
+
+                if (NPC.localAI[3] > 120f)
+                {
+                    // Fade phase: diminishing sparks
+                    float fadeProgress = 1f - (NPC.localAI[3] - 120f) / 20f;
+                    float perpAngle = beamAngle + (Main.rand.NextBool() ? MathHelper.PiOver2 : -MathHelper.PiOver2);
+                    Vector2 dustVel = perpAngle.ToRotationVector2() * Main.rand.NextFloat(1f, 2.5f);
+                    Dust d = Dust.NewDustDirect(endPos, 0, 0, DustID.GoldFlame, dustVel.X, dustVel.Y);
+                    d.noGravity = true;
+                    d.scale = 1.2f * fadeProgress;
+                }
+            }
+
+            if (NPC.localAI[3] >= 140f)
+            {
+                NPC.localAI[3] = 0f;
             }
         }
 
@@ -321,7 +400,181 @@ namespace VanillaPlus.Content.NPCs.Rapture
             Color? alpha = GetAlpha(drawColor);
             spriteBatch.Draw(texture, NPC.Center - screenPos, NPC.frame, alpha ?? drawColor, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
 
+            // Draw beam during telegraph/fire/fade phases
+            if (NPC.localAI[3] >= 60f && NPC.localAI[3] < 140f)
+            {
+                DrawBeam(spriteBatch, screenPos);
+            }
+
             return false;
+        }
+
+        private Color GetBeamColor()
+        {
+            float cycle = (float)Math.Sin(Main.GameUpdateCount * 0.08f) * 0.5f + 0.5f;
+            float cycle2 = (float)Math.Sin(Main.GameUpdateCount * 0.05f + 1.5f) * 0.5f + 0.5f;
+            Color mid = Color.Lerp(BananaYellow, new Color(255, 255, 240), cycle);
+            return Color.Lerp(mid, BabyBlue, cycle2);
+        }
+
+        private void DrawBeam(SpriteBatch spriteBatch, Vector2 screenPos)
+        {
+            float timer = NPC.localAI[3];
+            float beamAngle = NPC.localAI[1];
+            float beamLength = NPC.localAI[2];
+            Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
+
+            // Phase fade multiplier
+            float phaseFade;
+            float flashMult = 1f;
+            bool isFire = false;
+
+            if (timer < 90f)
+            {
+                // Telegraph phase (60-89): beam spawns visible, brightens
+                float progress = (timer - 60f) / 30f;
+                phaseFade = 0.25f + progress * 0.25f;
+            }
+            else if (timer < 120f)
+            {
+                // Fire phase (90-119): full brightness with initial flash
+                isFire = true;
+                float fireTick = timer - 90f;
+                if (fireTick < 5f)
+                    flashMult = 1f + (1f - fireTick / 5f) * 0.8f;
+                phaseFade = 1f;
+            }
+            else
+            {
+                // Fade phase (120-139): collapse
+                float progress = 1f - (timer - 120f) / 20f;
+                phaseFade = progress * progress;
+            }
+
+            // Width breathing during fire phase
+            float breathe = 1f;
+            if (isFire)
+                breathe = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.06f;
+
+            // Switch to additive blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+            Texture2D pixel = TextureAssets.MagicPixel.Value;
+            Rectangle src = new Rectangle(0, 0, 1, 1);
+            Vector2 dir = beamAngle.ToRotationVector2();
+            Vector2 perp = new Vector2(-dir.Y, dir.X);
+            float rotation = beamAngle;
+            float maxWidth = 10f * breathe;
+            Vector2 pixelOrigin = new Vector2(0.5f, 0.5f);
+
+            Color baseColor = GetBeamColor();
+
+            // Traveling sheens for shimmer texture
+            float sheen1 = ((Main.GameUpdateCount * 0.05f) % 1.6f) - 0.3f;
+            float sheen2 = ((Main.GameUpdateCount * 0.03f + 0.7f) % 1.6f) - 0.3f;
+
+            // Blur passes perpendicular to beam (RadiantBeam style)
+            float[] blurOffsets = { -3f, -1.5f, 0f, 1.5f, 3f };
+            float[] blurWeights = { 0.15f, 0.35f, 1f, 0.35f, 0.15f };
+
+            float segStep = 3f;
+            int segments = (int)(beamLength / segStep);
+
+            for (int b = 0; b < blurOffsets.Length; b++)
+            {
+                Vector2 blurShift = perp * blurOffsets[b];
+                float w = blurWeights[b];
+
+                for (int i = 0; i <= segments; i++)
+                {
+                    float t = (float)i / segments;
+
+                    // Diamond profile — naturally rounded start and end
+                    float diamondWidth = (float)Math.Sin(t * MathHelper.Pi) * maxWidth;
+                    if (diamondWidth < 0.5f)
+                        continue;
+
+                    Vector2 pos = fireOrigin + dir * (t * beamLength) + blurShift - Main.screenPosition;
+
+                    // Sheen shimmer during fire phase
+                    float sheenDist1 = Math.Abs(t - sheen1);
+                    float sheenDist2 = Math.Abs(t - sheen2);
+                    float sheen = isFire ? (Math.Max(0f, 1f - sheenDist1 * 5f) + Math.Max(0f, 1f - sheenDist2 * 7f) * 0.6f) : 0f;
+
+                    Color segColor = baseColor * (phaseFade * w * flashMult);
+
+                    // Wide glare
+                    Color glareColor = segColor * (0.15f + sheen * 0.25f);
+                    Main.EntitySpriteDraw(pixel, pos, src, glareColor,
+                        rotation, pixelOrigin,
+                        new Vector2(segStep + 1f, diamondWidth * 2.2f),
+                        SpriteEffects.None, 0);
+
+                    // Outer glow
+                    Color glowColor = segColor * (0.3f + sheen * 0.3f);
+                    Main.EntitySpriteDraw(pixel, pos, src, glowColor,
+                        rotation, pixelOrigin,
+                        new Vector2(segStep + 1f, diamondWidth * 1.4f),
+                        SpriteEffects.None, 0);
+
+                    // Mid body
+                    Color midColor = segColor * (0.5f + sheen * 0.25f);
+                    Main.EntitySpriteDraw(pixel, pos, src, midColor,
+                        rotation, pixelOrigin,
+                        new Vector2(segStep + 1f, diamondWidth),
+                        SpriteEffects.None, 0);
+
+                    // Bright core — center blur pass only
+                    if (b == 2)
+                    {
+                        Color coreColor = Color.Lerp(segColor, Color.White * (phaseFade * flashMult), 0.6f) * (0.8f + sheen * 0.4f);
+                        Main.EntitySpriteDraw(pixel, pos, src, coreColor,
+                            rotation, pixelOrigin,
+                            new Vector2(segStep + 1f, diamondWidth * 0.35f),
+                            SpriteEffects.None, 0);
+                    }
+                }
+            }
+
+            // Impact glow at beam endpoint during fire/fade
+            if (isFire || timer >= 120f)
+            {
+                float glowSize = 20f * breathe;
+                if (timer >= 120f)
+                {
+                    float fadeProgress = 1f - (timer - 120f) / 20f;
+                    if (fadeProgress > 0.7f)
+                        glowSize *= 1.2f;
+                    else
+                        glowSize *= fadeProgress;
+                }
+                Color glowColor = Color.Lerp(baseColor, Color.White, 0.5f) * (phaseFade * flashMult);
+                Vector2 endPoint = fireOrigin + dir * beamLength - Main.screenPosition;
+                Main.EntitySpriteDraw(pixel, endPoint, src, glowColor,
+                    0f, pixelOrigin,
+                    new Vector2(glowSize, glowSize),
+                    SpriteEffects.None, 0);
+            }
+
+            // Lighting along beam during fire phase
+            if (isFire)
+            {
+                Vector3 lightColor = baseColor.ToVector3() * 0.8f;
+                float step = 32f;
+                int count = (int)(beamLength / step);
+                for (int i = 0; i <= count; i++)
+                {
+                    Vector2 lightPos = fireOrigin + dir * (i * step);
+                    Lighting.AddLight(lightPos, lightColor);
+                }
+            }
+
+            // Restore alpha blending
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
+                DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
         }
 
         public override void HitEffect(NPC.HitInfo hit)

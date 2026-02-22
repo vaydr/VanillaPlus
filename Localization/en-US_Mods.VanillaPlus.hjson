@@ -264,6 +264,7 @@ Projectiles: {
 	LunarEclipseOrb.DisplayName: Lunar Eclipse Orb
 	VenomRainDrop.DisplayName: Venom Rain
 	RadiantBeam.DisplayName: Radiant Beam
+	MinaretBeam.DisplayName: Radiant Beam
 	YellowSnowballProjectile.DisplayName: Yellow Snowball
 }
 
