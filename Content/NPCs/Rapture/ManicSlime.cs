@@ -38,9 +38,9 @@ namespace VanillaPlus.Content.NPCs.Rapture
             AIType = NPCID.IlluminantSlime;
             AnimationType = NPCID.IlluminantSlime;
 
-            NPC.damage = 80;
+            NPC.damage = 55;
             NPC.defense = 30;
-            NPC.lifeMax = 190;
+            NPC.lifeMax = 120;
             NPC.knockBackResist = 0.8f; // 20% resist = 0.8 multiplier
 
             NPC.value = Item.buyPrice(silver: 5);

@@ -193,26 +193,42 @@ namespace VanillaPlus.Content.NPCs.Rapture
             Color lightColor = Color.Lerp(BananaYellow, BabyBlue, glowCycle);
             Lighting.AddLight(NPC.Center, lightColor.ToVector3());
 
-            // Holy laser turret attack cycle (~3 seconds total)
-            // 0-59: Cooldown | 60-89: Telegraph | 90-119: Fire | 120-139: Fade | 140: Reset
-            NPC.localAI[3] += 1f;
-
-            if (NPC.localAI[3] == 60f && NPC.HasValidTarget)
+            // Holy laser turret attack cycle (scales with health: 4s at full → 2s at low)
+            // 0 to cooldown: Cooldown | +0 to +30: Telegraph | +30 to +60: Fire | +60 to +80: Fade | +80: Reset
+            if (NPC.localAI[3] == 0f)
             {
-                // Telegraph start: lock aim angle, beam length, and fire origin
-                Player target = Main.player[NPC.target];
-                NPC.localAI[1] = (target.Center - NPC.Center).ToRotation();
-                float[] samples = new float[3];
-                Vector2 aimDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
-                Collision.LaserScan(NPC.Center, aimDir, 0f, 560f, samples);
-                NPC.localAI[2] = (samples[0] + samples[1] + samples[2]) / 3f;
-                NPC.ai[3] = NPC.Center.X;
-                NPC.localAI[0] = NPC.Center.Y;
-                SoundEngine.PlaySound(SoundID.Item15, NPC.Center);
-                NPC.netUpdate = true;
+                float healthRatio = (float)NPC.life / NPC.lifeMax;
+                NPC.ai[2] = (int)MathHelper.Lerp(10f, 160f, healthRatio);
             }
 
-            if (NPC.localAI[3] == 90f && NPC.HasValidTarget)
+            NPC.localAI[3] += 1f;
+
+            if (NPC.localAI[3] == NPC.ai[2] && NPC.HasValidTarget)
+            {
+                Player target = Main.player[NPC.target];
+                Vector2 aimDir = (target.Center - NPC.Center).SafeNormalize(Vector2.UnitX);
+                Vector2 spawnOrigin = NPC.Center + aimDir * 16f;
+
+                // Only fire if there's a clear line of sight from spawn point to player
+                if (!Collision.CanHitLine(spawnOrigin, 0, 0, target.Center, 0, 0))
+                {
+                    NPC.localAI[3] = 0f;
+                }
+                else
+                {
+                    // Telegraph start: lock aim angle, beam length, and fire origin
+                    NPC.localAI[1] = (target.Center - NPC.Center).ToRotation();
+                    float[] samples = new float[3];
+                    Collision.LaserScan(NPC.Center, aimDir, 0f, 560f, samples);
+                    NPC.localAI[2] = (samples[0] + samples[1] + samples[2]) / 3f;
+                    NPC.ai[3] = spawnOrigin.X;
+                    NPC.localAI[0] = spawnOrigin.Y;
+                    SoundEngine.PlaySound(SoundID.Item15, NPC.Center);
+                    NPC.netUpdate = true;
+                }
+            }
+
+            if (NPC.localAI[3] == NPC.ai[2] + 30f && NPC.HasValidTarget)
             {
                 // Fire start: play laser sound and spawn invisible damage projectile at locked origin
                 Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
@@ -225,7 +241,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
                         fireOrigin,
                         Vector2.Zero,
                         ModContent.ProjectileType<MinaretBeam>(),
-                        NPC.damage / 2,
+                        NPC.damage / 4,
                         0f,
                         Main.myPlayer,
                         ai0: NPC.localAI[1],
@@ -236,7 +252,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             }
 
             // Spawn damaging explosion at beam endpoint when fire ends
-            if (NPC.localAI[3] == 120f && Main.netMode != NetmodeID.MultiplayerClient)
+            if (NPC.localAI[3] == NPC.ai[2] + 60f && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
                 Vector2 dir = NPC.localAI[1].ToRotationVector2();
@@ -254,14 +270,14 @@ namespace VanillaPlus.Content.NPCs.Rapture
             }
 
             // Impact sparks during fire/fade
-            if (NPC.localAI[3] >= 90f && NPC.localAI[3] < 140f && Main.netMode != NetmodeID.Server)
+            if (NPC.localAI[3] >= NPC.ai[2] + 30f && NPC.localAI[3] < NPC.ai[2] + 80f && Main.netMode != NetmodeID.Server)
             {
                 Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
                 Vector2 dir = NPC.localAI[1].ToRotationVector2();
                 Vector2 endPos = fireOrigin + dir * NPC.localAI[2];
                 float beamAngle = NPC.localAI[1];
 
-                if (NPC.localAI[3] < 120f)
+                if (NPC.localAI[3] < NPC.ai[2] + 60f)
                 {
                     // Fire phase: continuous perpendicular sparks
                     for (int i = 0; i < 2; i++)
@@ -273,10 +289,10 @@ namespace VanillaPlus.Content.NPCs.Rapture
                         d.scale = 1.4f;
                     }
                 }
-                else if (NPC.localAI[3] > 120f)
+                else if (NPC.localAI[3] > NPC.ai[2] + 60f)
                 {
                     // Fade phase: diminishing sparks
-                    float fadeProgress = 1f - (NPC.localAI[3] - 120f) / 20f;
+                    float fadeProgress = 1f - (NPC.localAI[3] - (NPC.ai[2] + 60f)) / 20f;
                     float perpAngle = beamAngle + (Main.rand.NextBool() ? MathHelper.PiOver2 : -MathHelper.PiOver2);
                     Vector2 dustVel = perpAngle.ToRotationVector2() * Main.rand.NextFloat(1f, 2.5f);
                     Dust d = Dust.NewDustDirect(endPos, 0, 0, DustID.GoldFlame, dustVel.X, dustVel.Y);
@@ -285,7 +301,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
                 }
             }
 
-            if (NPC.localAI[3] >= 140f)
+            if (NPC.localAI[3] >= NPC.ai[2] + 80f)
             {
                 NPC.localAI[3] = 0f;
             }
@@ -305,10 +321,11 @@ namespace VanillaPlus.Content.NPCs.Rapture
             // Charge-up glow: ramp 0→1 during telegraph (60-89), fade back over ~0.25s (15 ticks) after fire
             float chargeIntensity = 0f;
             float timer = NPC.localAI[3];
-            if (timer >= 60f && timer < 90f)
-                chargeIntensity = (timer - 60f) / 30f;
-            else if (timer >= 90f && timer < 105f)
-                chargeIntensity = 1f - (timer - 90f) / 15f;
+            float cd = NPC.ai[2];
+            if (timer >= cd && timer < cd + 30f)
+                chargeIntensity = (timer - cd) / 30f;
+            else if (timer >= cd + 30f && timer < cd + 45f)
+                chargeIntensity = 1f - (timer - (cd + 30f)) / 15f;
 
             float mult = MathHelper.Lerp(0.4f, 1f, chargeIntensity);
             Color tint = Color.Lerp(baseTint * mult, Color.White, chargeIntensity * 0.4f);
@@ -348,10 +365,11 @@ namespace VanillaPlus.Content.NPCs.Rapture
                     // Charge-up glow on chain segments (same as head)
                     float segCharge = 0f;
                     float segTimer = NPC.localAI[3];
-                    if (segTimer >= 60f && segTimer < 90f)
-                        segCharge = (segTimer - 60f) / 30f;
-                    else if (segTimer >= 90f && segTimer < 105f)
-                        segCharge = 1f - (segTimer - 90f) / 15f;
+                    float segCd = NPC.ai[2];
+                    if (segTimer >= segCd && segTimer < segCd + 30f)
+                        segCharge = (segTimer - segCd) / 30f;
+                    else if (segTimer >= segCd + 30f && segTimer < segCd + 45f)
+                        segCharge = 1f - (segTimer - (segCd + 30f)) / 15f;
 
                     float segMult = MathHelper.Lerp(0.4f, 1f, segCharge);
                     Color color = Color.Lerp(segTint * segMult, Color.White, segCharge * 0.4f);
@@ -370,7 +388,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             spriteBatch.Draw(texture, NPC.Center - screenPos, NPC.frame, alpha ?? drawColor, NPC.rotation, origin, NPC.scale, SpriteEffects.None, 0f);
 
             // Draw beam during telegraph/fire/fade phases
-            if (NPC.localAI[3] >= 60f && NPC.localAI[3] < 140f)
+            if (NPC.localAI[3] >= NPC.ai[2] && NPC.localAI[3] < NPC.ai[2] + 80f)
             {
                 DrawBeam(spriteBatch, screenPos);
             }
@@ -416,27 +434,28 @@ namespace VanillaPlus.Content.NPCs.Rapture
             bool isFade = false;
             float widthMult = 1f;
 
-            if (timer < 90f)
+            float cd = NPC.ai[2];
+            if (timer < cd + 30f)
             {
-                // Telegraph phase (60-89): beam materializes, grows
-                float progress = (timer - 60f) / 30f;
+                // Telegraph phase: beam materializes, grows
+                float progress = (timer - cd) / 30f;
                 phaseFade = 0.2f + progress * 0.3f;
                 widthMult = 0.4f + progress * 0.6f;
             }
-            else if (timer < 120f)
+            else if (timer < cd + 60f)
             {
-                // Fire phase (90-119): full brightness with initial flash
+                // Fire phase: full brightness with initial flash
                 isFire = true;
-                float fireTick = timer - 90f;
+                float fireTick = timer - (cd + 30f);
                 if (fireTick < 5f)
                     flashMult = 1f + (1f - fireTick / 5f) * 0.8f;
                 phaseFade = 1f;
             }
             else
             {
-                // Fade phase (120-139): collapse inward
+                // Fade phase: collapse inward
                 isFade = true;
-                float progress = 1f - (timer - 120f) / 20f;
+                float progress = 1f - (timer - (cd + 60f)) / 20f;
                 phaseFade = progress;
                 widthMult = progress * progress;
             }
@@ -464,9 +483,9 @@ namespace VanillaPlus.Content.NPCs.Rapture
             // Pulsing concentric circular glow at the fire source
             float orbPulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.12f;
             float orbBase;
-            if (timer < 90f)
-                orbBase = 6f + (timer - 60f) / 30f * 12f;
-            else if (timer < 120f)
+            if (timer < cd + 30f)
+                orbBase = 6f + (timer - cd) / 30f * 12f;
+            else if (timer < cd + 60f)
                 orbBase = 18f;
             else
                 orbBase = 18f * widthMult;

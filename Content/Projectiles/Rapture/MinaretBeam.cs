@@ -20,6 +20,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             Projectile.timeLeft = 30;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
+            CooldownSlot = ImmunityCooldownID.Bosses;
         }
 
         public override bool ShouldUpdatePosition() => false;
@@ -33,6 +34,13 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                 Projectile.Kill();
                 return;
             }
+        }
+
+        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        {
+            // 40 tick iframes
+            target.immuneTime = 40;
+            target.hurtCooldowns[ImmunityCooldownID.Bosses] = 40;
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)

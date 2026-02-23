@@ -29,6 +29,17 @@ Items: {
 			'''
 	}
 
+	LeptonShield: {
+		DisplayName: Lepton Shield
+		Tooltip:
+			'''
+			+500 defense
+			+100% damage, critical strike chance, melee speed, and movement speed
+			Regenerates 25 HP per second
+			Immunity to all debuffs
+			'''
+	}
+
 	LepTonic: {
 		DisplayName: Lep Tonic
 		Tooltip: Vayd's Favorite

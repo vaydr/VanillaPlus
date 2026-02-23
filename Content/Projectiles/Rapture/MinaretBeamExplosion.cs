@@ -20,6 +20,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             Projectile.timeLeft = 4;
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
+            CooldownSlot = ImmunityCooldownID.Bosses;
         }
 
         public override void AI()
@@ -52,6 +53,12 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
                 Lighting.AddLight(Projectile.Center, 1.2f, 1f, 0.5f);
             }
+        }
+
+        public override void OnHitPlayer(Player target, Player.HurtInfo info)
+        {
+            target.immuneTime = 40;
+            target.hurtCooldowns[ImmunityCooldownID.Bosses] = 40;
         }
 
         public override bool PreDraw(ref Color lightColor) => false;
