@@ -232,6 +232,11 @@ Items: {
 		DisplayName: Yellow Snowball
 		Tooltip: Inflicts Ichor on hit
 	}
+
+	Arondight: {
+		DisplayName: Arondight
+		Tooltip: ""
+	}
 }
 
 Buffs: {
@@ -278,6 +283,7 @@ Projectiles: {
 	MinaretBeam.DisplayName: Radiant Beam
 	YellowSnowballProjectile.DisplayName: Yellow Snowball
 	MinaretBeamExplosion.DisplayName: Minaret Beam Explosion
+	ArondightSlash.DisplayName: Arondight
 }
 
 Conditions: {
