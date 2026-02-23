@@ -8,7 +8,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
 {
     public class BlessedSword : ModNPC
     {
-        public override string Texture => $"Terraria/Images/NPC_{NPCID.EnchantedSword}";
+        // Uses custom sprite: Arondight with gold border
 
         public override void SetStaticDefaults()
         {
@@ -24,6 +24,7 @@ namespace VanillaPlus.Content.NPCs.Rapture
             AnimationType = NPCID.EnchantedSword;
 
             NPC.value = Item.buyPrice(silver: 5);
+            NPC.scale = 1.5f;
 
             Banner = NPC.type;
             SpawnModBiomes = new int[1] { ModContent.GetInstance<RaptureUndergroundBiome>().Type };

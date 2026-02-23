@@ -49,13 +49,13 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 			Projectile.scale = 1.3f + progress * 0.6f;
 
 			// Sky blue dust sweeping along the swing arc
-			float swingSpeed = (float)Math.PI * direction / Projectile.ai[1];
+			float arcSpeed = (float)Math.PI / Projectile.ai[1];
 			for (int d = 0; d < 2; d++)
 			{
 				float dist = 40f + Main.rand.NextFloat() * 50f;
 				Vector2 dustPos = Projectile.Center + Projectile.rotation.ToRotationVector2() * dist * Projectile.scale;
 				Vector2 tangent = (Projectile.rotation + direction * MathHelper.PiOver2).ToRotationVector2();
-				Vector2 dustVel = tangent * dist * swingSpeed * 0.4f;
+				Vector2 dustVel = tangent * dist * arcSpeed * 0.4f;
 				Dust dust = Dust.NewDustPerfect(dustPos, DustID.Electric, dustVel);
 				dust.scale = 0.4f + Main.rand.NextFloat() * 0.2f;
 				dust.fadeIn = 0.6f + Main.rand.NextFloat() * 0.2f;
@@ -102,6 +102,16 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
 		{
 			hit.HitDirection = Main.player[Projectile.owner].Center.X < target.Center.X ? 1 : -1;
+
+			// Blue flash of light on hit
+			for (int i = 0; i < 6; i++)
+			{
+				Vector2 vel = (i / 6f * MathHelper.TwoPi).ToRotationVector2() * Main.rand.NextFloat(1f, 2.5f);
+				Dust dust = Dust.NewDustPerfect(target.Center, DustID.Electric, vel);
+				dust.scale = Main.rand.NextFloat(1.2f, 1.8f);
+				dust.noGravity = true;
+			}
+			Lighting.AddLight(target.Center, 0.5f, 0.8f, 1f);
 		}
 
 		private void UpdateEnchantmentVisuals()
