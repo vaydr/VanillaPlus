@@ -237,6 +237,15 @@ Items: {
 		DisplayName: Arondight
 		Tooltip: ""
 	}
+
+	Hrunting: {
+		DisplayName: Hrunting
+		Tooltip:
+			'''
+			9 summon tag damage
+			Your summons will focus struck enemies
+			'''
+	}
 }
 
 Buffs: {
@@ -263,6 +272,16 @@ Buffs: {
 		DisplayName: Super Shine
 		Description: Emitting an intense light
 	}
+
+	HruntingTagDamage: {
+		DisplayName: Hrunting Tag Damage
+		Description: ""
+	}
+
+	HruntingBlessing: {
+		DisplayName: Hrunting's Blessing
+		Description: 25% increased melee speed
+	}
 }
 
 Projectiles: {
@@ -284,6 +303,7 @@ Projectiles: {
 	YellowSnowballProjectile.DisplayName: Yellow Snowball
 	MinaretBeamExplosion.DisplayName: Minaret Beam Explosion
 	ArondightSlash.DisplayName: Arondight
+	HruntingProjectile.DisplayName: Hrunting
 }
 
 Conditions: {
