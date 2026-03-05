@@ -27,6 +27,7 @@ namespace VanillaPlus.Content.Items.Tools
 			Item.value = Item.sellPrice(copper: 18);
 			Item.rare = ItemRarityID.White;
 			Item.UseSound = SoundID.Item1;
+			Item.useTurn = true;
 			Item.autoReuse = true;
 			Item.axe = 4; // Displayed as 20%
 			Item.tileBoost = -1;

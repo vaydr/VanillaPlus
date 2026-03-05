@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using VanillaPlus.Content.Projectiles;
 
 namespace VanillaPlus.Content.Items.Tools
 {
@@ -16,24 +17,28 @@ namespace VanillaPlus.Content.Items.Tools
 
 		public override void SetDefaults()
 		{
-			Item.damage = 4;
+			Item.damage = 3;
 			Item.DamageType = DamageClass.Melee;
 			Item.width = 20;
 			Item.height = 20;
 			Item.useTime = 13;
 			Item.useAnimation = 13;
-			Item.useStyle = ItemUseStyleID.Thrust;
+			Item.useStyle = ItemUseStyleID.Rapier;
+			Item.noUseGraphic = true;
+			Item.noMelee = true;
 			Item.knockBack = 3.5f;
 			Item.value = Item.sellPrice(copper: 14);
 			Item.rare = ItemRarityID.White;
 			Item.UseSound = SoundID.Item1;
+			Item.shoot = ModContent.ProjectileType<WoodenShortswordStab>();
+			Item.shootSpeed = 2.1f;
 			Item.ResearchUnlockCount = 1;
 		}
 
 		public override void AddRecipes()
 		{
 			CreateRecipe()
-				.AddRecipeGroup(RecipeGroupID.Wood, 7)
+				.AddRecipeGroup(RecipeGroupID.Wood, 5)
 				.AddTile(TileID.WorkBenches)
 				.Register();
 		}

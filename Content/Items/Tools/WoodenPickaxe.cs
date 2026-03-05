@@ -27,6 +27,7 @@ namespace VanillaPlus.Content.Items.Tools
 			Item.value = Item.sellPrice(copper: 20);
 			Item.rare = ItemRarityID.White;
 			Item.UseSound = SoundID.Item1;
+			Item.useTurn = true;
 			Item.autoReuse = true;
 			Item.pick = 15;
 			Item.tileBoost = -1;
@@ -36,7 +37,7 @@ namespace VanillaPlus.Content.Items.Tools
 		public override void AddRecipes()
 		{
 			CreateRecipe()
-				.AddRecipeGroup(RecipeGroupID.Wood, 8)
+				.AddRecipeGroup(RecipeGroupID.Wood, 12)
 				.AddTile(TileID.WorkBenches)
 				.Register();
 		}

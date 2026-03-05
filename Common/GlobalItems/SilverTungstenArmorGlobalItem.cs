@@ -15,6 +15,9 @@ namespace VanillaPlus.Common.GlobalItems
 			if (head.type == ItemID.TungstenHelmet && body.type == ItemID.TungstenChainmail && legs.type == ItemID.TungstenGreaves)
 				return "VanillaPlus:Tungsten";
 
+			if (head.type == ItemID.GoldHelmet && body.type == ItemID.GoldChainmail && legs.type == ItemID.GoldGreaves)
+				return "VanillaPlus:Gold";
+
 			return base.IsArmorSet(head, body, legs);
 		}
 
@@ -22,8 +25,15 @@ namespace VanillaPlus.Common.GlobalItems
 		{
 			if (set == "VanillaPlus:Silver" || set == "VanillaPlus:Tungsten")
 			{
-				player.setBonus = "15% reduced damage from evil biome enemies and bosses";
+				// Vanilla already grants +3 defense, just add the evil DR
+				player.setBonus = "+3 defense\n15% reduced damage from evil biome enemies and bosses";
 				player.GetModPlayer<ArmorBonusPlayer>().evilDamageReduction = true;
+			}
+			else if (set == "VanillaPlus:Gold")
+			{
+				// Vanilla gives +3, add +1 more to match Platinum's +4
+				player.setBonus = "+4 defense";
+				player.statDefense += 1;
 			}
 		}
 	}

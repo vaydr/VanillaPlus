@@ -235,17 +235,17 @@ Items: {
 
 	WoodenPickaxe: {
 		DisplayName: Wooden Pickaxe
-		Tooltip: ""
+		Tooltip: You have to earn it.
 	}
 
 	WoodenShortsword: {
 		DisplayName: Wooden Shortsword
-		Tooltip: ""
+		Tooltip: Barely even pointy.
 	}
 
 	WoodenAxe: {
 		DisplayName: Wooden Axe
-		Tooltip: ""
+		Tooltip: You have to earn it.
 	}
 
 	Arondight: {
@@ -319,6 +319,7 @@ Projectiles: {
 	MinaretBeamExplosion.DisplayName: Minaret Beam Explosion
 	ArondightSlash.DisplayName: Arondight
 	HruntingProjectile.DisplayName: Hrunting
+	WoodenShortswordStab.DisplayName: Wooden Shortsword Stab
 }
 
 Conditions: {

@@ -11,19 +11,18 @@ namespace VanillaPlus.Content.Players
 
 		private static readonly HashSet<int> EvilNPCs = new()
 		{
-			// Corruption enemies
+			// Corruption enemies - prehardmode
 			NPCID.EaterofSouls,
 			NPCID.BigEater,
 			NPCID.LittleEater,
 			NPCID.DevourerHead,
 			NPCID.DevourerBody,
 			NPCID.DevourerTail,
-			NPCID.CorruptBunny,
-			NPCID.CorruptGoldfish,
-			NPCID.CorruptPenguin,
 			NPCID.CorruptSlime,
 			NPCID.Slimeling,
 			NPCID.Slimer,
+
+			// Corruption enemies - hardmode
 			NPCID.SeekerHead,
 			NPCID.SeekerBody,
 			NPCID.SeekerTail,
@@ -32,28 +31,43 @@ namespace VanillaPlus.Content.Players
 			NPCID.CursedHammer,
 			NPCID.DarkMummy,
 			NPCID.DesertGhoulCorruption,
+			NPCID.BigMimicCorruption,
 
-			// Crimson enemies
+			// Corruption critters
+			NPCID.CorruptBunny,
+			NPCID.CorruptGoldfish,
+			NPCID.CorruptPenguin,
+
+			// Crimson enemies - prehardmode
 			NPCID.FaceMonster,
 			NPCID.Crimera,
 			NPCID.BloodCrawler,
 			NPCID.BloodCrawlerWall,
-			NPCID.CrimsonBunny,
-			NPCID.CrimsonGoldfish,
-			NPCID.CrimsonPenguin,
+			NPCID.BloodFeeder,
+
+			// Crimson enemies - hardmode
 			NPCID.Herpling,
 			NPCID.Crimslime,
 			NPCID.IchorSticker,
 			NPCID.FloatyGross,
 			NPCID.CrimsonAxe,
-			NPCID.BigMimicCorruption,
-			NPCID.BigMimicCrimson,
 			NPCID.DesertGhoulCrimson,
+			NPCID.BigMimicCrimson,
+			NPCID.BloodMummy,
+			NPCID.BloodJelly,
 
-			// Evil bosses
+			// Crimson critters
+			NPCID.CrimsonBunny,
+			NPCID.CrimsonGoldfish,
+			NPCID.CrimsonPenguin,
+
+			// Eater of Worlds (Corruption boss)
 			NPCID.EaterofWorldsHead,
 			NPCID.EaterofWorldsBody,
 			NPCID.EaterofWorldsTail,
+			NPCID.VileSpit,
+
+			// Brain of Cthulhu (Crimson boss)
 			NPCID.BrainofCthulhu,
 			NPCID.Creeper,
 		};
@@ -65,7 +79,7 @@ namespace VanillaPlus.Content.Players
 
 		public override void ModifyHitByNPC(NPC npc, ref Player.HurtModifiers modifiers)
 		{
-			if (evilDamageReduction && IsEvilOrBoss(npc))
+			if (evilDamageReduction && IsEvilNPC(npc))
 			{
 				modifiers.FinalDamage *= 0.85f;
 			}
@@ -84,7 +98,7 @@ namespace VanillaPlus.Content.Players
 			for (int i = 0; i < Main.maxNPCs; i++)
 			{
 				NPC npc = Main.npc[i];
-				if (npc.active && IsEvilOrBoss(npc))
+				if (npc.active && IsEvilNPC(npc))
 				{
 					modifiers.FinalDamage *= 0.85f;
 					return;
@@ -92,11 +106,8 @@ namespace VanillaPlus.Content.Players
 			}
 		}
 
-		private static bool IsEvilOrBoss(NPC npc)
+		private static bool IsEvilNPC(NPC npc)
 		{
-			if (npc.boss)
-				return true;
-
 			return EvilNPCs.Contains(npc.type);
 		}
 	}

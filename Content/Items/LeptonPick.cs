@@ -162,6 +162,7 @@ namespace VanillaPlus.Content.Items
 				.AddIngredient(ItemID.IronPickaxe)
 				.AddIngredient(ItemID.TinPickaxe)
 				.AddIngredient(ItemID.CopperPickaxe)
+				.AddIngredient(ModContent.ItemType<Tools.WoodenPickaxe>())
 				// Money
 				.AddIngredient(ItemID.PlatinumCoin, 67)
 				.AddTile(TileID.LunarCraftingStation)
