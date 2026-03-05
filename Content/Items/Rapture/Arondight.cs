@@ -11,12 +11,12 @@ namespace VanillaPlus.Content.Items.Rapture
 	{
 		public override void SetDefaults()
 		{
-			Item.damage = 70;
+			Item.damage = 76;
 			Item.DamageType = DamageClass.Melee;
 			Item.width = 40;
 			Item.height = 40;
-			Item.useTime = 23;
-			Item.useAnimation = 23;
+			Item.useTime = 25;
+			Item.useAnimation = 25;
 			Item.scale = 1.2f;
 			Item.noMelee = true;
 			Item.useStyle = ItemUseStyleID.Swing;

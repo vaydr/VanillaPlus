@@ -1,4 +1,8 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -22,6 +26,12 @@ namespace VanillaPlus.Content.NPCs.Rapture
             NPC.CloneDefaults(NPCID.EnchantedSword);
             AIType = NPCID.EnchantedSword;
             AnimationType = NPCID.EnchantedSword;
+
+            // CloneDefaults copies already-scaled stats, so reset to base Normal values
+            // to avoid double difficulty scaling
+            NPC.lifeMax = 200;
+            NPC.damage = 80;
+            NPC.defense = 20;
 
             NPC.value = Item.buyPrice(silver: 5);
             NPC.scale = 1.5f;
@@ -52,6 +62,42 @@ namespace VanillaPlus.Content.NPCs.Rapture
                 return 0f;
 
             return 0.25f;
+        }
+
+        private static Texture2D _glowTexture;
+
+        private static Texture2D GenerateGlowTexture(Texture2D baseTexture)
+        {
+            Color[] pixels = new Color[baseTexture.Width * baseTexture.Height];
+            baseTexture.GetData(pixels);
+
+            Color[] glowPixels = new Color[pixels.Length];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                // Semi-transparent pixels (0 < A < 255) are the glow outline
+                if (pixels[i].A > 0 && pixels[i].A < 255)
+                    glowPixels[i] = pixels[i];
+            }
+
+            Texture2D glowTexture = new Texture2D(Main.graphics.GraphicsDevice, baseTexture.Width, baseTexture.Height);
+            glowTexture.SetData(glowPixels);
+            return glowTexture;
+        }
+
+        public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+        {
+            _glowTexture ??= GenerateGlowTexture(TextureAssets.Npc[Type].Value);
+
+            Vector2 drawPos = NPC.Center - screenPos;
+            Rectangle frame = NPC.frame;
+            Vector2 origin = frame.Size() / 2f;
+            SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+
+            // Pulsing glow on the outline only
+            float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.3f + 0.5f;
+            Color glowColor = Color.White * pulse;
+            glowColor.A = 0;
+            spriteBatch.Draw(_glowTexture, drawPos, frame, glowColor, NPC.rotation, origin, NPC.scale, effects, 0f);
         }
 
         public override void HitEffect(NPC.HitInfo hit)

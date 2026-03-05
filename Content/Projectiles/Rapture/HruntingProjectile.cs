@@ -53,7 +53,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
 			for (int i = 0; i < points.Count - 1; i++)
 			{
-				if (Main.rand.NextBool(2))
+				if (Main.rand.NextBool(12))
 				{
 					float lerp = Main.rand.NextFloat();
 					Vector2 pos = Vector2.Lerp(points[i], points[i + 1], lerp);
@@ -62,7 +62,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 					Vector2 segmentDir = points[i + 1] - points[i];
 					float segmentProgress = (float)i / (points.Count - 1);
 					Vector2 tangent = segmentDir.SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2 * Projectile.spriteDirection);
-					Vector2 vel = tangent * segmentProgress * Main.rand.NextFloat(1f, 3f);
+					Vector2 vel = tangent * segmentProgress * Main.rand.NextFloat(1.5f, 4.5f);
 
 					Dust dust = Dust.NewDustPerfect(pos, DustID.Electric, vel);
 					dust.scale = 0.4f + Main.rand.NextFloat() * 0.3f * segmentProgress;
@@ -75,10 +75,10 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 			if (points.Count >= 2)
 			{
 				Vector2 tip = points[points.Count - 1];
-				if (Main.rand.NextBool(2))
+				if (Main.rand.NextBool(12))
 				{
 					Vector2 tipDir = (points[points.Count - 1] - points[points.Count - 2]).SafeNormalize(Vector2.Zero);
-					Vector2 tipVel = tipDir.RotatedByRandom(MathHelper.PiOver4) * Main.rand.NextFloat(1.5f, 3.5f);
+					Vector2 tipVel = tipDir.RotatedByRandom(MathHelper.PiOver4) * Main.rand.NextFloat(2.25f, 5.25f);
 					Dust dust = Dust.NewDustPerfect(tip, DustID.Electric, tipVel);
 					dust.scale = Main.rand.NextFloat(0.8f, 1.2f);
 					dust.noGravity = true;

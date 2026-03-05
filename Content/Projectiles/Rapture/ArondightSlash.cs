@@ -50,7 +50,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
 			// Sky blue dust sweeping along the swing arc
 			float arcSpeed = (float)Math.PI / Projectile.ai[1];
-			for (int d = 0; d < 2; d++)
+			for (int d = 0; d < 1; d++)
 			{
 				float dist = 40f + Main.rand.NextFloat() * 50f;
 				Vector2 dustPos = Projectile.Center + Projectile.rotation.ToRotationVector2() * dist * Projectile.scale;

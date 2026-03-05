@@ -233,6 +233,21 @@ Items: {
 		Tooltip: Inflicts Ichor on hit
 	}
 
+	WoodenPickaxe: {
+		DisplayName: Wooden Pickaxe
+		Tooltip: ""
+	}
+
+	WoodenShortsword: {
+		DisplayName: Wooden Shortsword
+		Tooltip: ""
+	}
+
+	WoodenAxe: {
+		DisplayName: Wooden Axe
+		Tooltip: ""
+	}
+
 	Arondight: {
 		DisplayName: Arondight
 		Tooltip: ""
