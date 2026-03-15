@@ -9,6 +9,7 @@ using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
+using VanillaPlus.Common;
 using VanillaPlus.Content.Biomes;
 using VanillaPlus.Content.Items.Rapture;
 using VanillaPlus.Content.Projectiles.Rapture;
@@ -270,35 +271,15 @@ namespace VanillaPlus.Content.NPCs.Rapture
             }
 
             // Impact sparks during fire/fade
-            if (NPC.localAI[3] >= NPC.ai[2] + 30f && NPC.localAI[3] < NPC.ai[2] + 80f && Main.netMode != NetmodeID.Server)
+            if (NPC.localAI[3] >= NPC.ai[2] + RaptureBeamDrawer.TelegraphDuration &&
+                NPC.localAI[3] < NPC.ai[2] + RaptureBeamDrawer.TotalDuration &&
+                Main.netMode != NetmodeID.Server)
             {
+                int elapsed = (int)(NPC.localAI[3] - NPC.ai[2]);
                 Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
-                Vector2 dir = NPC.localAI[1].ToRotationVector2();
-                Vector2 endPos = fireOrigin + dir * NPC.localAI[2];
-                float beamAngle = NPC.localAI[1];
-
-                if (NPC.localAI[3] < NPC.ai[2] + 60f)
-                {
-                    // Fire phase: continuous perpendicular sparks
-                    for (int i = 0; i < 2; i++)
-                    {
-                        float perpAngle = beamAngle + (Main.rand.NextBool() ? MathHelper.PiOver2 : -MathHelper.PiOver2);
-                        Vector2 dustVel = perpAngle.ToRotationVector2() * Main.rand.NextFloat(1.5f, 3.5f);
-                        Dust d = Dust.NewDustDirect(endPos, 0, 0, DustID.GoldFlame, dustVel.X, dustVel.Y);
-                        d.noGravity = true;
-                        d.scale = 1.4f;
-                    }
-                }
-                else if (NPC.localAI[3] > NPC.ai[2] + 60f)
-                {
-                    // Fade phase: diminishing sparks
-                    float fadeProgress = 1f - (NPC.localAI[3] - (NPC.ai[2] + 60f)) / 20f;
-                    float perpAngle = beamAngle + (Main.rand.NextBool() ? MathHelper.PiOver2 : -MathHelper.PiOver2);
-                    Vector2 dustVel = perpAngle.ToRotationVector2() * Main.rand.NextFloat(1f, 2.5f);
-                    Dust d = Dust.NewDustDirect(endPos, 0, 0, DustID.GoldFlame, dustVel.X, dustVel.Y);
-                    d.noGravity = true;
-                    d.scale = 1.2f * fadeProgress;
-                }
+                Vector2 endPos = fireOrigin + NPC.localAI[1].ToRotationVector2() * NPC.localAI[2];
+                var phase = RaptureBeamDrawer.GetPhase(elapsed);
+                RaptureBeamDrawer.SpawnImpactSparks(endPos, NPC.localAI[1], phase);
             }
 
             if (NPC.localAI[3] >= NPC.ai[2] + 80f)
@@ -404,213 +385,18 @@ namespace VanillaPlus.Content.NPCs.Rapture
             return Color.Lerp(mid, BabyBlue, cycle2);
         }
 
-        // Draws a circular glow by stacking rotated squares under additive blending.
-        // Multiple overlapping rotated squares approximate a circle with natural radial falloff.
-        private void DrawCircularGlow(Texture2D pixel, Rectangle src, Vector2 pos, float size, Color color)
-        {
-            Vector2 origin = new Vector2(0.5f, 0.5f);
-            int layers = 6;
-            Color layerColor = color * (2f / layers);
-            for (int r = 0; r < layers; r++)
-            {
-                float angle = r / (float)layers * MathHelper.PiOver2;
-                Main.EntitySpriteDraw(pixel, pos, src, layerColor,
-                    angle, origin, new Vector2(size, size),
-                    SpriteEffects.None, 0);
-            }
-        }
-
         private void DrawBeam(SpriteBatch spriteBatch, Vector2 screenPos)
         {
-            float timer = NPC.localAI[3];
-            float beamAngle = NPC.localAI[1];
-            float beamLength = NPC.localAI[2];
+            int elapsed = (int)(NPC.localAI[3] - NPC.ai[2]);
+            var phase = RaptureBeamDrawer.GetPhase(elapsed);
             Vector2 fireOrigin = new Vector2(NPC.ai[3], NPC.localAI[0]);
 
-            // Phase parameters
-            float phaseFade;
-            float flashMult = 1f;
-            bool isFire = false;
-            bool isFade = false;
-            float widthMult = 1f;
-
-            float cd = NPC.ai[2];
-            if (timer < cd + 30f)
-            {
-                // Telegraph phase: beam materializes, grows
-                float progress = (timer - cd) / 30f;
-                phaseFade = 0.2f + progress * 0.3f;
-                widthMult = 0.4f + progress * 0.6f;
-            }
-            else if (timer < cd + 60f)
-            {
-                // Fire phase: full brightness with initial flash
-                isFire = true;
-                float fireTick = timer - (cd + 30f);
-                if (fireTick < 5f)
-                    flashMult = 1f + (1f - fireTick / 5f) * 0.8f;
-                phaseFade = 1f;
-            }
-            else
-            {
-                // Fade phase: collapse inward
-                isFade = true;
-                float progress = 1f - (timer - (cd + 60f)) / 20f;
-                phaseFade = progress;
-                widthMult = progress * progress;
-            }
-
-            // Width breathing during fire
-            float breathe = 1f;
-            if (isFire)
-                breathe = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.3f) * 0.06f;
-
-            // Switch to additive blending
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Texture2D pixel = TextureAssets.MagicPixel.Value;
-            Rectangle src = new Rectangle(0, 0, 1, 1);
-            Vector2 dir = beamAngle.ToRotationVector2();
-            Vector2 perp = new Vector2(-dir.Y, dir.X);
-            float rotation = beamAngle;
-            float maxWidth = 8f * breathe * widthMult;
-            Vector2 pixelOrigin = new Vector2(0.5f, 0.5f);
-            Color baseColor = GetBeamColor();
+            RaptureBeamDrawer.DrawBeam(fireOrigin, NPC.localAI[1], NPC.localAI[2], 8f, phase, GetBeamColor);
 
-            // ═══ ORIGIN ORB ═══
-            // Pulsing concentric circular glow at the fire source
-            float orbPulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.2f) * 0.12f;
-            float orbBase;
-            if (timer < cd + 30f)
-                orbBase = 6f + (timer - cd) / 30f * 12f;
-            else if (timer < cd + 60f)
-                orbBase = 18f;
-            else
-                orbBase = 18f * widthMult;
-            float orbSize = orbBase * orbPulse;
-            Vector2 orbPos = fireOrigin - Main.screenPosition;
-
-            // Outer glow ring
-            DrawCircularGlow(pixel, src, orbPos, orbSize * 2.5f, baseColor * (phaseFade * flashMult * 0.15f));
-            // Mid glow ring
-            DrawCircularGlow(pixel, src, orbPos, orbSize * 1.5f, baseColor * (phaseFade * flashMult * 0.3f));
-            // Bright core
-            DrawCircularGlow(pixel, src, orbPos, orbSize * 0.7f,
-                Color.Lerp(baseColor, Color.White, 0.7f) * (phaseFade * flashMult * 0.6f));
-
-            // ═══ BEAM BODY ═══
-            // Traveling sheens at different speeds
-            float sheen1 = ((Main.GameUpdateCount * 0.06f) % 1.4f) - 0.2f;
-            float sheen2 = ((Main.GameUpdateCount * 0.035f + 0.7f) % 1.4f) - 0.2f;
-
-            // Gaussian blur passes perpendicular to beam
-            float[] blurOffsets = { -2.5f, -1f, 0f, 1f, 2.5f };
-            float[] blurWeights = { 0.12f, 0.3f, 1f, 0.3f, 0.12f };
-
-            float segStep = 3f;
-            int segments = Math.Max(1, (int)(beamLength / segStep));
-
-            for (int b = 0; b < blurOffsets.Length; b++)
-            {
-                Vector2 blurShift = perp * blurOffsets[b];
-                float w = blurWeights[b];
-
-                for (int i = 0; i <= segments; i++)
-                {
-                    float t = (float)i / segments;
-
-                    // Forward taper — wide at origin, narrows toward end
-                    float taper = (float)Math.Pow(1f - t, 0.6f);
-
-                    // High-freq ripple + low-freq undulation for organic turbulence
-                    float noise = 1f
-                        + (float)Math.Sin(t * 25f + Main.GameUpdateCount * 0.15f) * 0.08f
-                        + (float)Math.Sin(t * 10f + Main.GameUpdateCount * 0.06f) * 0.05f;
-
-                    float segWidth = maxWidth * taper * noise;
-                    if (segWidth < 0.3f)
-                        continue;
-
-                    Vector2 pos = fireOrigin + dir * (t * beamLength) + blurShift - Main.screenPosition;
-
-                    // Color shifts along beam length
-                    Color segBaseColor = GetBeamColor(t * 2f);
-
-                    // Sheen shimmer during fire phase
-                    float sheenDist1 = Math.Abs(t - sheen1);
-                    float sheenDist2 = Math.Abs(t - sheen2);
-                    float sheen = isFire
-                        ? (Math.Max(0f, 1f - sheenDist1 * 5f) + Math.Max(0f, 1f - sheenDist2 * 7f) * 0.6f)
-                        : 0f;
-
-                    Color segColor = segBaseColor * (phaseFade * w * flashMult);
-
-                    // Wide glare
-                    Main.EntitySpriteDraw(pixel, pos, src, segColor * (0.12f + sheen * 0.2f),
-                        rotation, pixelOrigin,
-                        new Vector2(segStep + 1f, segWidth * 2.5f),
-                        SpriteEffects.None, 0);
-
-                    // Outer glow
-                    Main.EntitySpriteDraw(pixel, pos, src, segColor * (0.25f + sheen * 0.25f),
-                        rotation, pixelOrigin,
-                        new Vector2(segStep + 1f, segWidth * 1.5f),
-                        SpriteEffects.None, 0);
-
-                    // Mid body
-                    Main.EntitySpriteDraw(pixel, pos, src, segColor * (0.45f + sheen * 0.2f),
-                        rotation, pixelOrigin,
-                        new Vector2(segStep + 1f, segWidth),
-                        SpriteEffects.None, 0);
-
-                    // Bright core — center blur pass only, white-hot
-                    if (b == 2)
-                    {
-                        Color coreColor = Color.Lerp(segColor, Color.White * (phaseFade * flashMult), 0.65f)
-                            * (0.7f + sheen * 0.4f);
-                        Main.EntitySpriteDraw(pixel, pos, src, coreColor,
-                            rotation, pixelOrigin,
-                            new Vector2(segStep + 1f, segWidth * 0.3f),
-                            SpriteEffects.None, 0);
-                    }
-                }
-            }
-
-            // ═══ IMPACT GLOW ═══
-            // Circular glow at beam endpoint
-            if (isFire || isFade)
-            {
-                float impactPulse = 1f + (float)Math.Sin(Main.GameUpdateCount * 0.25f) * 0.15f;
-                float impactSize = 14f * breathe * impactPulse;
-                if (isFade)
-                {
-                    float fadeProgress = 1f - (timer - 120f) / 20f;
-                    impactSize *= (fadeProgress > 0.8f) ? 1.4f : fadeProgress;
-                }
-
-                Vector2 endPoint = fireOrigin + dir * beamLength - Main.screenPosition;
-                DrawCircularGlow(pixel, src, endPoint, impactSize * 2.2f, baseColor * (phaseFade * flashMult * 0.12f));
-                DrawCircularGlow(pixel, src, endPoint, impactSize * 1.3f, baseColor * (phaseFade * flashMult * 0.25f));
-                DrawCircularGlow(pixel, src, endPoint, impactSize * 0.6f,
-                    Color.Lerp(baseColor, Color.White, 0.6f) * (phaseFade * flashMult * 0.5f));
-            }
-
-            // ═══ LIGHTING ═══
-            if (isFire)
-            {
-                Vector3 lightColor = baseColor.ToVector3() * 0.8f;
-                float step = 32f;
-                int count = (int)(beamLength / step);
-                for (int i = 0; i <= count; i++)
-                {
-                    Vector2 lightPos = fireOrigin + dir * (i * step);
-                    Lighting.AddLight(lightPos, lightColor);
-                }
-            }
-
-            // Restore alpha blending
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp,
                 DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);

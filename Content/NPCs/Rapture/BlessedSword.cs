@@ -84,20 +84,26 @@ namespace VanillaPlus.Content.NPCs.Rapture
             return glowTexture;
         }
 
-        public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+        public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             _glowTexture ??= GenerateGlowTexture(TextureAssets.Npc[Type].Value);
 
-            Vector2 drawPos = NPC.Center - screenPos;
+            Texture2D texture = TextureAssets.Npc[Type].Value;
             Rectangle frame = NPC.frame;
             Vector2 origin = frame.Size() / 2f;
+            Vector2 drawPos = NPC.Center - screenPos + new Vector2(0, NPC.gfxOffY);
             SpriteEffects effects = NPC.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
 
-            // Pulsing glow on the outline only
+            // Draw NPC sprite
+            spriteBatch.Draw(texture, drawPos, frame, NPC.GetAlpha(drawColor), NPC.rotation, origin, NPC.scale, effects, 0f);
+
+            // Draw glow overlay at the exact same position
             float pulse = (float)Math.Sin(Main.GameUpdateCount * 0.05f) * 0.3f + 0.5f;
             Color glowColor = Color.White * pulse;
             glowColor.A = 0;
             spriteBatch.Draw(_glowTexture, drawPos, frame, glowColor, NPC.rotation, origin, NPC.scale, effects, 0f);
+
+            return false;
         }
 
         public override void HitEffect(NPC.HitInfo hit)
