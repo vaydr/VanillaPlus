@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.GameContent;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -28,6 +29,42 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             }
         }
         private const float MaxWidth = 14f;
+
+        // Phase timing
+        private const int TotalLife = 80;
+        private const int FadeInDuration = 25;
+        private const int FadeOutDuration = 15;
+
+        private float GetPhaseFade()
+        {
+            int t = Projectile.timeLeft;
+            int fireTick = TotalLife - FadeInDuration;
+            if (t > fireTick)
+                return (float)(TotalLife - t) / FadeInDuration;
+            if (t > FadeOutDuration)
+            {
+                int ticksSinceFire = fireTick - t;
+                if (ticksSinceFire < 5)
+                    return 1f + (1f - ticksSinceFire / 5f) * 0.5f;
+                return 1f;
+            }
+            return (float)t / FadeOutDuration;
+        }
+
+        private float GetWidthMult()
+        {
+            int t = Projectile.timeLeft;
+            int fireTick = TotalLife - FadeInDuration;
+            if (t > fireTick)
+            {
+                float progress = (float)(TotalLife - t) / FadeInDuration;
+                return 0.3f + progress * 0.7f;
+            }
+            if (t > FadeOutDuration)
+                return 1f;
+            float fadeProgress = (float)t / FadeOutDuration;
+            return fadeProgress * fadeProgress;
+        }
 
         public override string Texture => $"Terraria/Images/Projectile_{ProjectileID.RainbowCrystalExplosion}";
 
@@ -59,7 +96,13 @@ namespace VanillaPlus.Content.Projectiles.Rapture
 
         public override void AI()
         {
-            float fade = Projectile.timeLeft / 80f;
+            // Play fire sound when fade-in completes (burst moment)
+            if (Projectile.timeLeft == TotalLife - FadeInDuration)
+            {
+                SoundEngine.PlaySound(SoundID.Item67, Projectile.Center);
+            }
+
+            float fade = GetPhaseFade();
             Vector2 dir = BeamAngle.ToRotationVector2();
             Color c = GetBeamColor(0f);
 
@@ -67,6 +110,14 @@ namespace VanillaPlus.Content.Projectiles.Rapture
             {
                 Lighting.AddLight(Projectile.Center + dir * d, c.ToVector3() * 0.5f * fade);
             }
+        }
+
+        public override bool? CanHitNPC(NPC target)
+        {
+            // Only deal damage after the fade-in burst
+            if (Projectile.timeLeft > TotalLife - FadeInDuration)
+                return false;
+            return null;
         }
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
@@ -100,7 +151,8 @@ namespace VanillaPlus.Content.Projectiles.Rapture
         {
             Texture2D pixel = TextureAssets.MagicPixel.Value;
             Rectangle src = new Rectangle(0, 0, 1, 1);
-            float fade = Projectile.timeLeft / 80f;
+            float fade = GetPhaseFade();
+            float widthMult = GetWidthMult();
 
             Vector2 dir = BeamAngle.ToRotationVector2();
             Vector2 perp = new Vector2(-dir.Y, dir.X);
@@ -127,7 +179,7 @@ namespace VanillaPlus.Content.Projectiles.Rapture
                     float t = (float)i / segments;
 
                     // Diamond profile
-                    float diamondWidth = (float)Math.Sin(t * MathHelper.Pi) * MaxWidth;
+                    float diamondWidth = (float)Math.Sin(t * MathHelper.Pi) * MaxWidth * widthMult;
                     if (diamondWidth < 0.5f)
                         continue;
 

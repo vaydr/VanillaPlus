@@ -22,7 +22,7 @@ namespace VanillaPlus.Content.Items.Rapture
             Item.knockBack = 10f;
             Item.value = Item.sellPrice(gold: 4, silver: 20);
             Item.rare = ItemRarityID.LightRed;
-            Item.UseSound = SoundID.Item117;
+            Item.UseSound = SoundID.Item15;
             Item.noMelee = true;
             Item.shoot = ModContent.ProjectileType<RadiantBeam>();
             Item.shootSpeed = 1f;
